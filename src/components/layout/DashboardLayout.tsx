@@ -7,7 +7,10 @@ import {
   Activity, 
   User, 
   Star, 
-  LogOut 
+  LogOut,
+  HelpCircle,
+  Bell,
+  Settings
 } from "lucide-react";
 import { 
   SidebarProvider, 
@@ -35,11 +38,13 @@ const DashboardLayout = ({
 }: DashboardLayoutProps) => {
   const menuItems = [
     { id: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
-    { id: "links", icon: Link, label: "Meus Links" },
-    { id: "design", icon: Palette, label: "Design da Página" },
+    { id: "minisite", icon: Link, label: "Meu Mini-site" },
     { id: "stats", icon: Activity, label: "Estatísticas" },
     { id: "profile", icon: User, label: "Conta/Perfil" },
     { id: "plans", icon: Star, label: "Plano / Assinatura" },
+    { id: "help", icon: HelpCircle, label: "FAQ / Central de Ajuda" },
+    { id: "notifications", icon: Bell, label: "Notificações" },
+    { id: "settings", icon: Settings, label: "Configurações Avançadas" },
   ];
 
   return (
