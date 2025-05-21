@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,6 +62,10 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				nova: {
+					purple: '#6A0DAD',
+					'light-purple': '#C9A0FF',
 				}
 			},
 			borderRadius: {
@@ -89,7 +94,12 @@ export default {
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
 				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+			},
+			fontFamily: {
+				'montserrat': ['Montserrat', 'sans-serif'],
+				'bebas-neue': ['"Bebas Neue"', 'sans-serif'],
+				'helvetica-neue': ['-apple-system', 'BlinkMacSystemFont', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
