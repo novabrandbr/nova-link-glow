@@ -230,14 +230,14 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                       <div className="space-y-1">
                         <Label htmlFor={`label-${link.id}`}>Rótulo (Netflix)</Label>
                         <Select 
-                          value={link.label || ''} 
-                          onValueChange={(value) => updateLink(link.id, 'label', value)}
+                          value={link.label || 'no-label'} 
+                          onValueChange={(value) => updateLink(link.id, 'label', value === 'no-label' ? '' : value)}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione um rótulo" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Sem rótulo</SelectItem>
+                            <SelectItem value="no-label">Sem rótulo</SelectItem>
                             <SelectItem value="Novidade">Novidade</SelectItem>
                             <SelectItem value="TOP 10">TOP 10</SelectItem>
                             <SelectItem value="Nova temporada">Nova temporada</SelectItem>
