@@ -18,22 +18,68 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
       case "netflix":
         return (
           <div className="w-full mt-6 grid grid-cols-2 gap-3">
-            {activeLinks.map((link) => (
-              <a 
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-3 rounded-md flex items-center justify-center transition-all transform hover:scale-105"
-                style={{ 
-                  backgroundColor: link.color,
-                  color: "#FFFFFF",
-                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)"
-                }}
-              >
-                {link.title}
-              </a>
-            ))}
+            {activeLinks.map((link) => {
+              // Determine aspect ratio class based on settings
+              let aspectRatioClass = "aspect-video"; // Default landscape
+              if (pageStyle.cardSettings?.aspectRatio === 'portrait') {
+                aspectRatioClass = "aspect-[2/3]";
+              } else if (pageStyle.cardSettings?.aspectRatio === 'square') {
+                aspectRatioClass = "aspect-square";
+              }
+              
+              return (
+                <a 
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`block rounded-md overflow-hidden ${aspectRatioClass} transition-all transform hover:scale-105`}
+                >
+                  <div className="relative w-full h-full">
+                    {/* Link media (image or video) */}
+                    {link.mediaType === 'image' && link.mediaUrl ? (
+                      <img 
+                        src={link.mediaUrl} 
+                        alt={link.title}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : link.mediaType === 'video' && link.mediaUrl ? (
+                      <video
+                        src={link.mediaUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    ) : (
+                      <div 
+                        className="w-full h-full flex items-center justify-center"
+                        style={{ backgroundColor: link.color || pageStyle.buttonColor || "#6A0DAD" }}
+                      />
+                    )}
+                    
+                    {/* Overlay gradient */}
+                    {pageStyle.cardSettings?.showOverlay !== false && (
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+                    )}
+                    
+                    {/* Title */}
+                    <div className="absolute bottom-0 left-0 right-0 p-2">
+                      <div className="text-white font-bold text-sm leading-tight">{link.title}</div>
+                    </div>
+                    
+                    {/* Labels (TOP 10, Novidade, etc) */}
+                    {pageStyle.cardSettings?.showLabels !== false && link.label && (
+                      <div className="absolute top-1 right-1">
+                        <div className="px-2 py-0.5 bg-red-600 rounded text-white text-xs font-medium">
+                          {link.label}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </a>
+              );
+            })}
           </div>
         );
       case "magazine":
@@ -47,11 +93,12 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                 rel="noopener noreferrer"
                 className="p-4 block border-l-4 transition-all hover:translate-x-1"
                 style={{ 
-                  borderLeftColor: link.color,
+                  borderLeftColor: link.color || pageStyle.buttonColor || "#6A0DAD",
                   backgroundColor: "rgba(255, 255, 255, 0.8)",
                 }}
               >
-                <h3 className="font-bold" style={{ color: link.color }}>{link.title}</h3>
+                <h3 className="font-bold" style={{ color: link.color || pageStyle.buttonColor || "#6A0DAD" }}>{link.title}</h3>
+                {link.description && <p className="text-sm text-gray-600">{link.description}</p>}
               </a>
             ))}
           </div>
@@ -67,13 +114,26 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                 rel="noopener noreferrer"
                 className="block p-2 bg-white rotate-1 shadow-lg transition-all hover:rotate-0"
               >
-                <div 
-                  className="p-3 flex items-center justify-center"
-                  style={{ backgroundColor: link.color, color: "#FFFFFF" }}
-                >
-                  {link.title}
+                <div className="relative">
+                  {link.mediaType === 'image' && link.mediaUrl ? (
+                    <img 
+                      src={link.mediaUrl} 
+                      alt={link.title}
+                      className="w-full h-40 object-cover"
+                    />
+                  ) : (
+                    <div 
+                      className="w-full h-40"
+                      style={{ backgroundColor: link.color || pageStyle.buttonColor || "#6A0DAD" }}
+                    />
+                  )}
+                  <div 
+                    className="p-3 flex items-center justify-center"
+                    style={{ backgroundColor: "white", color: "black" }}
+                  >
+                    {link.title}
+                  </div>
                 </div>
-                <div className="h-2 bg-white"></div>
               </a>
             ))}
           </div>
@@ -90,7 +150,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                 rel="noopener noreferrer"
                 className="p-3 rounded-md flex items-center justify-center transition-all transform hover:scale-105"
                 style={{ 
-                  backgroundColor: link.color,
+                  backgroundColor: link.color || pageStyle.buttonColor || "#6A0DAD",
                   color: "#FFFFFF",
                   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)"
                 }}

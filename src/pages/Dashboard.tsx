@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import LinksPanel from "@/components/panels/LinksPanel";
@@ -23,6 +22,10 @@ export type LinkType = {
   icon?: string;
   active: boolean;
   color: string;
+  mediaType?: 'none' | 'image' | 'video';
+  mediaUrl?: string;
+  label?: string;
+  description?: string;
 };
 
 export type UserProfile = {
@@ -66,6 +69,12 @@ export type AudioSettings = {
 
 export type PageStyle = {
   type: "netflix" | "magazine" | "polaroid" | "traditional";
+  buttonColor?: string;
+  cardSettings?: {
+    showLabels?: boolean;
+    showOverlay?: boolean;
+    aspectRatio?: 'portrait' | 'square' | 'landscape';
+  };
 };
 
 const Dashboard = () => {
