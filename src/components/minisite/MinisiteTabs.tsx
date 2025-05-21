@@ -15,7 +15,7 @@ const MinisiteTabs: React.FC<MinisiteTabsProps> = ({ activeTab, setActiveTab }) 
         <TabsList className="flex justify-start px-6 h-12 bg-transparent">
           <TabsTrigger value="profile" className="flex items-center gap-2 h-full data-[state=active]:border-b-2 data-[state=active]:border-purple-700 data-[state=active]:rounded-none">
             <User className="w-4 h-4" />
-            <span>Profile</span>
+            <span>Perfil</span>
           </TabsTrigger>
           <TabsTrigger value="links" className="flex items-center gap-2 h-full data-[state=active]:border-b-2 data-[state=active]:border-purple-700 data-[state=active]:rounded-none">
             <Link className="w-4 h-4" />
@@ -23,7 +23,7 @@ const MinisiteTabs: React.FC<MinisiteTabsProps> = ({ activeTab, setActiveTab }) 
           </TabsTrigger>
           <TabsTrigger value="styles" className="flex items-center gap-2 h-full data-[state=active]:border-b-2 data-[state=active]:border-purple-700 data-[state=active]:rounded-none">
             <Palette className="w-4 h-4" />
-            <span>Page Styles</span>
+            <span>Estilos da Página</span>
           </TabsTrigger>
           <TabsTrigger value="audio" className="flex items-center gap-2 h-full data-[state=active]:border-b-2 data-[state=active]:border-purple-700 data-[state=active]:rounded-none">
             <Music className="w-4 h-4" />
