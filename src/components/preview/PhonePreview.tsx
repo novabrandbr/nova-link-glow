@@ -1,6 +1,17 @@
 
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { LinkType, UserProfile, AudioSettings, PageStyle } from "@/pages/Dashboard";
+import { 
+  Instagram, 
+  Facebook, 
+  Twitter, 
+  Youtube, 
+  TikTok, 
+  Linkedin, 
+  Github, 
+  Music, 
+  MessageSquare 
+} from "lucide-react";
 
 type PhonePreviewProps = {
   profile: UserProfile;
@@ -11,7 +22,46 @@ type PhonePreviewProps = {
 
 const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreviewProps) => {
   const activeLinks = links.filter(link => link.active);
+  const videoRef = useRef<HTMLVideoElement>(null);
   
+  // Handle background video volume
+  useEffect(() => {
+    if (profile.backgroundType === 'video' && videoRef.current) {
+      if (profile.backgroundVideoMuted) {
+        videoRef.current.muted = true;
+      } else {
+        videoRef.current.muted = false;
+        videoRef.current.volume = profile.backgroundVideoVolume || 0.5;
+      }
+    }
+  }, [profile.backgroundVideoMuted, profile.backgroundVideoVolume, profile.backgroundType]);
+  
+  // Function to get social icon component by platform
+  const getSocialIcon = (platform: string) => {
+    switch (platform) {
+      case 'instagram':
+        return <Instagram className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'facebook':
+        return <Facebook className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'twitter':
+        return <Twitter className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'youtube':
+        return <Youtube className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'tiktok':
+        return <TikTok className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'linkedin':
+        return <Linkedin className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'github':
+        return <Github className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'spotify':
+        return <Music className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      case 'whatsapp':
+        return <MessageSquare className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+      default:
+        return null;
+    }
+  };
+
   // Function to render links based on the selected page style
   const renderLinks = () => {
     switch (pageStyle.type) {
@@ -97,8 +147,34 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                   backgroundColor: "rgba(255, 255, 255, 0.8)",
                 }}
               >
-                <h3 className="font-bold" style={{ color: link.color || pageStyle.buttonColor || "#6A0DAD" }}>{link.title}</h3>
-                {link.description && <p className="text-sm text-gray-600">{link.description}</p>}
+                <div className="flex items-center">
+                  {/* Show media if available */}
+                  {link.mediaType === 'image' && link.mediaUrl && (
+                    <div className="w-16 h-16 mr-3 rounded overflow-hidden flex-shrink-0">
+                      <img 
+                        src={link.mediaUrl} 
+                        alt={link.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  {link.mediaType === 'video' && link.mediaUrl && (
+                    <div className="w-16 h-16 mr-3 rounded overflow-hidden flex-shrink-0">
+                      <video
+                        src={link.mediaUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    </div>
+                  )}
+                  
+                  <div className="flex-1">
+                    <h3 className="font-bold" style={{ color: link.color || pageStyle.buttonColor || "#6A0DAD" }}>{link.title}</h3>
+                    {link.description && <p className="text-sm text-gray-600">{link.description}</p>}
+                  </div>
+                </div>
               </a>
             ))}
           </div>
@@ -115,11 +191,20 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                 className="block p-2 bg-white rotate-1 shadow-lg transition-all hover:rotate-0"
               >
                 <div className="relative">
+                  {/* Link media (image or video) */}
                   {link.mediaType === 'image' && link.mediaUrl ? (
                     <img 
                       src={link.mediaUrl} 
                       alt={link.title}
                       className="w-full h-40 object-cover"
+                    />
+                  ) : link.mediaType === 'video' && link.mediaUrl ? (
+                    <video
+                      src={link.mediaUrl}
+                      className="w-full h-40 object-cover"
+                      muted
+                      loop
+                      playsInline
                     />
                   ) : (
                     <div 
@@ -138,6 +223,273 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
             ))}
           </div>
         );
+      case "arcade":
+        return (
+          <div className="w-full mt-6 space-y-3 font-['Press_Start_2P',system-ui]">
+            {activeLinks.map((link, index) => (
+              <a 
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 block border-2 border-white rounded-md flex items-center justify-between transition-all transform hover:scale-105 relative overflow-hidden"
+                style={{ 
+                  backgroundColor: link.color || pageStyle.buttonColor || "#FF0000",
+                  color: "#FFFFFF",
+                  boxShadow: "0 2px 10px rgba(0, 0, 0, 0.3)"
+                }}
+              >
+                {/* Show media if available */}
+                {link.mediaType !== 'none' && link.mediaUrl && (
+                  <div className="absolute inset-0 opacity-20">
+                    {link.mediaType === 'image' ? (
+                      <img 
+                        src={link.mediaUrl} 
+                        alt="" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={link.mediaUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    )}
+                  </div>
+                )}
+                
+                {pageStyle.cardSettings?.showLabels && (
+                  <div className="w-8 h-8 rounded-full bg-black text-white flex items-center justify-center border-2 border-white text-xs font-bold mr-2">
+                    {index + 1}
+                  </div>
+                )}
+                
+                <span className="flex-1 text-center text-sm font-pixelated">
+                  {link.title.toUpperCase()}
+                </span>
+                
+                {pageStyle.cardSettings?.showLabels && (
+                  <div className="w-8 h-8 flex items-center justify-center">
+                    <span className="animate-pulse">→</span>
+                  </div>
+                )}
+              </a>
+            ))}
+          </div>
+        );
+      case "recipe":
+        return (
+          <div className="w-full mt-6 space-y-4 font-['Comic_Sans_MS',cursive]">
+            <div className="p-3 border-b-2 border-dashed border-amber-800 text-center">
+              <h3 className="text-amber-900 font-bold">Receita para o Sucesso Digital</h3>
+              <p className="text-xs text-amber-700">Siga esses passos simples</p>
+            </div>
+            {activeLinks.map((link, index) => (
+              <a 
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 block bg-amber-50 border border-amber-200 rounded-lg flex items-center transition-all hover:bg-amber-100"
+              >
+                {link.mediaType !== 'none' && link.mediaUrl && (
+                  <div className="w-12 h-12 rounded-full overflow-hidden mr-3 flex-shrink-0">
+                    {link.mediaType === 'image' ? (
+                      <img 
+                        src={link.mediaUrl} 
+                        alt="" 
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <video
+                        src={link.mediaUrl}
+                        className="w-full h-full object-cover"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    )}
+                  </div>
+                )}
+                
+                <div className="flex-1">
+                  <div className="flex items-center">
+                    <span className="w-6 h-6 bg-amber-200 rounded-full flex items-center justify-center text-amber-800 font-bold text-xs mr-2">
+                      {index + 1}
+                    </span>
+                    <span className="font-medium text-amber-900">{link.title}</span>
+                  </div>
+                  <div className="text-xs text-amber-600 mt-1">Uma colher de chá</div>
+                </div>
+              </a>
+            ))}
+            <div className="text-center text-xs text-amber-600 italic mt-2">
+              Misture bem e sirva com criatividade!
+            </div>
+          </div>
+        );
+      case "reality":
+        return (
+          <div className="w-full mt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <div className="w-3 h-3 rounded-full bg-red-500 animate-pulse mr-1"></div>
+                <span className="text-xs font-bold">AO VIVO</span>
+              </div>
+              <span className="text-xs text-gray-500">Dia 32 - Votação</span>
+            </div>
+            {activeLinks.map((link, index) => (
+              <a 
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-3 block bg-pink-50 border border-pink-200 rounded-lg transition-all hover:bg-pink-100"
+              >
+                <div className="flex items-center">
+                  {link.mediaType !== 'none' && link.mediaUrl && (
+                    <div className="w-16 h-16 rounded-full overflow-hidden mr-3 border-2 border-pink-300 flex-shrink-0">
+                      {link.mediaType === 'image' ? (
+                        <img 
+                          src={link.mediaUrl} 
+                          alt="" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <video
+                          src={link.mediaUrl}
+                          className="w-full h-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                        />
+                      )}
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <div className="font-bold text-pink-600">{link.title}</div>
+                    <div className="flex items-center justify-between mt-1">
+                      <div className="text-xs text-gray-500">#{index + 1} mais votado</div>
+                      <div className="text-xs font-bold text-pink-500">
+                        {Math.floor(Math.random() * 80) + 20}% de votos
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        );
+      case "vhs":
+        return (
+          <div className="w-full mt-6 space-y-4 relative">
+            {/* VHS static effect overlay */}
+            {pageStyle.cardSettings?.showOverlay && (
+              <div className="absolute inset-0 pointer-events-none bg-noise opacity-10"></div>
+            )}
+            <div className="p-2 bg-black text-white flex items-center justify-between text-xs">
+              <span>PLAY</span>
+              <span className="animate-pulse">REC</span>
+            </div>
+            {activeLinks.map((link) => (
+              <a 
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block relative transition-all hover:brightness-125"
+                style={{filter: "brightness(1.1) contrast(1.1)"}}
+              >
+                <div className="relative">
+                  {/* Link media (image or video) */}
+                  {link.mediaType !== 'none' && link.mediaUrl ? (
+                    <div className="relative">
+                      {link.mediaType === 'image' ? (
+                        <img 
+                          src={link.mediaUrl} 
+                          alt={link.title}
+                          className="w-full h-20 object-cover"
+                        />
+                      ) : (
+                        <video
+                          src={link.mediaUrl}
+                          className="w-full h-20 object-cover"
+                          muted
+                          loop
+                          playsInline
+                        />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/50"></div>
+                    </div>
+                  ) : (
+                    <div className="h-20 relative overflow-hidden" style={{backgroundColor: link.color || '#4169E1'}}>
+                      <div className="absolute inset-0 opacity-20">
+                        <div className="h-1 bg-white/30 w-full absolute" style={{top: '30%'}}></div>
+                        <div className="h-1 bg-white/30 w-full absolute" style={{top: '70%'}}></div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="p-2 bg-gray-900 text-white relative">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 bg-white rounded-full mr-2"></div>
+                      <div>{link.title}</div>
+                    </div>
+                    {/* Tracking lines */}
+                    <div className="absolute bottom-0 left-0 right-0 h-1 bg-white/10"></div>
+                  </div>
+                </div>
+              </a>
+            ))}
+            <div className="p-1 bg-black text-white text-xs text-center">
+              REWIND · STOP · PAUSE
+            </div>
+          </div>
+        );
+      case "y2k":
+        return (
+          <div className="w-full mt-6 space-y-4">
+            {activeLinks.map((link) => (
+              <a 
+                key={link.id}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block p-2 bg-gradient-to-r from-pink-300 via-purple-300 to-blue-300 rounded-xl backdrop-blur-sm border border-white/50 shadow-lg transition-all transform hover:scale-105"
+              >
+                <div className="bg-white/50 backdrop-blur-sm rounded-lg p-2 flex items-center">
+                  {link.mediaType !== 'none' && link.mediaUrl && (
+                    <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white mr-3 flex-shrink-0">
+                      {link.mediaType === 'image' ? (
+                        <img 
+                          src={link.mediaUrl} 
+                          alt="" 
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <video
+                          src={link.mediaUrl}
+                          className="w-full h-full object-cover"
+                          muted
+                          loop
+                          playsInline
+                        />
+                      )}
+                    </div>
+                  )}
+                  <div 
+                    className="font-bold bg-gradient-to-r from-pink-500 to-blue-500 bg-clip-text text-transparent"
+                    style={{textShadow: '0 0 2px rgba(255,255,255,0.5)'}}
+                  >
+                    {link.title}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        );
       case "traditional":
       default:
         return (
@@ -148,14 +500,35 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                 href={link.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3 rounded-md flex items-center justify-center transition-all transform hover:scale-105"
+                className="p-3 rounded-md flex items-center justify-center transition-all transform hover:scale-105 relative overflow-hidden"
                 style={{ 
                   backgroundColor: link.color || pageStyle.buttonColor || "#6A0DAD",
                   color: "#FFFFFF",
                   boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)"
                 }}
               >
-                {link.title}
+                {/* Show media as background if available */}
+                {link.mediaType !== 'none' && link.mediaUrl && (
+                  <div className="absolute inset-0">
+                    {link.mediaType === 'image' ? (
+                      <img 
+                        src={link.mediaUrl} 
+                        alt="" 
+                        className="w-full h-full object-cover opacity-30"
+                      />
+                    ) : (
+                      <video
+                        src={link.mediaUrl}
+                        className="w-full h-full object-cover opacity-30"
+                        muted
+                        loop
+                        playsInline
+                      />
+                    )}
+                    <div className="absolute inset-0 bg-black/30"></div>
+                  </div>
+                )}
+                <span className="relative z-10">{link.title}</span>
               </a>
             ))}
           </div>
@@ -189,17 +562,89 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
     
     // Apply different styles based on the visual effect selected
     const baseStyle = {
-      position: 'absolute',
+      position: 'absolute' as 'absolute',
       top: 0,
       left: 0,
       width: '100%',
       height: '100%',
-      pointerEvents: 'none',
+      pointerEvents: 'none' as 'none',
       opacity: profile.visualEffectOpacity,
       zIndex: 1,
     };
     
-    return baseStyle;
+    // Custom classes for different effects
+    let effectClass = '';
+    
+    switch(profile.visualEffect) {
+      case 'bubbles':
+        effectClass = 'bubbles-effect';
+        break;
+      case 'glitch':
+        effectClass = 'glitch-effect';
+        break;
+      case 'lightleak':
+        effectClass = 'light-leak-effect';
+        break;
+      case 'vintage':
+        effectClass = 'vintage-effect';
+        break;
+      case 'spark':
+        effectClass = 'spark-effect';
+        break;
+      case 'particles':
+        effectClass = 'particles-effect';
+        break;
+      case 'snow':
+        effectClass = 'snow-effect';
+        break;
+      case 'confetti':
+        effectClass = 'confetti-effect';
+        break;
+      case 'matrix':
+        effectClass = 'matrix-effect';
+        break;
+      default:
+        break;
+    }
+    
+    return {
+      ...baseStyle,
+      className: effectClass,
+      style: { 
+        backgroundColor: profile.visualEffect === 'vintage' ? `${profile.visualEffectColor}` : 'transparent',
+        animation: `${profile.visualEffectSpeed}s`,
+        backgroundSize: `${profile.visualEffectSize * 100}%`
+      }
+    };
+  };
+
+  // Get appropriate font class based on selected font or theme
+  const getFontClass = () => {
+    if (pageStyle.type === 'arcade') {
+      return 'font-mono'; // Pixel-like font for arcade theme
+    }
+    
+    if (pageStyle.type === 'recipe') {
+      return 'font-serif'; // Comic-like font for recipe theme
+    }
+    
+    switch (profile.font) {
+      case 'bebas-neue':
+        return 'font-sans tracking-wider uppercase';
+      case 'helvetica-neue':
+        return 'font-sans';
+      case 'poppins':
+        return 'font-sans';
+      case 'burbank':
+        return 'font-serif';
+      case 'pixelated':
+        return 'font-mono';
+      case 'handwritten':
+        return 'font-serif italic';
+      case 'montserrat':
+      default:
+        return 'font-sans';
+    }
   };
   
   return (
@@ -210,12 +655,24 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
         </div>
         
         <div 
-          className="h-[600px] overflow-y-auto relative"
+          className={`h-[600px] overflow-y-auto relative ${getFontClass()}`}
           style={{ 
             backgroundColor: profile.backgroundColor,
-            fontFamily: profile.font
           }}
         >
+          {/* Background video if selected */}
+          {profile.backgroundType === 'video' && profile.backgroundVideo && (
+            <video
+              ref={videoRef}
+              src={profile.backgroundVideo}
+              className="absolute inset-0 w-full h-full object-cover"
+              autoPlay
+              loop
+              muted={profile.backgroundVideoMuted}
+              playsInline
+            />
+          )}
+          
           {/* Background overlay */}
           {profile.overlay && (
             <div 
@@ -231,7 +688,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
           {/* Visual effects layer */}
           <div 
             className="visual-effects" 
-            style={getVisualEffectsStyle()}
+            {...getVisualEffectsStyle()}
           ></div>
           
           <div className="flex flex-col items-center p-6 relative z-10">
@@ -250,7 +707,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
             )}
             
             <div className="flex items-center mt-4">
-              <h2 className="text-xl font-bold">
+              <h2 className="text-xl font-bold" style={{ color: profile.nameColor || "#000000" }}>
                 {profile.name}
               </h2>
               
@@ -263,27 +720,29 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
               )}
             </div>
             
-            <p className="text-gray-600 text-sm text-center mt-2">
+            <p className="text-sm text-center mt-2" style={{ color: profile.bioColor || "#666666" }}>
               {profile.bio}
             </p>
             
             {/* Social icons */}
-            <div className="flex gap-3 mt-3">
-              {profile.socialIcons && Object.entries(profile.socialIcons).map(([platform, url]) => {
-                if (!url) return null;
-                return (
-                  <a 
-                    key={platform}
-                    href={url as string}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-600 hover:text-purple-700"
-                  >
-                    <span className="text-xs capitalize">{platform}</span>
-                  </a>
-                );
-              })}
-            </div>
+            {Object.entries(profile.socialIcons).some(([_, value]) => value) && (
+              <div className="flex gap-3 mt-3 flex-wrap justify-center">
+                {Object.entries(profile.socialIcons).map(([platform, url]) => {
+                  if (!url) return null;
+                  return (
+                    <a 
+                      key={platform}
+                      href={url as string}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:opacity-80"
+                    >
+                      {getSocialIcon(platform)}
+                    </a>
+                  );
+                })}
+              </div>
+            )}
             
             {/* Links based on selected style */}
             {renderLinks()}
@@ -292,7 +751,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
             {renderAudioPlayer()}
             
             <div className="text-xs text-gray-500 mt-8">
-              novabrand.io/{profile.username}
+              {!profile.isPremium && `novabrand.site/${profile.username}`}
             </div>
           </div>
         </div>

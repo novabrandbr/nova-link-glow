@@ -1,12 +1,13 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { AudioSettings } from '@/pages/Dashboard';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Upload, Volume2 } from 'lucide-react';
+import { Upload, Volume2, Link, Music } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 type AudioTabProps = {
   audioSettings: AudioSettings;
@@ -14,8 +15,42 @@ type AudioTabProps = {
 };
 
 const AudioTab: React.FC<AudioTabProps> = ({ audioSettings, setAudioSettings }) => {
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
   const handleChange = (field: keyof AudioSettings, value: any) => {
     setAudioSettings(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleAudioUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "O tamanho máximo permitido é 10MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setAudioSettings(prev => ({
+          ...prev,
+          source: 'upload',
+          url: event.target.result.toString()
+        }));
+        toast({
+          title: "Áudio carregado",
+          description: "Seu áudio foi carregado com sucesso."
+        });
+      }
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -39,11 +74,32 @@ const AudioTab: React.FC<AudioTabProps> = ({ audioSettings, setAudioSettings }) 
         
         {audioSettings.source === 'upload' && (
           <div className="ml-6 space-y-2">
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full flex items-center justify-center"
+              onClick={() => fileInputRef.current?.click()}
+            >
               <Upload className="mr-2 h-4 w-4" />
               Selecionar arquivo
             </Button>
-            <p className="text-xs text-gray-500">Formatos suportados: MP3, WAV. Tamanho máximo: 10MB.</p>
+            <Input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="audio/*"
+              onChange={handleAudioUpload}
+            />
+            <p className="text-xs text-gray-500">Formatos suportados: MP3, WAV, OGG. Tamanho máximo: 10MB.</p>
+            
+            {audioSettings.url && audioSettings.source === 'upload' && (
+              <div className="mt-4 p-2 bg-gray-50 rounded border flex items-center">
+                <Music className="h-4 w-4 mr-2 text-purple-500" />
+                <span className="text-sm truncate">Arquivo carregado</span>
+                <audio controls className="ml-auto h-8 w-28">
+                  <source src={audioSettings.url} type="audio/mpeg" />
+                </audio>
+              </div>
+            )}
           </div>
         )}
         
@@ -54,7 +110,19 @@ const AudioTab: React.FC<AudioTabProps> = ({ audioSettings, setAudioSettings }) 
         
         {audioSettings.source === 'gallery' && (
           <div className="ml-6 grid grid-cols-2 gap-3">
-            <div className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer">
+            <div 
+              className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer"
+              onClick={() => {
+                setAudioSettings(prev => ({
+                  ...prev,
+                  url: "https://example.com/lofi-beats.mp3"
+                }));
+                toast({
+                  title: "Música selecionada",
+                  description: "Lo-Fi Beats selecionada com sucesso"
+                });
+              }}
+            >
               <div className="flex items-center space-x-2">
                 <div className="bg-purple-100 p-2 rounded-full">
                   <Volume2 className="h-4 w-4 text-purple-500" />
@@ -65,7 +133,19 @@ const AudioTab: React.FC<AudioTabProps> = ({ audioSettings, setAudioSettings }) 
                 </div>
               </div>
             </div>
-            <div className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer">
+            <div 
+              className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer"
+              onClick={() => {
+                setAudioSettings(prev => ({
+                  ...prev,
+                  url: "https://example.com/ambient.mp3"
+                }));
+                toast({
+                  title: "Música selecionada",
+                  description: "Ambient selecionada com sucesso"
+                });
+              }}
+            >
               <div className="flex items-center space-x-2">
                 <div className="bg-purple-100 p-2 rounded-full">
                   <Volume2 className="h-4 w-4 text-purple-500" />
@@ -76,7 +156,19 @@ const AudioTab: React.FC<AudioTabProps> = ({ audioSettings, setAudioSettings }) 
                 </div>
               </div>
             </div>
-            <div className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer">
+            <div 
+              className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer"
+              onClick={() => {
+                setAudioSettings(prev => ({
+                  ...prev,
+                  url: "https://example.com/pop-beat.mp3"
+                }));
+                toast({
+                  title: "Música selecionada",
+                  description: "Pop Beat selecionada com sucesso"
+                });
+              }}
+            >
               <div className="flex items-center space-x-2">
                 <div className="bg-purple-100 p-2 rounded-full">
                   <Volume2 className="h-4 w-4 text-purple-500" />
@@ -87,7 +179,19 @@ const AudioTab: React.FC<AudioTabProps> = ({ audioSettings, setAudioSettings }) 
                 </div>
               </div>
             </div>
-            <div className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer">
+            <div 
+              className="border rounded-lg p-3 hover:border-purple-500 cursor-pointer"
+              onClick={() => {
+                setAudioSettings(prev => ({
+                  ...prev,
+                  url: "https://example.com/acoustic.mp3"
+                }));
+                toast({
+                  title: "Música selecionada",
+                  description: "Acoustic selecionada com sucesso"
+                });
+              }}
+            >
               <div className="flex items-center space-x-2">
                 <div className="bg-purple-100 p-2 rounded-full">
                   <Volume2 className="h-4 w-4 text-purple-500" />
@@ -108,11 +212,14 @@ const AudioTab: React.FC<AudioTabProps> = ({ audioSettings, setAudioSettings }) 
         
         {audioSettings.source === 'external' && (
           <div className="ml-6 space-y-2">
-            <Input 
-              value={audioSettings.url}
-              onChange={(e) => handleChange('url', e.target.value)}
-              placeholder="https://example.com/audio.mp3 ou SoundCloud URL"
-            />
+            <div className="flex items-center space-x-2">
+              <Link className="h-4 w-4 text-gray-500" />
+              <Input 
+                value={audioSettings.url}
+                onChange={(e) => handleChange('url', e.target.value)}
+                placeholder="https://example.com/audio.mp3 ou SoundCloud URL"
+              />
+            </div>
             <p className="text-xs text-gray-500">Cole o link direto para um arquivo de áudio ou URL do SoundCloud.</p>
           </div>
         )}

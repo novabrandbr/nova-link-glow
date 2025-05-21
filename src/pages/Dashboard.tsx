@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import LinksPanel from "@/components/panels/LinksPanel";
 import DesignPanel from "@/components/panels/DesignPanel";
@@ -39,6 +40,8 @@ export type UserProfile = {
   backgroundGradient?: string;
   backgroundImage?: string;
   backgroundVideo?: string;
+  backgroundVideoMuted?: boolean;
+  backgroundVideoVolume?: number;
   overlay: boolean;
   overlayColor: string;
   overlayOpacity: number;
@@ -48,14 +51,25 @@ export type UserProfile = {
   visualEffectSpeed: number;
   visualEffectSize: number;
   buttonColor: string;
-  font: "montserrat" | "bebas-neue" | "helvetica-neue" | "poppins" | "burbank";
+  font: "montserrat" | "bebas-neue" | "helvetica-neue" | "poppins" | "burbank" | "pixelated" | "handwritten";
+  nameColor: string;
+  bioColor: string;
   socialIcons: {
     instagram?: string;
     facebook?: string;
     twitter?: string;
     youtube?: string;
     tiktok?: string;
+    pinterest?: string;
+    linkedin?: string;
+    whatsapp?: string;
+    github?: string;
+    spotify?: string;
+    twitch?: string;
+    discord?: string;
   };
+  socialIconsColor?: string;
+  isPremium: boolean;
 };
 
 export type AudioSettings = {
@@ -68,33 +82,63 @@ export type AudioSettings = {
 };
 
 export type PageStyle = {
-  type: "netflix" | "magazine" | "polaroid" | "traditional";
+  type: "netflix" | "magazine" | "polaroid" | "traditional" | "arcade" | "recipe" | "reality" | "vhs" | "y2k";
   buttonColor?: string;
   cardSettings?: {
     showLabels?: boolean;
     showOverlay?: boolean;
     aspectRatio?: 'portrait' | 'square' | 'landscape';
+    showMedia?: boolean;
   };
 };
 
 const Dashboard = () => {
   const [activePanel, setActivePanel] = useState<string>("minisite");
   const [activeMinisiteTab, setActiveMinisiteTab] = useState<string>("profile");
+  const previewRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  
+  // Set up scroll syncing
+  useEffect(() => {
+    const handleScroll = () => {
+      if (panelRef.current && previewRef.current) {
+        const panelScrollTop = panelRef.current.scrollTop;
+        const maxScroll = panelRef.current.scrollHeight - panelRef.current.clientHeight;
+        const scrollRatio = Math.min(panelScrollTop / maxScroll, 1);
+        
+        const previewMaxScroll = previewRef.current.scrollHeight - previewRef.current.clientHeight;
+        previewRef.current.scrollTop = scrollRatio * previewMaxScroll;
+      }
+    };
+    
+    const panelElement = panelRef.current;
+    if (panelElement) {
+      panelElement.addEventListener('scroll', handleScroll);
+      
+      return () => {
+        panelElement.removeEventListener('scroll', handleScroll);
+      };
+    }
+  }, [activePanel, activeMinisiteTab]);
   
   const [links, setLinks] = useState<LinkType[]>([
     { 
       id: "1", 
-      title: "My Website", 
+      title: "Meu Website", 
       url: "https://example.com", 
       active: true, 
-      color: "#6A0DAD" 
+      color: "#6A0DAD",
+      label: "Novidade",
+      mediaType: "none"
     },
     { 
       id: "2", 
-      title: "My Portfolio", 
+      title: "Meu Portfolio", 
       url: "https://portfolio.example.com", 
       active: true, 
-      color: "#6A0DAD" 
+      color: "#6A0DAD",
+      label: "TOP 10",
+      mediaType: "none"
     }
   ]);
   
@@ -115,7 +159,11 @@ const Dashboard = () => {
     visualEffectSize: 1,
     buttonColor: "#6A0DAD",
     font: "montserrat",
-    socialIcons: {}
+    nameColor: "#000000",
+    bioColor: "#666666",
+    socialIcons: {},
+    socialIconsColor: "#6A0DAD",
+    isPremium: false
   });
 
   const [audioSettings, setAudioSettings] = useState<AudioSettings>({
@@ -128,7 +176,10 @@ const Dashboard = () => {
   });
 
   const [pageStyle, setPageStyle] = useState<PageStyle>({
-    type: "traditional"
+    type: "traditional",
+    cardSettings: {
+      showMedia: true
+    }
   });
 
   const renderMinisiteTab = () => {
@@ -152,12 +203,12 @@ const Dashboard = () => {
         return <div className="p-6">Dashboard overview content</div>;
       case "minisite":
         return (
-          <div className="flex flex-col">
+          <div className="flex flex-col h-full">
             <MinisiteTabs 
               activeTab={activeMinisiteTab} 
               setActiveTab={setActiveMinisiteTab} 
             />
-            <div className="p-6">
+            <div className="p-6 flex-1 overflow-auto" ref={panelRef}>
               {renderMinisiteTab()}
             </div>
           </div>
@@ -182,10 +233,10 @@ const Dashboard = () => {
   return (
     <DashboardLayout activePanel={activePanel} setActivePanel={setActivePanel}>
       <div className="flex flex-1">
-        <div className="w-3/5 border-r border-gray-200 overflow-y-auto">
+        <div className="w-3/5 border-r border-gray-200 flex flex-col overflow-hidden">
           {renderPanel()}
         </div>
-        <div className="w-2/5 bg-gray-50 flex justify-center p-6">
+        <div className="w-2/5 bg-gray-50 flex justify-center p-6 overflow-auto" ref={previewRef}>
           <PhonePreview 
             profile={profile} 
             links={links} 

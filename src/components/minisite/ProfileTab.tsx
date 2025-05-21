@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Upload, Instagram, Facebook, Twitter, Youtube } from 'lucide-react';
+import { Check, Upload, Instagram, Facebook, Twitter, Youtube, TikTok, Linkedin, Github, Music, MessageSquare } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
 
 type ProfileTabProps = {
   profile: UserProfile;
@@ -15,6 +16,9 @@ type ProfileTabProps = {
 };
 
 const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const videoInputRef = React.useRef<HTMLInputElement>(null);
+
   const handleChange = (field: keyof UserProfile, value: any) => {
     setProfile(prev => ({ ...prev, [field]: value }));
   };
@@ -38,11 +42,15 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
 
   const visualEffects = [
     { value: 'none', label: 'Nenhum' },
-    { value: 'bubbles', label: 'Bubbles' },
-    { value: 'glitch', label: 'Glitch Effect' },
-    { value: 'lightleak', label: 'Light Leak' },
-    { value: 'vintage', label: 'Vintage Effect' },
-    { value: 'spark', label: 'Spark Effect' }
+    { value: 'bubbles', label: 'Bolhas' },
+    { value: 'glitch', label: 'Efeito Glitch' },
+    { value: 'lightleak', label: 'Light Leak Profissional' },
+    { value: 'vintage', label: 'Efeito Vintage' },
+    { value: 'spark', label: 'Efeito Spark' },
+    { value: 'particles', label: 'Partículas' },
+    { value: 'snow', label: 'Neve' },
+    { value: 'confetti', label: 'Confete' },
+    { value: 'matrix', label: 'Efeito Matrix' }
   ];
 
   const fontOptions = [
@@ -50,8 +58,64 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     { value: 'bebas-neue', label: 'Bebas Neue' },
     { value: 'helvetica-neue', label: 'Helvetica Neue' },
     { value: 'poppins', label: 'Poppins' },
-    { value: 'burbank', label: 'Burbank' }
+    { value: 'burbank', label: 'Burbank' },
+    { value: 'pixelated', label: 'Pixelated (Arcade)' },
+    { value: 'handwritten', label: 'Handwritten' }
   ];
+
+  const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 2MB)
+    if (file.size > 2 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "O tamanho máximo permitido é 2MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        handleChange('avatar', event.target.result.toString());
+        toast({
+          title: "Avatar atualizado",
+          description: "Sua foto de perfil foi atualizada com sucesso."
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleVideoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "O tamanho máximo permitido é 10MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        handleChange('backgroundVideo', event.target.result.toString());
+        toast({
+          title: "Vídeo de fundo adicionado",
+          description: "O vídeo de fundo foi atualizado com sucesso."
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   return (
     <div className="space-y-8">
@@ -64,10 +128,20 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             <AvatarImage src={profile.avatar} />
             <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
-          <Button variant="outline">
+          <Button 
+            variant="outline"
+            onClick={() => fileInputRef.current?.click()}
+          >
             <Upload className="mr-2 h-4 w-4" />
             Carregar foto
           </Button>
+          <Input
+            type="file"
+            ref={fileInputRef}
+            className="hidden"
+            accept="image/*"
+            onChange={handleAvatarUpload}
+          />
         </div>
         
         <div className="grid grid-cols-1 gap-4">
@@ -92,12 +166,22 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Seu nome"
             />
+            <div className="flex items-center space-x-2 mt-1">
+              <Label htmlFor="nameColor">Cor do nome:</Label>
+              <input 
+                type="color"
+                id="nameColor"
+                value={profile.nameColor || "#000000"}
+                onChange={(e) => handleChange('nameColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
+            </div>
           </div>
           
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <div className="flex items-center space-x-2">
-              <span className="text-gray-500">nova-brand.site/</span>
+              <span className="text-gray-500">novabrand.site/</span>
               <Input 
                 id="username"
                 value={profile.username}
@@ -105,6 +189,18 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 placeholder="seu-username"
                 className="flex-1"
               />
+            </div>
+            <div className="mt-1 flex items-center justify-between">
+              <span className="text-sm text-gray-400">A URL do seu perfil será: novabrand.site/{profile.username}</span>
+              <div className="flex items-center">
+                <Switch 
+                  id="premium"
+                  checked={profile.isPremium}
+                  onCheckedChange={(checked) => handleChange('isPremium', checked)}
+                  className="mr-2"
+                />
+                <Label htmlFor="premium" className="text-sm">Remover marca (Premium)</Label>
+              </div>
             </div>
           </div>
           
@@ -120,11 +216,34 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               placeholder="Uma breve descrição sobre você"
               maxLength={60}
             />
+            <div className="flex items-center space-x-2 mt-1">
+              <Label htmlFor="bioColor">Cor da descrição:</Label>
+              <input 
+                type="color"
+                id="bioColor"
+                value={profile.bioColor || "#666666"}
+                onChange={(e) => handleChange('bioColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
+            </div>
           </div>
         </div>
         
         <div className="space-y-2">
-          <Label>Redes sociais</Label>
+          <div className="flex items-center justify-between">
+            <Label>Redes sociais</Label>
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="socialColor">Cor dos ícones:</Label>
+              <input 
+                type="color"
+                id="socialColor"
+                value={profile.socialIconsColor || "#6A0DAD"}
+                onChange={(e) => handleChange('socialIconsColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
+            </div>
+          </div>
+          
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center space-x-2">
               <Instagram className="h-5 w-5 text-pink-600" />
@@ -156,6 +275,46 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 value={profile.socialIcons.youtube || ''}
                 onChange={(e) => handleSocialChange('youtube', e.target.value)}
                 placeholder="@seuyoutube"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <TikTok className="h-5 w-5 text-black" />
+              <Input 
+                value={profile.socialIcons.tiktok || ''}
+                onChange={(e) => handleSocialChange('tiktok', e.target.value)}
+                placeholder="@seutiktok"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Linkedin className="h-5 w-5 text-blue-700" />
+              <Input 
+                value={profile.socialIcons.linkedin || ''}
+                onChange={(e) => handleSocialChange('linkedin', e.target.value)}
+                placeholder="@seulinkedin"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Github className="h-5 w-5" />
+              <Input 
+                value={profile.socialIcons.github || ''}
+                onChange={(e) => handleSocialChange('github', e.target.value)}
+                placeholder="@seugithub"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Music className="h-5 w-5 text-green-500" />
+              <Input 
+                value={profile.socialIcons.spotify || ''}
+                onChange={(e) => handleSocialChange('spotify', e.target.value)}
+                placeholder="@seuspotify"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <MessageSquare className="h-5 w-5 text-green-600" />
+              <Input 
+                value={profile.socialIcons.whatsapp || ''}
+                onChange={(e) => handleSocialChange('whatsapp', e.target.value)}
+                placeholder="+5511999999999"
               />
             </div>
           </div>
@@ -243,16 +402,57 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           )}
           
           {profile.backgroundType === 'video' && (
-            <div className="space-y-2">
+            <div className="space-y-4">
               <Label>Vídeo de fundo</Label>
               <div className="space-y-2">
-                <Button variant="outline" className="w-full h-20 border-dashed">
+                <Button 
+                  variant="outline" 
+                  className="w-full h-20 border-dashed"
+                  onClick={() => videoInputRef.current?.click()}
+                >
                   <Upload className="mr-2 h-4 w-4" />
                   Fazer upload de vídeo
                 </Button>
+                <Input
+                  type="file"
+                  ref={videoInputRef}
+                  className="hidden"
+                  accept="video/*"
+                  onChange={handleVideoUpload}
+                />
                 <p className="text-xs text-gray-500">Ou insira um link do YouTube:</p>
-                <Input placeholder="https://youtube.com/watch?v=..." />
+                <Input 
+                  placeholder="https://youtube.com/watch?v=..."
+                  value={profile.backgroundVideo || ''}
+                  onChange={(e) => handleChange('backgroundVideo', e.target.value)}
+                />
               </div>
+              
+              {profile.backgroundVideo && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="videoVolume">Volume: {Math.round((profile.backgroundVideoVolume || 0) * 100)}%</Label>
+                    <div className="flex items-center space-x-2">
+                      <Switch 
+                        id="videoMuted"
+                        checked={profile.backgroundVideoMuted || false}
+                        onCheckedChange={(checked) => handleChange('backgroundVideoMuted', checked)}
+                      />
+                      <Label htmlFor="videoMuted">Silenciar</Label>
+                    </div>
+                  </div>
+                  <Input 
+                    type="range"
+                    id="videoVolume"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    disabled={profile.backgroundVideoMuted}
+                    value={profile.backgroundVideoVolume || 0.5}
+                    onChange={(e) => handleChange('backgroundVideoVolume', parseFloat(e.target.value))}
+                  />
+                </div>
+              )}
             </div>
           )}
           
@@ -328,8 +528,23 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </Select>
           </div>
           
+          <div className="grid grid-cols-3 gap-3">
+            {visualEffects.filter(e => e.value !== 'none').map(effect => (
+              <div 
+                key={effect.value}
+                className={`border rounded-lg p-3 cursor-pointer ${profile.visualEffect === effect.value ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}
+                onClick={() => handleChange('visualEffect', effect.value)}
+              >
+                <div className="aspect-video bg-gray-100 mb-2 rounded-sm flex items-center justify-center text-sm text-gray-500">
+                  {effect.label}
+                </div>
+                <p className="text-xs text-center">{effect.label}</p>
+              </div>
+            ))}
+          </div>
+          
           {profile.visualEffect !== 'none' && (
-            <div className="space-y-4 pl-6">
+            <div className="space-y-4 pl-2 border-l-2 border-purple-200 mt-4">
               <div className="space-y-2">
                 <Label htmlFor="visualEffectColor">Cor do efeito</Label>
                 <div className="flex items-center space-x-2">

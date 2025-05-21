@@ -1,10 +1,10 @@
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { LinkType } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, GripVertical, Image, Video } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image, Video, Link as LinkIcon } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +17,8 @@ type LinksTabProps = {
 const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
   const { toast } = useToast();
   const [draggedItem, setDraggedItem] = React.useState<number | null>(null);
+  const [customLabel, setCustomLabel] = React.useState<string>('');
+  const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const addNewLink = () => {
     const newLink: LinkType = {
@@ -70,15 +72,16 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
     setDraggedItem(null);
   };
 
-  const handleImageUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 2MB)
-    if (file.size > 2 * 1024 * 1024) {
+    // Check file size (max 5MB for images, 20MB for videos)
+    const maxSize = type === 'image' ? 5 * 1024 * 1024 : 20 * 1024 * 1024;
+    if (file.size > maxSize) {
       toast({
         title: "Arquivo muito grande",
-        description: "O tamanho máximo permitido é 2MB.",
+        description: `O tamanho máximo permitido é ${type === 'image' ? '5MB' : '20MB'}.`,
         variant: "destructive"
       });
       return;
@@ -87,10 +90,28 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       if (event.target?.result) {
+        updateLink(id, 'mediaType', type);
         updateLink(id, 'mediaUrl', event.target.result.toString());
+        toast({
+          title: "Upload concluído",
+          description: `${type === 'image' ? 'Imagem' : 'Vídeo'} carregado com sucesso.`
+        });
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleCustomLabelAdd = (id: string) => {
+    if (customLabel.trim()) {
+      updateLink(id, 'label', customLabel.trim());
+      setCustomLabel('');
+    }
+  };
+
+  const triggerFileInput = (id: string, type: string) => {
+    if (fileInputRefs.current[`${type}-${id}`]) {
+      fileInputRefs.current[`${type}-${id}`]?.click();
+    }
   };
 
   return (
@@ -105,7 +126,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
       
       <div className="space-y-4">
         <p className="text-sm text-gray-500">
-          Arraste para reordenar os links. A aparência visual será configurada na aba "Page Styles".
+          Arraste para reordenar os links. A aparência visual será configurada na aba "Estilos da Página".
         </p>
         
         {links.length === 0 ? (
@@ -155,7 +176,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                     
                     {/* Media settings */}
                     <div className="space-y-1">
-                      <Label>Mídia (para estilo Netflix)</Label>
+                      <Label>Mídia</Label>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
                           <Select 
@@ -175,19 +196,22 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                         
                         {link.mediaType === 'image' && (
                           <div className="col-span-2 flex items-center space-x-2">
-                            <Label 
-                              htmlFor={`image-${link.id}`}
-                              className="px-3 py-2 border border-gray-300 rounded-md flex items-center cursor-pointer hover:bg-gray-50"
+                            <Button 
+                              variant="outline" 
+                              className="flex items-center space-x-2"
+                              onClick={() => triggerFileInput(link.id, 'image')}
+                              type="button"
                             >
-                              <Image className="h-4 w-4 mr-2" />
-                              Escolher imagem
-                            </Label>
+                              <Image className="h-4 w-4" />
+                              <span>Escolher imagem</span>
+                            </Button>
                             <Input
                               id={`image-${link.id}`}
                               type="file"
                               accept="image/*"
                               className="hidden"
-                              onChange={(e) => handleImageUpload(link.id, e)}
+                              onChange={(e) => handleFileUpload(link.id, e, 'image')}
+                              ref={el => fileInputRefs.current[`image-${link.id}`] = el}
                             />
                             {link.mediaUrl && (
                               <div className="w-10 h-10 border rounded overflow-hidden">
@@ -202,12 +226,37 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                         )}
                         
                         {link.mediaType === 'video' && (
-                          <div className="col-span-2">
+                          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <Button 
+                              variant="outline" 
+                              className="flex items-center space-x-2"
+                              onClick={() => triggerFileInput(link.id, 'video')}
+                              type="button"
+                            >
+                              <Video className="h-4 w-4" />
+                              <span>Fazer upload</span>
+                            </Button>
                             <Input
-                              placeholder="URL do vídeo (ex: https://exemplo.com/video.mp4)"
-                              value={link.mediaUrl || ''}
-                              onChange={(e) => updateLink(link.id, 'mediaUrl', e.target.value)}
+                              id={`video-${link.id}`}
+                              type="file"
+                              accept="video/*"
+                              className="hidden"
+                              onChange={(e) => handleFileUpload(link.id, e, 'video')}
+                              ref={el => fileInputRefs.current[`video-${link.id}`] = el}
                             />
+                            <div className="flex items-center space-x-2">
+                              <LinkIcon className="h-4 w-4 text-gray-500" />
+                              <Input
+                                placeholder="URL do vídeo"
+                                value={link.mediaUrl || ''}
+                                onChange={(e) => {
+                                  updateLink(link.id, 'mediaUrl', e.target.value);
+                                  if (e.target.value) {
+                                    updateLink(link.id, 'mediaType', 'video');
+                                  }
+                                }}
+                              />
+                            </div>
                           </div>
                         )}
                       </div>
@@ -228,10 +277,16 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                         </div>
                       </div>
                       <div className="space-y-1">
-                        <Label htmlFor={`label-${link.id}`}>Rótulo (Netflix)</Label>
+                        <Label htmlFor={`label-${link.id}`}>Rótulo</Label>
                         <Select 
                           value={link.label || 'no-label'} 
-                          onValueChange={(value) => updateLink(link.id, 'label', value === 'no-label' ? '' : value)}
+                          onValueChange={(value) => {
+                            if (value === 'custom') {
+                              // Leave the current label as is for custom entry
+                              return;
+                            }
+                            updateLink(link.id, 'label', value === 'no-label' ? '' : value)
+                          }}
                         >
                           <SelectTrigger>
                             <SelectValue placeholder="Selecione um rótulo" />
@@ -242,8 +297,31 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                             <SelectItem value="TOP 10">TOP 10</SelectItem>
                             <SelectItem value="Nova temporada">Nova temporada</SelectItem>
                             <SelectItem value="Em alta">Em alta</SelectItem>
+                            <SelectItem value="Clique aqui">Clique aqui</SelectItem>
+                            <SelectItem value="Novo curso">Novo curso</SelectItem>
+                            <SelectItem value="custom">Rótulo personalizado</SelectItem>
                           </SelectContent>
                         </Select>
+                        
+                        {link.label !== '' && link.label !== 'Novidade' && link.label !== 'TOP 10' && 
+                          link.label !== 'Nova temporada' && link.label !== 'Em alta' && 
+                          link.label !== 'Clique aqui' && link.label !== 'Novo curso' && (
+                          <div className="mt-2 flex space-x-2">
+                            <Input 
+                              value={customLabel} 
+                              onChange={(e) => setCustomLabel(e.target.value)}
+                              placeholder="Rótulo personalizado"
+                              className="flex-1"
+                            />
+                            <Button 
+                              type="button" 
+                              size="sm" 
+                              onClick={() => handleCustomLabelAdd(link.id)}
+                            >
+                              Aplicar
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
