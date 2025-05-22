@@ -22,7 +22,7 @@ import {
   Music, 
   Linkedin, 
   Github, 
-  Whatsapp, 
+  MessageSquare, 
   X 
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -499,7 +499,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Whatsapp className="h-5 w-5 text-green-600" />
+              <MessageSquare className="h-5 w-5 text-green-600" />
               <Input 
                 value={profile.socialIcons.whatsapp || ''}
                 onChange={(e) => handleSocialChange('whatsapp', e.target.value)}
