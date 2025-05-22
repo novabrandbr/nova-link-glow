@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 
 interface VisualEffectProps {
@@ -7,6 +6,38 @@ interface VisualEffectProps {
 }
 
 const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
+  const [angle, setAngle] = useState(0);
+  const [showEffect, setShowEffect] = useState(true);
+  const [bubbleElements, setBubbleElements] = useState<React.ReactNode[]>([]);
+  
+  useEffect(() => {
+    // For effects that need angle variation (light leak, glitch)
+    const angleInterval = setInterval(() => {
+      setAngle(prevAngle => (prevAngle + 90) % 360);
+    }, 5000);
+    
+    // For effects that need to appear/disappear (glitch, light leak)
+    const visibilityInterval = setInterval(() => {
+      setShowEffect(prev => !prev);
+    }, 3000);
+    
+    // Generate new bubble elements periodically
+    if (profile.visualEffect === 'bubbles') {
+      generateBubbles();
+      const bubbleInterval = setInterval(generateBubbles, 2000);
+      return () => {
+        clearInterval(angleInterval);
+        clearInterval(visibilityInterval);
+        clearInterval(bubbleInterval);
+      };
+    }
+    
+    return () => {
+      clearInterval(angleInterval);
+      clearInterval(visibilityInterval);
+    };
+  }, [profile.visualEffect]);
+  
   if (profile.visualEffect === 'none') return null;
   
   // Determine opacity and color with fallbacks
@@ -38,6 +69,67 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
   
   const rgba = applyOpacity(color, opacity);
   
+  // Generate bubbles that look like soap bubbles
+  const generateBubbles = () => {
+    const count = 5; // Generate 5 new bubbles at a time
+    const newBubbles = [];
+    
+    for (let i = 0; i < count; i++) {
+      const size = Math.random() * 30 * (profile.visualEffectSize || 1) + 10;
+      const left = `${Math.random() * 100}%`;
+      const startPosition = `${80 + Math.random() * 20}%`; // Start from bottom area
+      const horizontalMovement = Math.random() * 100 - 50; // Random horizontal drift
+      
+      const delay = Math.random() * 2;
+      const duration = (Math.random() * 8 + 4) / speed;
+      
+      const bubbleStyle: React.CSSProperties = {
+        position: 'absolute',
+        width: `${size}px`,
+        height: `${size}px`,
+        borderRadius: '50%',
+        left,
+        bottom: '0',
+        border: `1px solid ${rgba}`,
+        boxShadow: `0 0 10px ${rgba}, inset 0 0 10px ${rgba}`,
+        opacity: Math.random() * 0.5 + 0.2,
+        animation: `soapBubble ${duration}s ease-out forwards`,
+        animationDelay: `${delay}s`,
+        transform: 'translateY(0) translateX(0)',
+        zIndex: 5,
+      };
+      
+      const keyframes = `
+        @keyframes soapBubble {
+          0% {
+            transform: translateY(0) translateX(0);
+            opacity: 0;
+          }
+          10% {
+            opacity: ${Math.random() * 0.5 + 0.2};
+          }
+          100% {
+            transform: translateY(-${startPosition}) translateX(${horizontalMovement}px);
+            opacity: 0;
+          }
+        }
+      `;
+      
+      newBubbles.push(
+        <div key={`bubble-${Date.now()}-${i}`}>
+          <style>{keyframes}</style>
+          <div style={bubbleStyle} />
+        </div>
+      );
+    }
+    
+    setBubbleElements(prevBubbles => {
+      // Keep only bubbles that are still visible (less than their duration + delay)
+      const filtered = prevBubbles.slice(-15); // Keep last 15 bubbles
+      return [...filtered, ...newBubbles];
+    });
+  };
+  
   // Style objects for different effects
   const effectStyles = {
     bubbles: {
@@ -56,10 +148,12 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       left: 0,
       right: 0,
       bottom: 0,
-      backgroundImage: `linear-gradient(to right, ${rgba} 2px, transparent 2px)`,
+      backgroundImage: `linear-gradient(${angle}deg, ${rgba} 2px, transparent 2px)`,
       backgroundSize: `${10 * size}px 100%`,
       pointerEvents: 'none',
       zIndex: 10,
+      opacity: showEffect ? 0.7 : 0,
+      transition: 'opacity 0.3s ease',
       animationDuration: `${8/speed}s`,
     },
     lightleak: {
@@ -70,9 +164,10 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       bottom: 0,
       pointerEvents: 'none',
       zIndex: 10,
+      background: `linear-gradient(${angle}deg, ${rgba} 0%, transparent 20%, transparent 80%, ${rgba} 100%)`,
+      opacity: showEffect ? opacity : 0,
+      transition: 'opacity 0.5s ease, background 1s ease',
       animationDuration: `${12/speed}s`,
-      backgroundColor: 'transparent',
-      backgroundBlendMode: 'overlay',
     },
     spark: {
       position: 'absolute',
@@ -159,7 +254,8 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       backgroundSize: `${200 * size}% ${200 * size}%`,
       pointerEvents: 'none',
       zIndex: 10,
-      animationDuration: `${8/speed}s`,
+      animation: `waveMovement ${10/speed}s infinite alternate`,
+      animationTimingFunction: 'ease-in-out',
     },
     smoke: {
       position: 'absolute',
@@ -185,6 +281,32 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       pointerEvents: 'none',
       zIndex: 10,
       overflow: 'hidden',
+    },
+    vignette: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      boxShadow: `inset 0 0 ${50 * size}px ${30 * size}px rgba(0, 0, 0, ${opacity})`,
+      pointerEvents: 'none',
+      zIndex: 10,
+    },
+    oldscreen: {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundImage: `
+        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, ${opacity/2}) 50%),
+        linear-gradient(90deg, rgba(255, 0, 0, ${opacity/10}), rgba(0, 255, 0, ${opacity/10}), rgba(0, 0, 255, ${opacity/10}))
+      `,
+      backgroundSize: `100% 2px, 3px 100%`,
+      animation: `oldScreenNoise ${0.5/speed}s infinite linear`,
+      pointerEvents: 'none',
+      zIndex: 10,
+      opacity: opacity,
     },
     custom: {
       position: 'absolute',
@@ -216,18 +338,10 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
         opacity: 0,
         animation: `${type === 'bubbles' ? 'bubbles' : type === 'snow' ? 'snowfall' : type === 'confetti' ? 'confetti' : 'matrixDrop'} ${duration}s linear infinite`,
         animationDelay: `${delay}s`,
+        zIndex: 5,
       };
       
-      if (type === 'bubbles') {
-        style = {
-          ...style,
-          width: `${size}px`,
-          height: `${size}px`,
-          borderRadius: '50%',
-          bottom: '-10px',
-          border: `1px solid ${rgba}`,
-        };
-      } else if (type === 'snow') {
+      if (type === 'snow') {
         style = {
           ...style,
           width: `${size/2}px`,
@@ -305,6 +419,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
         opacity: 0,
         animation: `spark ${3/speed}s ease-in-out infinite`,
         animationDelay: `${delay}s`,
+        zIndex: 5,
       };
       
       sparks.push(<div key={i} style={style} />);
@@ -313,17 +428,36 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     return sparks;
   };
 
+  // Keyframes for waves animation
+  const waveKeyframes = `
+    @keyframes waveMovement {
+      0% { background-position: 0% 0%; }
+      25% { background-position: 100% 0%; }
+      50% { background-position: 100% 100%; }
+      75% { background-position: 0% 100%; }
+      100% { background-position: 0% 0%; }
+    }
+  `;
+
+  // Keyframes for old screen effect
+  const oldScreenKeyframes = `
+    @keyframes oldScreenNoise {
+      0% { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
+    }
+  `;
+
   switch (profile.visualEffect) {
     case 'bubbles':
       return (
-        <div style={effectStyles.bubbles} className="animate-bubbleRise">
-          {generateParticles(30, 'bubbles')}
+        <div style={effectStyles.bubbles}>
+          {bubbleElements}
         </div>
       );
     case 'glitch':
-      return <div style={effectStyles.glitch} className="animate-glitch" />;
+      return <div style={effectStyles.glitch} />;
     case 'lightleak':
-      return <div style={effectStyles.lightleak} className="animate-lightleak" />;
+      return <div style={effectStyles.lightleak} />;
     case 'spark':
       return (
         <div style={effectStyles.spark}>
@@ -332,7 +466,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       );
     case 'particles':
       return (
-        <div style={effectStyles.particles} className="animate-float">
+        <div style={effectStyles.particles}>
           {generateParticles(20, 'particles')}
         </div>
       );
@@ -363,7 +497,12 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
         </div>
       );
     case 'waves':
-      return <div style={effectStyles.waves} className="animate-waves" />;
+      return (
+        <>
+          <style>{waveKeyframes}</style>
+          <div style={effectStyles.waves} />
+        </>
+      );
     case 'smoke':
       return <div style={effectStyles.smoke} className="animate-smoke" />;
     case 'fireworks':
@@ -371,6 +510,15 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
         <div style={effectStyles.fireworks}>
           {generateParticles(15, 'fireworks')}
         </div>
+      );
+    case 'vignette':
+      return <div style={effectStyles.vignette} />;
+    case 'oldscreen':
+      return (
+        <>
+          <style>{oldScreenKeyframes}</style>
+          <div style={effectStyles.oldscreen} />
+        </>
       );
     case 'custom':
       return profile.visualEffectCustomUrl ? <div style={effectStyles.custom} /> : null;

@@ -11,6 +11,7 @@ import ProfileTab from "@/components/minisite/ProfileTab";
 import LinksTab from "@/components/minisite/LinksTab";
 import PageStylesTab from "@/components/minisite/PageStylesTab";
 import AudioTab from "@/components/minisite/AudioTab";
+import AITab from "@/components/minisite/AITab";
 import HelpPanel from "@/components/panels/HelpPanel";
 import NotificationsPanel from "@/components/panels/NotificationsPanel";
 import SettingsPanel from "@/components/panels/SettingsPanel";
@@ -123,28 +124,16 @@ const Dashboard = () => {
       if (previewContainerRef.current) {
         const scrollTop = window.scrollY;
         const headerHeight = 64; // Approximate header height
-        const mainContent = document.querySelector('main');
         
-        if (!mainContent) return;
-        
-        const mainContentRect = mainContent.getBoundingClientRect();
-        const mainContentTop = mainContentRect.top + window.scrollY;
-        const mainContentHeight = mainContentRect.height;
+        // Calculate viewport center
         const viewportHeight = window.innerHeight;
-        
-        // Calculate available space
-        const availableHeight = viewportHeight - headerHeight;
         const previewHeight = previewContainerRef.current.offsetHeight;
         
-        // Calculate maximum scroll position
-        const maxScroll = Math.max(0, mainContentHeight - previewHeight);
-        
-        // Calculate how much the preview should move
-        let newTop = Math.max(0, scrollTop - mainContentTop);
-        newTop = Math.min(newTop, maxScroll);
+        // Calculate the position that would center the preview in the viewport
+        const centeredTop = Math.max(0, scrollTop + (viewportHeight - previewHeight) / 2 - headerHeight);
         
         // Apply the new position with smooth transition
-        previewContainerRef.current.style.transform = `translateY(${newTop}px)`;
+        previewContainerRef.current.style.transform = `translateY(${centeredTop}px)`;
         previewContainerRef.current.style.transition = 'transform 0.2s ease-out';
       }
     };
@@ -313,6 +302,8 @@ const Dashboard = () => {
         return <PageStylesTab pageStyle={pageStyle} setPageStyle={setPageStyle} />;
       case "audio":
         return <AudioTab audioSettings={audioSettings} setAudioSettings={setAudioSettings} />;
+      case "ai":
+        return <AITab pageStyle={pageStyle} setPageStyle={setPageStyle} />;
       default:
         return <ProfileTab profile={profile} setProfile={setProfile} />;
     }
@@ -357,14 +348,16 @@ const Dashboard = () => {
         <div className="w-3/5 border-r border-gray-200 flex flex-col overflow-hidden">
           {renderPanel()}
         </div>
-        <div className="w-2/5 bg-gray-50 flex justify-center p-6 overflow-hidden" ref={previewContainerRef}>
-          <div className="overflow-auto" ref={previewRef}>
-            <PhonePreview 
-              profile={profile} 
-              links={links} 
-              audioSettings={audioSettings}
-              pageStyle={pageStyle}
-            />
+        <div className="w-2/5 bg-gray-50 flex justify-center p-6 overflow-hidden relative">
+          <div className="sticky top-20" ref={previewContainerRef}>
+            <div className="overflow-auto" ref={previewRef}>
+              <PhonePreview 
+                profile={profile} 
+                links={links} 
+                audioSettings={audioSettings}
+                pageStyle={pageStyle}
+              />
+            </div>
           </div>
         </div>
       </div>
