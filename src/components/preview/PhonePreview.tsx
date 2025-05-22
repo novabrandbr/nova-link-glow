@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import { LinkType, UserProfile, AudioSettings, PageStyle } from "@/pages/Dashboard";
 import { 
@@ -48,7 +47,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
       case 'youtube':
         return <Youtube className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
       case 'tiktok':
-        return <TikTok className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
+        return <Music className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
       case 'linkedin':
         return <Linkedin className="h-5 w-5" style={{ color: profile.socialIconsColor || '#6A0DAD' }} />;
       case 'github':

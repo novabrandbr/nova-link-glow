@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
@@ -7,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Upload, Instagram, Facebook, Twitter, Youtube, TikTok, Linkedin, Github, Music, MessageSquare } from 'lucide-react';
+import { Check, Upload, Instagram, Facebook, Twitter, Youtube, Linkedin, Github, Music, MessageSquare } from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 type ProfileTabProps = {
@@ -278,7 +277,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <TikTok className="h-5 w-5 text-black" />
+              <Music className="h-5 w-5 text-black" />
               <Input 
                 value={profile.socialIcons.tiktok || ''}
                 onChange={(e) => handleSocialChange('tiktok', e.target.value)}
