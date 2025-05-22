@@ -26,6 +26,9 @@ export type LinkType = {
   mediaType?: 'none' | 'image' | 'video';
   mediaUrl?: string;
   label?: string;
+  labelColor?: string;
+  labelPosition?: 'top' | 'center' | 'bottom';
+  textAlign?: 'left' | 'center' | 'right';
   description?: string;
 };
 
@@ -75,6 +78,7 @@ export type UserProfile = {
   socialIconsColor?: string;
   isPremium: boolean;
   footerColor?: string;
+  usernameColor?: string;
 };
 
 export type AudioSettings = {
@@ -87,7 +91,12 @@ export type AudioSettings = {
 };
 
 export type PageStyle = {
-  type: "netflix" | "magazine" | "polaroid" | "traditional" | "arcade" | "recipe" | "reality" | "vhs" | "y2k" | "marketing" | "political" | "brazilian" | "american" | "stepbystep";
+  type: "netflix" | "magazine" | "polaroid" | "traditional" | "arcade" | "recipe" | "reality" | "vhs" | "y2k" | 
+         "marketing" | "political" | "brazilian" | "american" | "stepbystep" | "connected" | "timeline" | "orbit" | 
+         "notebook" | "meme" | "windows98" | "bakery" | "linkverse" | "lula" | "bolsonaro" | "trump" | "putin" | 
+         "ballot" | "tropical" | "usa" | "soviet" | "france" | "portugal" | "spain" | "china" | "aesthetic" | 
+         "dental" | "health" | "skincare" | "fashion" | "vintage" | "mall" | "streetwear" | "menu" | "foodtruck" | 
+         "gourmet" | "cassette" | "anime" | "realityshow" | "netflixHorizontal" | "y2kstyle" | "recipeSuccess" | "arcadeRetro";
   buttonColor?: string;
   cardSettings?: {
     showLabels?: boolean;
@@ -97,6 +106,8 @@ export type PageStyle = {
     showGradient?: boolean;
     gradientColor?: string; 
     gradientOpacity?: number;
+    labelPosition?: 'top' | 'center' | 'bottom';
+    textAlign?: 'left' | 'center' | 'right';
   };
 };
 
@@ -105,6 +116,29 @@ const Dashboard = () => {
   const [activeMinisiteTab, setActiveMinisiteTab] = useState<string>("profile");
   const previewRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
+  
+  // Set up the phone preview to follow scroll
+  useEffect(() => {
+    const handleScroll = () => {
+      if (previewContainerRef.current) {
+        const scrollTop = window.scrollY;
+        const headerHeight = 64; // Approximate header height
+        
+        // Calculate how much the preview should move
+        const newTop = Math.max(0, scrollTop - headerHeight);
+        
+        // Apply the new position
+        previewContainerRef.current.style.transform = `translateY(${newTop}px)`;
+        previewContainerRef.current.style.transition = 'transform 0.1s';
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
   
   // Set up scroll syncing with a throttled scroll handler
   useEffect(() => {
@@ -178,6 +212,9 @@ const Dashboard = () => {
       active: true, 
       color: "#6A0DAD",
       label: "Novidade",
+      labelColor: "#FF0000",
+      labelPosition: "top",
+      textAlign: "center",
       mediaType: "none"
     },
     { 
@@ -187,6 +224,9 @@ const Dashboard = () => {
       active: true, 
       color: "#6A0DAD",
       label: "TOP 10",
+      labelColor: "#FF0000",
+      labelPosition: "top",
+      textAlign: "center",
       mediaType: "none"
     }
   ]);
@@ -216,7 +256,8 @@ const Dashboard = () => {
     socialIcons: {},
     socialIconsColor: "#6A0DAD",
     isPremium: false,
-    footerColor: "#666666"
+    footerColor: "#666666",
+    usernameColor: "#888888"
   });
 
   const [audioSettings, setAudioSettings] = useState<AudioSettings>({
@@ -234,7 +275,9 @@ const Dashboard = () => {
       showMedia: true,
       showGradient: false,
       gradientColor: "#000000",
-      gradientOpacity: 0.5
+      gradientOpacity: 0.5,
+      labelPosition: "top",
+      textAlign: "center"
     }
   });
 
@@ -292,13 +335,15 @@ const Dashboard = () => {
         <div className="w-3/5 border-r border-gray-200 flex flex-col overflow-hidden">
           {renderPanel()}
         </div>
-        <div className="w-2/5 bg-gray-50 flex justify-center p-6 overflow-auto" ref={previewRef}>
-          <PhonePreview 
-            profile={profile} 
-            links={links} 
-            audioSettings={audioSettings}
-            pageStyle={pageStyle}
-          />
+        <div className="w-2/5 bg-gray-50 flex justify-center p-6 overflow-hidden" ref={previewContainerRef}>
+          <div className="overflow-auto" ref={previewRef}>
+            <PhonePreview 
+              profile={profile} 
+              links={links} 
+              audioSettings={audioSettings}
+              pageStyle={pageStyle}
+            />
+          </div>
         </div>
       </div>
     </DashboardLayout>

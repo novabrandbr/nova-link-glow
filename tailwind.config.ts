@@ -102,7 +102,9 @@ export default {
 				},
 				'lightleak': {
 					'0%': { backgroundPosition: '0% 0%' },
-					'50%': { backgroundPosition: '100% 0%' },
+					'25%': { backgroundPosition: '100% 0%' },
+					'50%': { backgroundPosition: '100% 100%' },
+					'75%': { backgroundPosition: '0% 100%' },
 					'100%': { backgroundPosition: '0% 0%' }
 				},
 				'spark': {
@@ -130,21 +132,27 @@ export default {
 					'100%': { transform: 'translateY(600px)' }
 				},
 				'flames': {
-					'0%': { transform: 'scaleY(0.8)' },
-					'100%': { transform: 'scaleY(1.1)' }
+					'0%': { transform: 'translateY(0) scaleY(0.8)' },
+					'50%': { transform: 'translateY(-10px) scaleY(1.0)' },
+					'100%': { transform: 'translateY(0) scaleY(0.8)' }
 				},
 				'twinkle': {
 					'0%': { opacity: '0.3' },
-					'100%': { opacity: '1' }
+					'50%': { opacity: '1' },
+					'100%': { opacity: '0.3' }
 				},
 				'waves': {
 					'0%': { backgroundPosition: '0% 0%' },
-					'50%': { backgroundPosition: '100% 0%' },
+					'25%': { backgroundPosition: '100% 0%' },
+					'50%': { backgroundPosition: '100% 100%' },
+					'75%': { backgroundPosition: '0% 100%' },
 					'100%': { backgroundPosition: '0% 0%' }
 				},
 				'smoke': {
 					'0%': { backgroundPosition: 'center 0%' },
+					'25%': { backgroundPosition: 'center 25%' },
 					'50%': { backgroundPosition: 'center 50%' },
+					'75%': { backgroundPosition: 'center 75%' },
 					'100%': { backgroundPosition: 'center 0%' }
 				},
 				'firework': {
@@ -156,7 +164,10 @@ export default {
 				},
 				'customEffect': {
 					'0%': { backgroundPosition: '0% 0%' },
-					'100%': { backgroundPosition: '100% 100%' }
+					'25%': { backgroundPosition: '100% 0%' },
+					'50%': { backgroundPosition: '100% 100%' },
+					'75%': { backgroundPosition: '0% 100%' },
+					'100%': { backgroundPosition: '0% 0%' }
 				},
 			},
 			animation: {
@@ -170,8 +181,8 @@ export default {
 				'snowfall': 'snowfall 10s linear infinite',
 				'confetti': 'confetti 10s linear infinite',
 				'matrixDrop': 'matrixDrop 10s linear infinite',
-				'flames': 'flames 1s ease-in-out infinite alternate',
-				'twinkle': 'twinkle 3s ease-in-out infinite alternate',
+				'flames': 'flames 2s ease-in-out infinite',
+				'twinkle': 'twinkle 2s ease-in-out infinite',
 				'waves': 'waves 5s ease infinite',
 				'smoke': 'smoke 8s ease infinite',
 				'firework': 'firework 3s ease-out infinite',
@@ -193,6 +204,18 @@ export default {
 				'georgia': ['Georgia', 'serif'],
 				'verdana': ['Verdana', 'sans-serif'],
 				'impact': ['Impact', 'Haettenschweiler', 'sans-serif'],
+				'times-new-roman': ['"Times New Roman"', 'serif'],
+				'courier-new': ['"Courier New"', 'monospace'],
+				'comic-sans': ['"Comic Sans MS"', 'cursive'],
+				'arial': ['Arial', 'sans-serif'],
+				'tahoma': ['Tahoma', 'sans-serif'],
+				'trebuchet': ['"Trebuchet MS"', 'sans-serif'],
+				'nunito': ['Nunito', 'sans-serif'],
+				'raleway': ['Raleway', 'sans-serif'],
+				'oswald': ['Oswald', 'sans-serif'],
+				'pacifico': ['Pacifico', 'cursive'],
+				'dancing-script': ['"Dancing Script"', 'cursive'],
+				'quicksand': ['Quicksand', 'sans-serif'],
 			},
 		}
 	},
