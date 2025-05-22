@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 import { LinkType, UserProfile, AudioSettings, PageStyle } from "@/pages/Dashboard";
 import { 
@@ -5,10 +6,9 @@ import {
   Facebook, 
   Twitter, 
   Youtube, 
-  TikTok, 
+  Music, 
   Linkedin, 
   Github, 
-  Music, 
   MessageSquare 
 } from "lucide-react";
 
