@@ -34,7 +34,10 @@ export type UserProfile = {
   username: string;
   bio: string;
   avatar?: string;
+  avatarShape: 'circle' | 'square' | 'rounded' | 'triangle' | 'hexagon' | 'banner';
   isVerified: boolean;
+  showProfileInfo: boolean;
+  profileInfoPosition: 'left' | 'center' | 'right';
   backgroundColor: string;
   backgroundType: "solid" | "gradient" | "image" | "video";
   backgroundGradient?: string;
@@ -50,8 +53,9 @@ export type UserProfile = {
   visualEffectOpacity: number;
   visualEffectSpeed: number;
   visualEffectSize: number;
+  visualEffectCustomUrl?: string;
   buttonColor: string;
-  font: "montserrat" | "bebas-neue" | "helvetica-neue" | "poppins" | "burbank" | "pixelated" | "handwritten";
+  font: string;
   nameColor: string;
   bioColor: string;
   socialIcons: {
@@ -70,6 +74,7 @@ export type UserProfile = {
   };
   socialIconsColor?: string;
   isPremium: boolean;
+  footerColor?: string;
 };
 
 export type AudioSettings = {
@@ -82,13 +87,16 @@ export type AudioSettings = {
 };
 
 export type PageStyle = {
-  type: "netflix" | "magazine" | "polaroid" | "traditional" | "arcade" | "recipe" | "reality" | "vhs" | "y2k";
+  type: "netflix" | "magazine" | "polaroid" | "traditional" | "arcade" | "recipe" | "reality" | "vhs" | "y2k" | "marketing" | "political" | "brazilian" | "american" | "stepbystep";
   buttonColor?: string;
   cardSettings?: {
     showLabels?: boolean;
     showOverlay?: boolean;
     aspectRatio?: 'portrait' | 'square' | 'landscape';
     showMedia?: boolean;
+    showGradient?: boolean;
+    gradientColor?: string; 
+    gradientOpacity?: number;
   };
 };
 
@@ -98,28 +106,69 @@ const Dashboard = () => {
   const previewRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   
-  // Set up scroll syncing
+  // Set up scroll syncing with a throttled scroll handler
   useEffect(() => {
     const handleScroll = () => {
       if (panelRef.current && previewRef.current) {
         const panelScrollTop = panelRef.current.scrollTop;
-        const maxScroll = panelRef.current.scrollHeight - panelRef.current.clientHeight;
-        const scrollRatio = Math.min(panelScrollTop / maxScroll, 1);
+        const panelHeight = panelRef.current.clientHeight;
+        const panelScrollHeight = panelRef.current.scrollHeight;
         
-        const previewMaxScroll = previewRef.current.scrollHeight - previewRef.current.clientHeight;
-        previewRef.current.scrollTop = scrollRatio * previewMaxScroll;
+        // Calculate scroll percentage
+        const scrollPercentage = panelScrollTop / (panelScrollHeight - panelHeight);
+        
+        // Apply the same percentage to the preview
+        const previewScrollHeight = previewRef.current.scrollHeight;
+        const previewHeight = previewRef.current.clientHeight;
+        const previewScrollPosition = scrollPercentage * (previewScrollHeight - previewHeight);
+        
+        previewRef.current.scrollTop = previewScrollPosition;
+      }
+    };
+    
+    // Add scroll event listener with throttling
+    let scrollTimeout: number | null = null;
+    const throttledScroll = () => {
+      if (scrollTimeout === null) {
+        scrollTimeout = window.setTimeout(() => {
+          handleScroll();
+          scrollTimeout = null;
+        }, 10);
       }
     };
     
     const panelElement = panelRef.current;
     if (panelElement) {
-      panelElement.addEventListener('scroll', handleScroll);
+      panelElement.addEventListener('scroll', throttledScroll);
       
       return () => {
-        panelElement.removeEventListener('scroll', handleScroll);
+        if (scrollTimeout) window.clearTimeout(scrollTimeout);
+        panelElement.removeEventListener('scroll', throttledScroll);
       };
     }
   }, [activePanel, activeMinisiteTab]);
+  
+  // Use effect for window scroll to follow the panel
+  useEffect(() => {
+    const handleWindowScroll = () => {
+      if (previewRef.current) {
+        const windowScroll = window.scrollY;
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        if (maxScroll > 0) {
+          const scrollRatio = windowScroll / maxScroll;
+          const previewMaxScroll = previewRef.current.scrollHeight - previewRef.current.clientHeight;
+          if (previewMaxScroll > 0) {
+            previewRef.current.scrollTop = scrollRatio * previewMaxScroll;
+          }
+        }
+      }
+    };
+    
+    window.addEventListener('scroll', handleWindowScroll);
+    return () => {
+      window.removeEventListener('scroll', handleWindowScroll);
+    };
+  }, []);
   
   const [links, setLinks] = useState<LinkType[]>([
     { 
@@ -146,7 +195,10 @@ const Dashboard = () => {
     name: "John Doe",
     username: "johndoe",
     bio: "Digital creator and web developer",
+    avatarShape: "circle",
     isVerified: false,
+    showProfileInfo: true,
+    profileInfoPosition: "center",
     backgroundColor: "#FFFFFF",
     backgroundType: "solid",
     overlay: false,
@@ -163,7 +215,8 @@ const Dashboard = () => {
     bioColor: "#666666",
     socialIcons: {},
     socialIconsColor: "#6A0DAD",
-    isPremium: false
+    isPremium: false,
+    footerColor: "#666666"
   });
 
   const [audioSettings, setAudioSettings] = useState<AudioSettings>({
@@ -178,7 +231,10 @@ const Dashboard = () => {
   const [pageStyle, setPageStyle] = useState<PageStyle>({
     type: "traditional",
     cardSettings: {
-      showMedia: true
+      showMedia: true,
+      showGradient: false,
+      gradientColor: "#000000",
+      gradientOpacity: 0.5
     }
   });
 

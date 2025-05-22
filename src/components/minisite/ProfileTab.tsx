@@ -1,12 +1,30 @@
-import React from 'react';
+
+import React, { useRef } from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Check, Upload, Instagram, Facebook, Twitter, Youtube, Linkedin, Github, Music, MessageSquare } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+import { 
+  Check, 
+  Upload, 
+  Instagram, 
+  Facebook, 
+  Twitter, 
+  Youtube, 
+  Music, 
+  Linkedin, 
+  Github, 
+  MessageSquare 
+} from 'lucide-react';
 import { toast } from '@/components/ui/use-toast';
 
 type ProfileTabProps = {
@@ -15,8 +33,10 @@ type ProfileTabProps = {
 };
 
 const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const videoInputRef = React.useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const backgroundImageRef = useRef<HTMLInputElement>(null);
+  const effectUploadRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (field: keyof UserProfile, value: any) => {
     setProfile(prev => ({ ...prev, [field]: value }));
@@ -49,7 +69,28 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     { value: 'particles', label: 'Partículas' },
     { value: 'snow', label: 'Neve' },
     { value: 'confetti', label: 'Confete' },
-    { value: 'matrix', label: 'Efeito Matrix' }
+    { value: 'matrix', label: 'Efeito Matrix' },
+    { value: 'flames', label: 'Chamas' },
+    { value: 'stars', label: 'Estrelas' },
+    { value: 'waves', label: 'Ondas' },
+    { value: 'smoke', label: 'Fumaça' },
+    { value: 'fireworks', label: 'Fogos de Artifício' },
+    { value: 'custom', label: 'Upload Personalizado' }
+  ];
+
+  const avatarShapes = [
+    { value: 'circle', label: 'Círculo' },
+    { value: 'square', label: 'Quadrado' },
+    { value: 'rounded', label: 'Arredondado' },
+    { value: 'triangle', label: 'Triângulo' }, 
+    { value: 'hexagon', label: 'Hexágono' },
+    { value: 'banner', label: 'Banner' }
+  ];
+
+  const profilePositions = [
+    { value: 'left', label: 'Esquerda' },
+    { value: 'center', label: 'Centro' },
+    { value: 'right', label: 'Direita' }
   ];
 
   const fontOptions = [
@@ -59,7 +100,16 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     { value: 'poppins', label: 'Poppins' },
     { value: 'burbank', label: 'Burbank' },
     { value: 'pixelated', label: 'Pixelated (Arcade)' },
-    { value: 'handwritten', label: 'Handwritten' }
+    { value: 'handwritten', label: 'Handwritten' },
+    { value: 'roboto', label: 'Roboto' },
+    { value: 'open-sans', label: 'Open Sans' },
+    { value: 'lato', label: 'Lato' },
+    { value: 'playfair', label: 'Playfair Display' },
+    { value: 'merriweather', label: 'Merriweather' },
+    { value: 'courier', label: 'Courier' },
+    { value: 'georgia', label: 'Georgia' },
+    { value: 'verdana', label: 'Verdana' },
+    { value: 'impact', label: 'Impact' }
   ];
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,6 +133,33 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
         toast({
           title: "Avatar atualizado",
           description: "Sua foto de perfil foi atualizada com sucesso."
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleBackgroundImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "O tamanho máximo permitido é 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        handleChange('backgroundImage', event.target.result.toString());
+        toast({
+          title: "Imagem de fundo atualizada",
+          description: "A imagem de fundo foi atualizada com sucesso."
         });
       }
     };
@@ -116,14 +193,102 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     reader.readAsDataURL(file);
   };
 
+  const handleEffectUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "Arquivo muito grande",
+        description: "O tamanho máximo permitido é 5MB.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        handleChange('visualEffectCustomUrl', event.target.result.toString());
+        handleChange('visualEffect', 'custom');
+        toast({
+          title: "Efeito personalizado adicionado",
+          description: "O efeito visual foi atualizado com sucesso."
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="space-y-8">
       {/* Perfil */}
       <div className="space-y-6">
         <h3 className="text-xl font-semibold">Perfil</h3>
         
+        <div className="space-y-4 p-4 border rounded-lg bg-white">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="showProfileInfo">Mostrar informações do perfil</Label>
+            <Switch 
+              id="showProfileInfo"
+              checked={profile.showProfileInfo}
+              onCheckedChange={(checked) => handleChange('showProfileInfo', checked)}
+            />
+          </div>
+          
+          {profile.showProfileInfo && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="profilePosition">Posição das informações</Label>
+                <Select 
+                  value={profile.profileInfoPosition}
+                  onValueChange={(value: 'left' | 'center' | 'right') => handleChange('profileInfoPosition', value)}
+                >
+                  <SelectTrigger id="profilePosition">
+                    <SelectValue placeholder="Posição das informações" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {profilePositions.map(position => (
+                      <SelectItem key={position.value} value={position.value}>
+                        {position.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            
+              <div className="space-y-2">
+                <Label htmlFor="avatarShape">Formato da foto de perfil</Label>
+                <Select 
+                  value={profile.avatarShape}
+                  onValueChange={(value: 'circle' | 'square' | 'rounded' | 'triangle' | 'hexagon' | 'banner') => handleChange('avatarShape', value)}
+                >
+                  <SelectTrigger id="avatarShape">
+                    <SelectValue placeholder="Escolha o formato" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {avatarShapes.map(shape => (
+                      <SelectItem key={shape.value} value={shape.value}>
+                        {shape.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
+        </div>
+        
         <div className="flex items-center space-x-4">
-          <Avatar className="h-24 w-24">
+          <Avatar className={`h-24 w-24 ${
+            profile.avatarShape === 'square' ? 'rounded-none' : 
+            profile.avatarShape === 'rounded' ? 'rounded-lg' : 
+            profile.avatarShape === 'triangle' ? 'clip-path-triangle' :
+            profile.avatarShape === 'hexagon' ? 'clip-path-hexagon' :
+            profile.avatarShape === 'banner' ? 'w-full h-16 rounded-none' :
+            'rounded-full'
+          }`}>
             <AvatarImage src={profile.avatar} />
             <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
@@ -200,6 +365,16 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 />
                 <Label htmlFor="premium" className="text-sm">Remover marca (Premium)</Label>
               </div>
+            </div>
+            <div className="flex items-center space-x-2 mt-2">
+              <Label htmlFor="footerColor">Cor do link:</Label>
+              <input 
+                type="color"
+                id="footerColor"
+                value={profile.footerColor || "#666666"}
+                onChange={(e) => handleChange('footerColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
             </div>
           </div>
           
@@ -348,7 +523,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             <Label htmlFor="backgroundType">Tipo de fundo</Label>
             <Select 
               value={profile.backgroundType}
-              onValueChange={(value) => handleChange('backgroundType', value)}
+              onValueChange={(value: "solid" | "gradient" | "image" | "video") => handleChange('backgroundType', value)}
             >
               <SelectTrigger id="backgroundType">
                 <SelectValue placeholder="Selecione o tipo de fundo" />
@@ -393,10 +568,39 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           {profile.backgroundType === 'image' && (
             <div className="space-y-2">
               <Label>Imagem de fundo</Label>
-              <Button variant="outline" className="w-full h-32 border-dashed">
-                <Upload className="mr-2 h-4 w-4" />
-                Fazer upload de imagem
-              </Button>
+              {profile.backgroundImage ? (
+                <div className="space-y-2">
+                  <img 
+                    src={profile.backgroundImage} 
+                    alt="Background" 
+                    className="w-full h-32 object-cover rounded-md"
+                  />
+                  <Button 
+                    variant="outline" 
+                    onClick={() => backgroundImageRef.current?.click()}
+                    className="w-full"
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Substituir imagem
+                  </Button>
+                </div>
+              ) : (
+                <Button 
+                  variant="outline" 
+                  className="w-full h-32 border-dashed"
+                  onClick={() => backgroundImageRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Fazer upload de imagem
+                </Button>
+              )}
+              <Input
+                type="file"
+                ref={backgroundImageRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleBackgroundImageUpload}
+              />
             </div>
           )}
           
@@ -404,14 +608,32 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             <div className="space-y-4">
               <Label>Vídeo de fundo</Label>
               <div className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  className="w-full h-20 border-dashed"
-                  onClick={() => videoInputRef.current?.click()}
-                >
-                  <Upload className="mr-2 h-4 w-4" />
-                  Fazer upload de vídeo
-                </Button>
+                {profile.backgroundVideo ? (
+                  <div className="space-y-2">
+                    <video 
+                      src={profile.backgroundVideo} 
+                      className="w-full h-32 object-cover rounded-md"
+                      controls
+                    />
+                    <Button 
+                      variant="outline" 
+                      onClick={() => videoInputRef.current?.click()}
+                      className="w-full"
+                    >
+                      <Upload className="mr-2 h-4 w-4" />
+                      Substituir vídeo
+                    </Button>
+                  </div>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    className="w-full h-20 border-dashed"
+                    onClick={() => videoInputRef.current?.click()}
+                  >
+                    <Upload className="mr-2 h-4 w-4" />
+                    Fazer upload de vídeo
+                  </Button>
+                )}
                 <Input
                   type="file"
                   ref={videoInputRef}
@@ -528,7 +750,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           </div>
           
           <div className="grid grid-cols-3 gap-3">
-            {visualEffects.filter(e => e.value !== 'none').map(effect => (
+            {visualEffects.filter(e => e.value !== 'none' && e.value !== 'custom').map(effect => (
               <div 
                 key={effect.value}
                 className={`border rounded-lg p-3 cursor-pointer ${profile.visualEffect === effect.value ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}
@@ -544,6 +766,57 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           
           {profile.visualEffect !== 'none' && (
             <div className="space-y-4 pl-2 border-l-2 border-purple-200 mt-4">
+              {profile.visualEffect === 'custom' && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Efeito personalizado</Label>
+                    {profile.visualEffectCustomUrl ? (
+                      <div>
+                        <div className="aspect-video bg-gray-100 mb-2 rounded-sm flex items-center justify-center">
+                          {profile.visualEffectCustomUrl.startsWith('data:image') ? (
+                            <img src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" alt="Efeito personalizado" />
+                          ) : (
+                            <video src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" autoPlay muted loop />
+                          )}
+                        </div>
+                        <Button 
+                          variant="outline"
+                          onClick={() => effectUploadRef.current?.click()}
+                          className="w-full"
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          Substituir efeito
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Button 
+                          variant="outline" 
+                          className="w-full h-20 border-dashed"
+                          onClick={() => effectUploadRef.current?.click()}
+                        >
+                          <Upload className="mr-2 h-4 w-4" />
+                          Upload de efeito personalizado
+                        </Button>
+                        <Input
+                          type="file"
+                          ref={effectUploadRef}
+                          className="hidden"
+                          accept="image/*,video/*"
+                          onChange={handleEffectUpload}
+                        />
+                        <p className="text-xs text-gray-500">Ou insira um link do YouTube:</p>
+                        <Input 
+                          placeholder="https://youtube.com/watch?v=..."
+                          value={profile.visualEffectCustomUrl || ''}
+                          onChange={(e) => handleChange('visualEffectCustomUrl', e.target.value)}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               <div className="space-y-2">
                 <Label htmlFor="visualEffectColor">Cor do efeito</Label>
                 <div className="flex items-center space-x-2">

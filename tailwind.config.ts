@@ -89,16 +89,110 @@ export default {
 					to: {
 						height: '0'
 					}
-				}
+				},
+				'bubbleRise': {
+					'0%': { backgroundPosition: '0% 100%' },
+					'100%': { backgroundPosition: '0% 0%' }
+				},
+				'glitch': {
+					'0%': { opacity: '1' },
+					'50%': { opacity: '0.5', transform: 'translateX(2px)' },
+					'51%': { opacity: '0.5', transform: 'translateX(-2px)' },
+					'100%': { opacity: '1' }
+				},
+				'lightleak': {
+					'0%': { backgroundPosition: '0% 0%' },
+					'50%': { backgroundPosition: '100% 0%' },
+					'100%': { backgroundPosition: '0% 0%' }
+				},
+				'spark': {
+					'0%': { transform: 'scale(0)', opacity: '0' },
+					'50%': { transform: 'scale(1)', opacity: '1' },
+					'100%': { transform: 'scale(0)', opacity: '0' }
+				},
+				'float': {
+					'0%': { transform: 'translateY(0) translateX(0)' },
+					'25%': { transform: 'translateY(-30px) translateX(10px)' },
+					'50%': { transform: 'translateY(-10px) translateX(20px)' },
+					'75%': { transform: 'translateY(-20px) translateX(-10px)' },
+					'100%': { transform: 'translateY(0) translateX(0)' }
+				},
+				'snowfall': {
+					'0%': { transform: 'translateY(-10px)' },
+					'100%': { transform: 'translateY(600px)' }
+				},
+				'confetti': {
+					'0%': { transform: 'translateY(-10px) rotate(0deg)' },
+					'100%': { transform: 'translateY(600px) rotate(360deg)' }
+				},
+				'matrixDrop': {
+					'0%': { transform: 'translateY(-100%)' },
+					'100%': { transform: 'translateY(600px)' }
+				},
+				'flames': {
+					'0%': { transform: 'scaleY(0.8)' },
+					'100%': { transform: 'scaleY(1.1)' }
+				},
+				'twinkle': {
+					'0%': { opacity: '0.3' },
+					'100%': { opacity: '1' }
+				},
+				'waves': {
+					'0%': { backgroundPosition: '0% 0%' },
+					'50%': { backgroundPosition: '100% 0%' },
+					'100%': { backgroundPosition: '0% 0%' }
+				},
+				'smoke': {
+					'0%': { backgroundPosition: 'center 0%' },
+					'50%': { backgroundPosition: 'center 50%' },
+					'100%': { backgroundPosition: 'center 0%' }
+				},
+				'firework': {
+					'0%': { transform: 'scale(0)', opacity: '0' },
+					'25%': { transform: 'scale(1)', opacity: '0.7' },
+					'50%': { transform: 'scale(0.8)', opacity: '0.5' },
+					'75%': { transform: 'scale(1.2)', opacity: '0.3' },
+					'100%': { transform: 'scale(1.5)', opacity: '0' }
+				},
+				'customEffect': {
+					'0%': { backgroundPosition: '0% 0%' },
+					'100%': { backgroundPosition: '100% 100%' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'bubbleRise': 'bubbleRise 4s linear infinite',
+				'glitch': 'glitch 0.5s linear infinite',
+				'lightleak': 'lightleak 8s ease infinite',
+				'spark': 'spark 3s linear infinite',
+				'float': 'float 5s ease infinite',
+				'snowfall': 'snowfall 10s linear infinite',
+				'confetti': 'confetti 10s linear infinite',
+				'matrixDrop': 'matrixDrop 10s linear infinite',
+				'flames': 'flames 1s ease-in-out infinite alternate',
+				'twinkle': 'twinkle 3s ease-in-out infinite alternate',
+				'waves': 'waves 5s ease infinite',
+				'smoke': 'smoke 8s ease infinite',
+				'firework': 'firework 3s ease-out infinite',
+				'customEffect': 'customEffect 10s linear infinite',
 			},
 			fontFamily: {
 				'montserrat': ['Montserrat', 'sans-serif'],
 				'bebas-neue': ['"Bebas Neue"', 'sans-serif'],
 				'helvetica-neue': ['-apple-system', 'BlinkMacSystemFont', '"Helvetica Neue"', 'Arial', 'sans-serif'],
+				'poppins': ['Poppins', 'sans-serif'],
+				'burbank': ['"Burbank Big"', 'Impact', 'sans-serif'],
+				'pixelated': ['"Press Start 2P"', 'monospace'],
+				'handwritten': ['"Caveat"', 'cursive'],
+				'roboto': ['Roboto', 'sans-serif'],
+				'open-sans': ['"Open Sans"', 'sans-serif'],
+				'lato': ['Lato', 'sans-serif'],
+				'playfair': ['"Playfair Display"', 'serif'],
+				'merriweather': ['Merriweather', 'serif'],
+				'georgia': ['Georgia', 'serif'],
+				'verdana': ['Verdana', 'sans-serif'],
+				'impact': ['Impact', 'Haettenschweiler', 'sans-serif'],
 			},
 		}
 	},
