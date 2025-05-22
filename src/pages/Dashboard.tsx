@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import LinksPanel from "@/components/panels/LinksPanel";
@@ -118,29 +117,48 @@ const Dashboard = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   
-  // Set up the phone preview to follow scroll
+  // Set up the phone preview to follow scroll with improved behavior
   useEffect(() => {
     const handleScroll = () => {
       if (previewContainerRef.current) {
         const scrollTop = window.scrollY;
         const headerHeight = 64; // Approximate header height
+        const mainContent = document.querySelector('main');
+        
+        if (!mainContent) return;
+        
+        const mainContentRect = mainContent.getBoundingClientRect();
+        const mainContentTop = mainContentRect.top + window.scrollY;
+        const mainContentHeight = mainContentRect.height;
+        const viewportHeight = window.innerHeight;
+        
+        // Calculate available space
+        const availableHeight = viewportHeight - headerHeight;
+        const previewHeight = previewContainerRef.current.offsetHeight;
+        
+        // Calculate maximum scroll position
+        const maxScroll = Math.max(0, mainContentHeight - previewHeight);
         
         // Calculate how much the preview should move
-        const newTop = Math.max(0, scrollTop - headerHeight);
+        let newTop = Math.max(0, scrollTop - mainContentTop);
+        newTop = Math.min(newTop, maxScroll);
         
-        // Apply the new position
+        // Apply the new position with smooth transition
         previewContainerRef.current.style.transform = `translateY(${newTop}px)`;
-        previewContainerRef.current.style.transition = 'transform 0.1s';
+        previewContainerRef.current.style.transition = 'transform 0.2s ease-out';
       }
     };
     
     window.addEventListener('scroll', handleScroll);
+    // Trigger once on mount to position correctly
+    setTimeout(handleScroll, 100);
+    
     return () => {
       window.removeEventListener('scroll', handleScroll);
     };
-  }, []);
+  }, [activePanel, activeMinisiteTab]);
   
-  // Set up scroll syncing with a throttled scroll handler
+  // Improved scroll syncing with a throttled scroll handler
   useEffect(() => {
     const handleScroll = () => {
       if (panelRef.current && previewRef.current) {
@@ -156,7 +174,11 @@ const Dashboard = () => {
         const previewHeight = previewRef.current.clientHeight;
         const previewScrollPosition = scrollPercentage * (previewScrollHeight - previewHeight);
         
-        previewRef.current.scrollTop = previewScrollPosition;
+        // Apply smooth scrolling to preview
+        previewRef.current.scrollTo({
+          top: previewScrollPosition,
+          behavior: 'smooth'
+        });
       }
     };
     
@@ -182,7 +204,7 @@ const Dashboard = () => {
     }
   }, [activePanel, activeMinisiteTab]);
   
-  // Use effect for window scroll to follow the panel
+  // Window scroll to follow the panel with improved behavior
   useEffect(() => {
     const handleWindowScroll = () => {
       if (previewRef.current) {
@@ -202,7 +224,7 @@ const Dashboard = () => {
     return () => {
       window.removeEventListener('scroll', handleWindowScroll);
     };
-  }, []);
+  }, [activeMinisiteTab]);
   
   const [links, setLinks] = useState<LinkType[]>([
     { 

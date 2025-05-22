@@ -1,12 +1,11 @@
-
 import React, { useState } from "react";
-import { Plus, Edit, Trash2, Move, AlignLeft, AlignCenter, AlignRight } from "lucide-react";
+import { Plus, Edit, Trash2, Move, AlignLeft, AlignCenter, AlignRight, Image, Video, Link as LinkIcon, X } from "lucide-react";
 import { LinkType } from "@/pages/Dashboard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
@@ -24,10 +23,16 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
     label: "",
     labelColor: "#FF0000",
     labelPosition: "top",
-    textAlign: "center"
+    textAlign: "center",
+    mediaType: "none" as 'none' | 'image' | 'video',
+    mediaUrl: ""
   });
   const [editingLinkId, setEditingLinkId] = useState<string | null>(null);
   const [showCustomLabel, setShowCustomLabel] = useState<{ [key: string]: boolean }>({});
+  const [customLabelText, setCustomLabelText] = useState<string>("");
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const videoInputRef = React.useRef<HTMLInputElement>(null);
+  const editFileInputRefs = React.useRef<{[key: string]: HTMLInputElement | null}>({});
 
   const addLink = () => {
     if (!newLink.title || !newLink.url) {
@@ -48,7 +53,9 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
       label: newLink.label || undefined,
       labelColor: newLink.labelColor,
       labelPosition: newLink.labelPosition as 'top' | 'center' | 'bottom',
-      textAlign: newLink.textAlign as 'left' | 'center' | 'right'
+      textAlign: newLink.textAlign as 'left' | 'center' | 'right',
+      mediaType: newLink.mediaType,
+      mediaUrl: newLink.mediaUrl
     };
 
     setLinks([...links, link]);
@@ -59,7 +66,9 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
       label: "",
       labelColor: "#FF0000",
       labelPosition: "top",
-      textAlign: "center" 
+      textAlign: "center",
+      mediaType: "none",
+      mediaUrl: ""
     });
     toast({
       title: "Link adicionado",
@@ -108,6 +117,71 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
     }
   };
 
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB for images, 20MB for videos)
+    const maxSize = type === 'image' ? 5 * 1024 * 1024 : 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast({
+        title: "Arquivo muito grande",
+        description: `O tamanho máximo permitido é ${type === 'image' ? '5MB' : '20MB'}.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setNewLink({
+          ...newLink, 
+          mediaType: type, 
+          mediaUrl: event.target.result.toString()
+        });
+        
+        toast({
+          title: "Upload concluído",
+          description: `${type === 'image' ? 'Imagem' : 'Vídeo'} carregado com sucesso.`
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleEditFileUpload = (id: string, e: React.ChangeEvent<HTMLInputElement>, type: 'image' | 'video') => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file size (max 5MB for images, 20MB for videos)
+    const maxSize = type === 'image' ? 5 * 1024 * 1024 : 20 * 1024 * 1024;
+    if (file.size > maxSize) {
+      toast({
+        title: "Arquivo muito grande",
+        description: `O tamanho máximo permitido é ${type === 'image' ? '5MB' : '20MB'}.`,
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        updateLink(id, {
+          mediaType: type,
+          mediaUrl: event.target.result.toString()
+        });
+        
+        toast({
+          title: "Upload concluído",
+          description: `${type === 'image' ? 'Imagem' : 'Vídeo'} substituído com sucesso.`
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   return (
     <div className="p-6">
       <h3 className="text-xl font-semibold mb-6">Adicionar novo link</h3>
@@ -150,6 +224,116 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
             />
             <span>{newLink.color}</span>
           </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="block text-sm font-medium mb-1">
+            Mídia
+          </label>
+          <Select 
+            onValueChange={(value: 'none' | 'image' | 'video') => setNewLink({...newLink, mediaType: value})}
+            defaultValue="none"
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Tipo de mídia" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">Sem mídia</SelectItem>
+              <SelectItem value="image">Imagem</SelectItem>
+              <SelectItem value="video">Vídeo</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {newLink.mediaType === 'image' && (
+            <div className="mt-2">
+              {!newLink.mediaUrl ? (
+                <Button 
+                  variant="outline" 
+                  className="w-full flex items-center justify-center"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Image className="mr-2 h-4 w-4" />
+                  Escolher imagem
+                </Button>
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <div className="w-16 h-16 border rounded overflow-hidden">
+                    <img 
+                      src={newLink.mediaUrl} 
+                      alt="Preview" 
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    Substituir
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setNewLink({...newLink, mediaUrl: "", mediaType: "none"})}
+                    className="text-red-500"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              )}
+              <Input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={(e) => handleFileUpload(e, 'image')}
+              />
+            </div>
+          )}
+
+          {newLink.mediaType === 'video' && (
+            <div className="mt-2 space-y-2">
+              <div className="flex items-center space-x-2">
+                <Button 
+                  variant="outline" 
+                  className="flex items-center"
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  <Video className="mr-2 h-4 w-4" />
+                  Upload de vídeo
+                </Button>
+                
+                {newLink.mediaUrl && newLink.mediaUrl.startsWith('data:') && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => setNewLink({...newLink, mediaUrl: "", mediaType: "none"})}
+                    className="text-red-500"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              
+              <Input
+                type="file"
+                ref={videoInputRef}
+                className="hidden"
+                accept="video/*"
+                onChange={(e) => handleFileUpload(e, 'video')}
+              />
+              
+              <div className="flex items-center space-x-2">
+                <LinkIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                <Input
+                  placeholder="Ou cole URL do vídeo"
+                  value={newLink.mediaUrl}
+                  onChange={(e) => setNewLink({...newLink, mediaUrl: e.target.value, mediaType: 'video'})}
+                  className="flex-1"
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -407,6 +591,119 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
                           <Label htmlFor={`right-${link.id}`} className="cursor-pointer"><AlignRight size={16} /></Label>
                         </div>
                       </RadioGroup>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label className="block text-sm font-medium mb-1">
+                        Mídia
+                      </label>
+                      <Select 
+                        value={link.mediaType || 'none'} 
+                        onValueChange={(value: 'none' | 'image' | 'video') => updateLink(link.id, { mediaType: value })}
+                      >
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Tipo de mídia" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">Sem mídia</SelectItem>
+                          <SelectItem value="image">Imagem</SelectItem>
+                          <SelectItem value="video">Vídeo</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      
+                      {link.mediaType === 'image' && (
+                        <div className="mt-2">
+                          {!link.mediaUrl ? (
+                            <Button 
+                              variant="outline" 
+                              className="w-full flex items-center justify-center"
+                              onClick={() => editFileInputRefs.current[`image-${link.id}`]?.click()}
+                            >
+                              <Image className="mr-2 h-4 w-4" />
+                              Escolher imagem
+                            </Button>
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <div className="w-16 h-16 border rounded overflow-hidden">
+                                <img 
+                                  src={link.mediaUrl} 
+                                  alt="Preview" 
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => editFileInputRefs.current[`image-${link.id}`]?.click()}
+                              >
+                                Substituir
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => updateLink(link.id, { mediaUrl: "", mediaType: "none" })}
+                                className="text-red-500"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          )}
+                          <Input
+                            type="file"
+                            ref={el => editFileInputRefs.current[`image-${link.id}`] = el}
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => handleEditFileUpload(link.id, e, 'image')}
+                          />
+                        </div>
+                      )}
+
+                      {link.mediaType === 'video' && (
+                        <div className="mt-2 space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Button 
+                              variant="outline" 
+                              className="flex items-center"
+                              onClick={() => editFileInputRefs.current[`video-${link.id}`]?.click()}
+                            >
+                              <Video className="mr-2 h-4 w-4" />
+                              Upload de vídeo
+                            </Button>
+                            
+                            {link.mediaUrl && link.mediaUrl.startsWith('data:') && (
+                              <Button 
+                                variant="ghost" 
+                                size="sm"
+                                onClick={() => updateLink(link.id, { mediaUrl: "", mediaType: "none" })}
+                                className="text-red-500"
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            )}
+                          </div>
+                          
+                          <Input
+                            type="file"
+                            ref={el => editFileInputRefs.current[`video-${link.id}`] = el}
+                            className="hidden"
+                            accept="video/*"
+                            onChange={(e) => handleEditFileUpload(link.id, e, 'video')}
+                          />
+                          
+                          <div className="flex items-center space-x-2">
+                            <LinkIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+                            <Input
+                              placeholder="Ou cole URL do vídeo"
+                              value={link.mediaUrl || ''}
+                              onChange={(e) => updateLink(link.id, { 
+                                mediaUrl: e.target.value, 
+                                mediaType: e.target.value ? 'video' : 'none' 
+                              })}
+                              className="flex-1"
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}

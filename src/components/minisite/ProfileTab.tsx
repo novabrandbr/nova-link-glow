@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
@@ -23,9 +22,10 @@ import {
   Music, 
   Linkedin, 
   Github, 
-  MessageSquare 
+  Whatsapp, 
+  X 
 } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
+import { toast } from '@/hooks/use-toast';
 
 type ProfileTabProps = {
   profile: UserProfile;
@@ -106,10 +106,21 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     { value: 'lato', label: 'Lato' },
     { value: 'playfair', label: 'Playfair Display' },
     { value: 'merriweather', label: 'Merriweather' },
-    { value: 'courier', label: 'Courier' },
+    { value: 'courier-new', label: 'Courier New' },
     { value: 'georgia', label: 'Georgia' },
     { value: 'verdana', label: 'Verdana' },
-    { value: 'impact', label: 'Impact' }
+    { value: 'impact', label: 'Impact' },
+    { value: 'times-new-roman', label: 'Times New Roman' },
+    { value: 'arial', label: 'Arial' },
+    { value: 'comic-sans', label: 'Comic Sans MS' },
+    { value: 'tahoma', label: 'Tahoma' },
+    { value: 'trebuchet', label: 'Trebuchet MS' },
+    { value: 'nunito', label: 'Nunito' },
+    { value: 'raleway', label: 'Raleway' },
+    { value: 'oswald', label: 'Oswald' },
+    { value: 'pacifico', label: 'Pacifico' },
+    { value: 'dancing-script', label: 'Dancing Script' },
+    { value: 'quicksand', label: 'Quicksand' }
   ];
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -219,6 +230,10 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
       }
     };
     reader.readAsDataURL(file);
+  };
+
+  const handleVideoReplace = () => {
+    videoInputRef.current?.click();
   };
 
   return (
@@ -367,12 +382,12 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               </div>
             </div>
             <div className="flex items-center space-x-2 mt-2">
-              <Label htmlFor="footerColor">Cor do link:</Label>
+              <Label htmlFor="usernameColor">Cor do link:</Label>
               <input 
                 type="color"
-                id="footerColor"
-                value={profile.footerColor || "#666666"}
-                onChange={(e) => handleChange('footerColor', e.target.value)}
+                id="usernameColor"
+                value={profile.usernameColor || "#666666"}
+                onChange={(e) => handleChange('usernameColor', e.target.value)}
                 className="w-8 h-8 rounded p-0"
               />
             </div>
@@ -436,7 +451,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Twitter className="h-5 w-5 text-blue-400" />
+              <X className="h-5 w-5 text-black" />
               <Input 
                 value={profile.socialIcons.twitter || ''}
                 onChange={(e) => handleSocialChange('twitter', e.target.value)}
@@ -484,7 +499,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <MessageSquare className="h-5 w-5 text-green-600" />
+              <Whatsapp className="h-5 w-5 text-green-600" />
               <Input 
                 value={profile.socialIcons.whatsapp || ''}
                 onChange={(e) => handleSocialChange('whatsapp', e.target.value)}
@@ -617,7 +632,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                     />
                     <Button 
                       variant="outline" 
-                      onClick={() => videoInputRef.current?.click()}
+                      onClick={handleVideoReplace}
                       className="w-full"
                     >
                       <Upload className="mr-2 h-4 w-4" />
@@ -671,6 +686,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                     disabled={profile.backgroundVideoMuted}
                     value={profile.backgroundVideoVolume || 0.5}
                     onChange={(e) => handleChange('backgroundVideoVolume', parseFloat(e.target.value))}
+                    className="block w-full"
                   />
                 </div>
               )}
@@ -717,6 +733,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                     step="0.01"
                     value={profile.overlayOpacity}
                     onChange={(e) => handleChange('overlayOpacity', parseFloat(e.target.value))}
+                    className="block w-full"
                   />
                 </div>
               </div>
@@ -750,7 +767,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           </div>
           
           <div className="grid grid-cols-3 gap-3">
-            {visualEffects.filter(e => e.value !== 'none' && e.value !== 'custom').map(effect => (
+            {visualEffects.filter(e => e.value !== 'custom').map(effect => (
               <div 
                 key={effect.value}
                 className={`border rounded-lg p-3 cursor-pointer ${profile.visualEffect === effect.value ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}
@@ -845,6 +862,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   step="0.01"
                   value={profile.visualEffectOpacity}
                   onChange={(e) => handleChange('visualEffectOpacity', parseFloat(e.target.value))}
+                  className="block w-full"
                 />
               </div>
               
@@ -858,6 +876,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   step="0.1"
                   value={profile.visualEffectSpeed}
                   onChange={(e) => handleChange('visualEffectSpeed', parseFloat(e.target.value))}
+                  className="block w-full"
                 />
               </div>
               
@@ -871,6 +890,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   step="0.1"
                   value={profile.visualEffectSize}
                   onChange={(e) => handleChange('visualEffectSize', parseFloat(e.target.value))}
+                  className="block w-full"
                 />
               </div>
             </div>

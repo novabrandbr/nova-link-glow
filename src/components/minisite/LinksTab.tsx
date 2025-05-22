@@ -4,7 +4,7 @@ import { LinkType } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, GripVertical, Image, Video, Link as LinkIcon } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image, Video, Link as LinkIcon, ArrowDown, ArrowUp, X } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +28,9 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
       active: true,
       color: '#6A0DAD',
       label: 'Novidade',
+      labelColor: '#FF0000',
+      labelPosition: 'top',
+      textAlign: 'center',
       mediaType: 'none'
     };
     
@@ -175,7 +178,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                     </div>
                     
                     {/* Media settings */}
-                    <div className="space-y-1">
+                    <div className="space-y-2">
                       <Label>Mídia</Label>
                       <div className="grid grid-cols-3 gap-4">
                         <div>
@@ -196,15 +199,46 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                         
                         {link.mediaType === 'image' && (
                           <div className="col-span-2 flex items-center space-x-2">
-                            <Button 
-                              variant="outline" 
-                              className="flex items-center space-x-2"
-                              onClick={() => triggerFileInput(link.id, 'image')}
-                              type="button"
-                            >
-                              <Image className="h-4 w-4" />
-                              <span>Escolher imagem</span>
-                            </Button>
+                            {!link.mediaUrl ? (
+                              <Button 
+                                variant="outline" 
+                                className="flex items-center space-x-2"
+                                onClick={() => triggerFileInput(link.id, 'image')}
+                                type="button"
+                              >
+                                <Image className="h-4 w-4" />
+                                <span>Escolher imagem</span>
+                              </Button>
+                            ) : (
+                              <div className="flex items-center space-x-2 flex-1">
+                                <div className="w-10 h-10 border rounded overflow-hidden">
+                                  <img 
+                                    src={link.mediaUrl} 
+                                    alt="Preview" 
+                                    className="w-full h-full object-cover"
+                                  />
+                                </div>
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => triggerFileInput(link.id, 'image')}
+                                  type="button"
+                                >
+                                  Substituir
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    updateLink(link.id, 'mediaUrl', '');
+                                    updateLink(link.id, 'mediaType', 'none');
+                                  }}
+                                  className="text-red-500"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
                             <Input
                               id={`image-${link.id}`}
                               type="file"
@@ -213,29 +247,66 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                               onChange={(e) => handleFileUpload(link.id, e, 'image')}
                               ref={el => fileInputRefs.current[`image-${link.id}`] = el}
                             />
-                            {link.mediaUrl && (
-                              <div className="w-10 h-10 border rounded overflow-hidden">
-                                <img 
-                                  src={link.mediaUrl} 
-                                  alt="Preview" 
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
-                            )}
                           </div>
                         )}
                         
                         {link.mediaType === 'video' && (
                           <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <Button 
-                              variant="outline" 
-                              className="flex items-center space-x-2"
-                              onClick={() => triggerFileInput(link.id, 'video')}
-                              type="button"
-                            >
-                              <Video className="h-4 w-4" />
-                              <span>Fazer upload</span>
-                            </Button>
+                            {!link.mediaUrl ? (
+                              <Button 
+                                variant="outline" 
+                                className="flex items-center space-x-2"
+                                onClick={() => triggerFileInput(link.id, 'video')}
+                                type="button"
+                              >
+                                <Video className="h-4 w-4" />
+                                <span>Fazer upload</span>
+                              </Button>
+                            ) : link.mediaUrl.startsWith('data:video') ? (
+                              <div className="flex items-center space-x-2">
+                                <video 
+                                  src={link.mediaUrl} 
+                                  className="w-10 h-10 object-cover border rounded" 
+                                  muted 
+                                />
+                                <Button 
+                                  variant="outline" 
+                                  size="sm"
+                                  onClick={() => triggerFileInput(link.id, 'video')}
+                                  type="button"
+                                >
+                                  Substituir
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    updateLink(link.id, 'mediaUrl', '');
+                                    updateLink(link.id, 'mediaType', 'none');
+                                  }}
+                                  className="text-red-500"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center space-x-2">
+                                <LinkIcon className="h-4 w-4 text-gray-500" />
+                                <span className="text-sm truncate max-w-[150px]">{link.mediaUrl}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm"
+                                  onClick={() => {
+                                    updateLink(link.id, 'mediaUrl', '');
+                                    updateLink(link.id, 'mediaType', 'none');
+                                  }}
+                                  className="text-red-500 ml-auto"
+                                >
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </div>
+                            )}
+                            
                             <Input
                               id={`video-${link.id}`}
                               type="file"
@@ -282,10 +353,11 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                           value={link.label || 'no-label'} 
                           onValueChange={(value) => {
                             if (value === 'custom') {
-                              // Leave the current label as is for custom entry
-                              return;
+                              // Show custom input field but don't change label yet
+                              updateLink(link.id, 'label', '');
+                            } else {
+                              updateLink(link.id, 'label', value === 'no-label' ? '' : value);
                             }
-                            updateLink(link.id, 'label', value === 'no-label' ? '' : value)
                           }}
                         >
                           <SelectTrigger>
@@ -303,9 +375,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                           </SelectContent>
                         </Select>
                         
-                        {link.label !== '' && link.label !== 'Novidade' && link.label !== 'TOP 10' && 
-                          link.label !== 'Nova temporada' && link.label !== 'Em alta' && 
-                          link.label !== 'Clique aqui' && link.label !== 'Novo curso' && (
+                        {link.label === '' && (
                           <div className="mt-2 flex space-x-2">
                             <Input 
                               value={customLabel} 
@@ -322,6 +392,55 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                             </Button>
                           </div>
                         )}
+                        
+                        {link.label && (
+                          <div className="mt-2 flex items-center space-x-2">
+                            <Label htmlFor={`labelColor-${link.id}`} className="text-xs">Cor:</Label>
+                            <input
+                              id={`labelColor-${link.id}`}
+                              type="color"
+                              value={link.labelColor || '#FF0000'}
+                              onChange={(e) => updateLink(link.id, 'labelColor', e.target.value)}
+                              className="w-6 h-6 rounded border border-gray-300 p-0"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor={`position-${link.id}`}>Posição do rótulo</Label>
+                        <Select 
+                          value={link.labelPosition || 'top'} 
+                          onValueChange={(value: 'top' | 'center' | 'bottom') => updateLink(link.id, 'labelPosition', value)}
+                        >
+                          <SelectTrigger id={`position-${link.id}`}>
+                            <SelectValue placeholder="Posição do rótulo" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="top">Topo</SelectItem>
+                            <SelectItem value="center">Centro</SelectItem>
+                            <SelectItem value="bottom">Embaixo</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <Label htmlFor={`align-${link.id}`}>Alinhamento do texto</Label>
+                        <Select 
+                          value={link.textAlign || 'center'} 
+                          onValueChange={(value: 'left' | 'center' | 'right') => updateLink(link.id, 'textAlign', value)}
+                        >
+                          <SelectTrigger id={`align-${link.id}`}>
+                            <SelectValue placeholder="Alinhamento do texto" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="left">Esquerda</SelectItem>
+                            <SelectItem value="center">Centro</SelectItem>
+                            <SelectItem value="right">Direita</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
                     
