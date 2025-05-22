@@ -12,7 +12,7 @@ const MinisiteTabs: React.FC<MinisiteTabsProps> = ({ activeTab, setActiveTab }) 
   return (
     <div className="border-b border-gray-200">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full justify-start rounded-none border-b border-gray-200 px-4 py-2">
+        <TabsList className="w-full justify-start rounded-none border-b border-gray-200 px-4 py-2 overflow-x-auto">
           <TabsTrigger value="profile" className="data-[state=active]:border-b-2 data-[state=active]:border-[#6A0DAD]">
             <UserCircle className="mr-2 h-4 w-4" />
             Perfil

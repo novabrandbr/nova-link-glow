@@ -1,13 +1,15 @@
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { LinkType } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Plus, Trash2, GripVertical, Image, Video, Link as LinkIcon, ArrowDown, ArrowUp, X } from 'lucide-react';
+import { Plus, Trash2, GripVertical, Image, Video, Link as LinkIcon, ArrowDown, ArrowUp, X, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
 
 type LinksTabProps = {
   links: LinkType[];
@@ -19,6 +21,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
   const [draggedItem, setDraggedItem] = React.useState<number | null>(null);
   const [customLabel, setCustomLabel] = React.useState<string>('');
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const [overlaySettings, setOverlaySettings] = useState<{[key: string]: {color: string, opacity: number}}>({});
 
   const addNewLink = () => {
     const newLink: LinkType = {
@@ -31,7 +34,9 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
       labelColor: '#FF0000',
       labelPosition: 'top',
       textAlign: 'center',
-      mediaType: 'none'
+      mediaType: 'none',
+      description: '',
+      titleColor: '#000000' // Add default title color
     };
     
     setLinks([...links, newLink]);
@@ -114,6 +119,23 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
   const triggerFileInput = (id: string, type: string) => {
     if (fileInputRefs.current[`${type}-${id}`]) {
       fileInputRefs.current[`${type}-${id}`]?.click();
+    }
+  };
+  
+  const handleOverlayChange = (id: string, field: 'color' | 'opacity', value: string | number) => {
+    setOverlaySettings(prev => ({
+      ...prev,
+      [id]: {
+        ...prev[id] || { color: '#000000', opacity: 0.5 },
+        [field]: value
+      }
+    }));
+    
+    // Update link with overlay settings
+    if (field === 'color') {
+      updateLink(id, 'overlayColor', value as string);
+    } else if (field === 'opacity') {
+      updateLink(id, 'overlayOpacity', value as number);
     }
   };
 
@@ -251,7 +273,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                         )}
                         
                         {link.mediaType === 'video' && (
-                          <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-2">
+                          <div className="col-span-2 flex items-center space-x-2">
                             {!link.mediaUrl ? (
                               <Button 
                                 variant="outline" 
@@ -260,10 +282,10 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                                 type="button"
                               >
                                 <Video className="h-4 w-4" />
-                                <span>Fazer upload</span>
+                                <span>Escolher vídeo</span>
                               </Button>
-                            ) : link.mediaUrl.startsWith('data:video') ? (
-                              <div className="flex items-center space-x-2">
+                            ) : (
+                              <div className="flex items-center space-x-2 flex-1">
                                 <video 
                                   src={link.mediaUrl} 
                                   className="w-10 h-10 object-cover border rounded" 
@@ -289,24 +311,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                                   <X className="h-4 w-4" />
                                 </Button>
                               </div>
-                            ) : (
-                              <div className="flex items-center space-x-2">
-                                <LinkIcon className="h-4 w-4 text-gray-500" />
-                                <span className="text-sm truncate max-w-[150px]">{link.mediaUrl}</span>
-                                <Button 
-                                  variant="ghost" 
-                                  size="sm"
-                                  onClick={() => {
-                                    updateLink(link.id, 'mediaUrl', '');
-                                    updateLink(link.id, 'mediaType', 'none');
-                                  }}
-                                  className="text-red-500 ml-auto"
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
                             )}
-                            
                             <Input
                               id={`video-${link.id}`}
                               type="file"
@@ -315,21 +320,90 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                               onChange={(e) => handleFileUpload(link.id, e, 'video')}
                               ref={el => fileInputRefs.current[`video-${link.id}`] = el}
                             />
-                            <div className="flex items-center space-x-2">
-                              <LinkIcon className="h-4 w-4 text-gray-500" />
-                              <Input
-                                placeholder="URL do vídeo"
-                                value={link.mediaUrl || ''}
-                                onChange={(e) => {
-                                  updateLink(link.id, 'mediaUrl', e.target.value);
-                                  if (e.target.value) {
-                                    updateLink(link.id, 'mediaType', 'video');
-                                  }
-                                }}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Media overlay settings */}
+                      {(link.mediaType === 'image' || link.mediaType === 'video') && link.mediaUrl && (
+                        <div className="mt-3 p-3 border rounded-md space-y-3">
+                          <Label>Configurações de overlay</Label>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <Label htmlFor={`overlay-color-${link.id}`}>Cor do overlay</Label>
+                              <div className="flex items-center space-x-2">
+                                <input
+                                  id={`overlay-color-${link.id}`}
+                                  type="color"
+                                  value={link.overlayColor || '#000000'}
+                                  onChange={(e) => handleOverlayChange(link.id, 'color', e.target.value)}
+                                  className="w-10 h-8 rounded border border-gray-300 p-0"
+                                />
+                                <span className="text-sm">{link.overlayColor || '#000000'}</span>
+                              </div>
+                            </div>
+                            <div className="space-y-1">
+                              <Label htmlFor={`overlay-opacity-${link.id}`}>Opacidade: {(link.overlayOpacity || 0.5) * 100}%</Label>
+                              <Slider
+                                id={`overlay-opacity-${link.id}`}
+                                min={0}
+                                max={1}
+                                step={0.01}
+                                value={[link.overlayOpacity || 0.5]}
+                                onValueChange={(vals) => handleOverlayChange(link.id, 'opacity', vals[0])}
                               />
                             </div>
                           </div>
-                        )}
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Title color and alignment */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor={`title-color-${link.id}`}>Cor do título</Label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            id={`title-color-${link.id}`}
+                            type="color"
+                            value={link.titleColor || '#000000'}
+                            onChange={(e) => updateLink(link.id, 'titleColor', e.target.value)}
+                            className="w-10 h-8 rounded border border-gray-300 p-0"
+                          />
+                          <span className="text-sm">{link.titleColor || '#000000'}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-1">
+                        <Label>Alinhamento do título</Label>
+                        <div className="flex items-center space-x-4">
+                          <Button 
+                            type="button" 
+                            variant={link.textAlign === 'left' ? 'default' : 'outline'} 
+                            size="sm"
+                            onClick={() => updateLink(link.id, 'textAlign', 'left')}
+                            className="flex-1"
+                          >
+                            <AlignLeft className="h-4 w-4 mr-1" /> Esquerda
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant={link.textAlign === 'center' ? 'default' : 'outline'} 
+                            size="sm"
+                            onClick={() => updateLink(link.id, 'textAlign', 'center')}
+                            className="flex-1"
+                          >
+                            <AlignCenter className="h-4 w-4 mr-1" /> Centro
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant={link.textAlign === 'right' ? 'default' : 'outline'} 
+                            size="sm"
+                            onClick={() => updateLink(link.id, 'textAlign', 'right')}
+                            className="flex-1"
+                          >
+                            <AlignRight className="h-4 w-4 mr-1" /> Direita
+                          </Button>
+                        </div>
                       </div>
                     </div>
                     
@@ -411,36 +485,45 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <Label htmlFor={`position-${link.id}`}>Posição do rótulo</Label>
-                        <Select 
-                          value={link.labelPosition || 'top'} 
-                          onValueChange={(value: 'top' | 'center' | 'bottom') => updateLink(link.id, 'labelPosition', value)}
-                        >
-                          <SelectTrigger id={`position-${link.id}`}>
-                            <SelectValue placeholder="Posição do rótulo" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="top">Topo</SelectItem>
-                            <SelectItem value="center">Centro</SelectItem>
-                            <SelectItem value="bottom">Embaixo</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <div className="flex items-center space-x-4">
+                          <Button 
+                            type="button" 
+                            variant={link.labelPosition === 'top' ? 'default' : 'outline'} 
+                            size="sm"
+                            onClick={() => updateLink(link.id, 'labelPosition', 'top')}
+                            className="flex-1"
+                          >
+                            Topo
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant={link.labelPosition === 'center' ? 'default' : 'outline'} 
+                            size="sm"
+                            onClick={() => updateLink(link.id, 'labelPosition', 'center')}
+                            className="flex-1"
+                          >
+                            Centro
+                          </Button>
+                          <Button 
+                            type="button" 
+                            variant={link.labelPosition === 'bottom' ? 'default' : 'outline'} 
+                            size="sm"
+                            onClick={() => updateLink(link.id, 'labelPosition', 'bottom')}
+                            className="flex-1"
+                          >
+                            Embaixo
+                          </Button>
+                        </div>
                       </div>
                       
                       <div className="space-y-1">
-                        <Label htmlFor={`align-${link.id}`}>Alinhamento do texto</Label>
-                        <Select 
-                          value={link.textAlign || 'center'} 
-                          onValueChange={(value: 'left' | 'center' | 'right') => updateLink(link.id, 'textAlign', value)}
-                        >
-                          <SelectTrigger id={`align-${link.id}`}>
-                            <SelectValue placeholder="Alinhamento do texto" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="left">Esquerda</SelectItem>
-                            <SelectItem value="center">Centro</SelectItem>
-                            <SelectItem value="right">Direita</SelectItem>
-                          </SelectContent>
-                        </Select>
+                        <Label>Descrição (opcional)</Label>
+                        <Textarea
+                          placeholder="Adicione uma descrição para o link"
+                          value={link.description || ''}
+                          onChange={(e) => updateLink(link.id, 'description', e.target.value)}
+                          rows={2}
+                        />
                       </div>
                     </div>
                     

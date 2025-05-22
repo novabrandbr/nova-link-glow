@@ -30,6 +30,9 @@ export type LinkType = {
   labelPosition?: 'top' | 'center' | 'bottom';
   textAlign?: 'left' | 'center' | 'right';
   description?: string;
+  titleColor?: string; // New property for title color
+  overlayColor?: string; // New property for overlay color
+  overlayOpacity?: number; // New property for overlay opacity
 };
 
 export type UserProfile = {
@@ -226,7 +229,10 @@ const Dashboard = () => {
       labelColor: "#FF0000",
       labelPosition: "top",
       textAlign: "center",
-      mediaType: "none"
+      mediaType: "none",
+      titleColor: "#FF0000",
+      overlayColor: "#000000",
+      overlayOpacity: 0.5
     },
     { 
       id: "2", 
@@ -238,7 +244,10 @@ const Dashboard = () => {
       labelColor: "#FF0000",
       labelPosition: "top",
       textAlign: "center",
-      mediaType: "none"
+      mediaType: "none",
+      titleColor: "#FF0000",
+      overlayColor: "#000000",
+      overlayOpacity: 0.5
     }
   ]);
   
