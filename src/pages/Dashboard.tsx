@@ -27,12 +27,12 @@ export type LinkType = {
   mediaUrl?: string;
   label?: string;
   labelColor?: string;
-  labelPosition?: 'top' | 'center' | 'bottom';
+  labelPosition?: 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center-center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
   textAlign?: 'left' | 'center' | 'right';
-  description?: string;
-  titleColor?: string; // New property for title color
-  overlayColor?: string; // New property for overlay color
-  overlayOpacity?: number; // New property for overlay opacity
+  titleColor?: string;
+  overlayColor?: string;
+  overlayOpacity?: number;
+  customLabel?: string;
 };
 
 export type UserProfile = {
@@ -47,6 +47,9 @@ export type UserProfile = {
   backgroundColor: string;
   backgroundType: "solid" | "gradient" | "image" | "video";
   backgroundGradient?: string;
+  backgroundGradientColor1?: string;
+  backgroundGradientColor2?: string;
+  backgroundGradientOpacity?: number;
   backgroundImage?: string;
   backgroundVideo?: string;
   backgroundVideoMuted?: boolean;
@@ -121,28 +124,24 @@ const Dashboard = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   
-  // Improved phone preview positioning - now stays truly centered
+  // Improved phone preview positioning - now stays centered with proper sizing
   useEffect(() => {
     const handleScroll = () => {
       if (previewContainerRef.current) {
-        const scrollTop = window.scrollY;
         const windowHeight = window.innerHeight;
-        const previewHeight = previewContainerRef.current.offsetHeight;
-        
-        // Keep preview always centered vertically
         const headerHeight = 64;
         const availableHeight = windowHeight - headerHeight;
-        const centeredPosition = headerHeight + (availableHeight - previewHeight) / 2;
         
-        // Apply positioning
+        // Fixed position, always centered
         previewContainerRef.current.style.position = 'fixed';
-        previewContainerRef.current.style.top = `${Math.max(headerHeight, centeredPosition)}px`;
-        previewContainerRef.current.style.right = '0';
-        previewContainerRef.current.style.width = '40%';
-        previewContainerRef.current.style.height = 'auto';
-        previewContainerRef.current.style.maxHeight = `${availableHeight}px`;
+        previewContainerRef.current.style.top = `${headerHeight}px`;
+        previewContainerRef.current.style.right = '1rem';
+        previewContainerRef.current.style.width = '35%';
+        previewContainerRef.current.style.height = `${availableHeight}px`;
         previewContainerRef.current.style.zIndex = '10';
-        previewContainerRef.current.style.transition = 'none'; // Remove transition for smoother experience
+        previewContainerRef.current.style.display = 'flex';
+        previewContainerRef.current.style.alignItems = 'center';
+        previewContainerRef.current.style.justifyContent = 'center';
       }
     };
     
@@ -198,28 +197,6 @@ const Dashboard = () => {
     }
   }, [activePanel, activeMinisiteTab]);
   
-  // Window scroll to follow the panel with improved behavior
-  useEffect(() => {
-    const handleWindowScroll = () => {
-      if (previewRef.current) {
-        const windowScroll = window.scrollY;
-        const maxScroll = document.body.scrollHeight - window.innerHeight;
-        if (maxScroll > 0) {
-          const scrollRatio = windowScroll / maxScroll;
-          const previewMaxScroll = previewRef.current.scrollHeight - previewRef.current.clientHeight;
-          if (previewMaxScroll > 0) {
-            previewRef.current.scrollTop = scrollRatio * previewMaxScroll;
-          }
-        }
-      }
-    };
-    
-    window.addEventListener('scroll', handleWindowScroll);
-    return () => {
-      window.removeEventListener('scroll', handleWindowScroll);
-    };
-  }, [activeMinisiteTab]);
-  
   const [links, setLinks] = useState<LinkType[]>([
     { 
       id: "1", 
@@ -229,7 +206,7 @@ const Dashboard = () => {
       color: "#6A0DAD",
       label: "Novidade",
       labelColor: "#FF0000",
-      labelPosition: "top",
+      labelPosition: "top-center",
       textAlign: "center",
       mediaType: "none",
       titleColor: "#FF0000",
@@ -244,7 +221,7 @@ const Dashboard = () => {
       color: "#6A0DAD",
       label: "TOP 10",
       labelColor: "#FF0000",
-      labelPosition: "top",
+      labelPosition: "top-center",
       textAlign: "center",
       mediaType: "none",
       titleColor: "#FF0000",
@@ -263,6 +240,10 @@ const Dashboard = () => {
     profileInfoPosition: "center",
     backgroundColor: "#FFFFFF",
     backgroundType: "solid",
+    backgroundGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    backgroundGradientColor1: "#667eea",
+    backgroundGradientColor2: "#764ba2",
+    backgroundGradientOpacity: 1,
     overlay: false,
     overlayColor: "#000000",
     overlayOpacity: 0.5,
@@ -359,9 +340,9 @@ const Dashboard = () => {
         <div className="w-3/5 border-r border-gray-200 flex flex-col overflow-hidden">
           {renderPanel()}
         </div>
-        <div className="w-2/5 bg-gray-50 flex justify-center p-6 relative">
-          <div ref={previewContainerRef} className="w-full max-w-sm">
-            <div className="overflow-auto max-h-[80vh]" ref={previewRef}>
+        <div className="w-2/5 bg-gray-50 relative">
+          <div ref={previewContainerRef} className="w-full h-full flex items-center justify-center">
+            <div className="w-full max-w-[280px] h-full max-h-[580px] overflow-auto" ref={previewRef}>
               <PhonePreview 
                 profile={profile} 
                 links={links} 
