@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef } from "react";
 import { LinkType, UserProfile, AudioSettings, PageStyle } from "@/pages/Dashboard";
 import { 
@@ -192,7 +191,6 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                   <div className="flex items-center">
                     <div className="flex-1">
                       <h3 className="font-bold" style={{ color: link.color || pageStyle.buttonColor || "#6A0DAD" }}>{link.title}</h3>
-                      {link.description && <p className="text-sm text-gray-600">{link.description}</p>}
                     </div>
                   </div>
                 </div>
@@ -600,9 +598,6 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                   )}
                   <div className="p-3 flex-1">
                     <div className="font-bold">{link.title}</div>
-                    {link.description && (
-                      <p className="text-xs text-gray-500 mt-1">{link.description}</p>
-                    )}
                     <div className="mt-2">
                       <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Saiba mais</span>
                     </div>
@@ -637,9 +632,6 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                 <div className="h-4 bg-gradient-to-r from-green-500 via-yellow-400 to-blue-700"></div>
                 <div className="p-3">
                   <div className="font-bold text-gray-800">{link.title}</div>
-                  {link.description && (
-                    <p className="text-sm text-gray-600 mt-1">{link.description}</p>
-                  )}
                 </div>
               </a>
             ))}
@@ -672,9 +664,6 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                 <div className="flex items-center p-3">
                   <div className="flex-1">
                     <div className="font-bold text-gray-800">{link.title}</div>
-                    {link.description && (
-                      <p className="text-sm text-gray-600 mt-1">{link.description}</p>
-                    )}
                   </div>
                   <div className="ml-2 w-8 h-8 bg-blue-900 rounded-full flex items-center justify-center">
                     <span className="text-white text-xs">→</span>
@@ -705,9 +694,6 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                   </div>
                   <div className="bg-white rounded-lg p-3 border border-gray-200 shadow-sm">
                     <h4 className="font-bold">{link.title}</h4>
-                    {link.description && (
-                      <p className="text-sm text-gray-600 mt-1">{link.description}</p>
-                    )}
                   </div>
                 </a>
               ))}
