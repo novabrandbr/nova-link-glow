@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
@@ -82,6 +81,162 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Font families */
+.font-montserrat { font-family: 'Montserrat', sans-serif; }
+.font-bebas-neue { font-family: 'Bebas Neue', sans-serif; }
+.font-helvetica-neue { font-family: 'Helvetica Neue', sans-serif; }
+.font-poppins { font-family: 'Poppins', sans-serif; }
+.font-burbank { font-family: 'Impact', sans-serif; }
+.font-pixelated { font-family: 'Courier New', monospace; }
+.font-handwritten { font-family: 'Dancing Script', cursive; }
+.font-roboto { font-family: 'Roboto', sans-serif; }
+.font-open-sans { font-family: 'Open Sans', sans-serif; }
+.font-lato { font-family: 'Lato', sans-serif; }
+.font-playfair { font-family: 'Playfair Display', serif; }
+.font-merriweather { font-family: 'Merriweather', serif; }
+.font-courier-new { font-family: 'Courier New', monospace; }
+.font-georgia { font-family: 'Georgia', serif; }
+.font-verdana { font-family: 'Verdana', sans-serif; }
+.font-impact { font-family: 'Impact', sans-serif; }
+.font-times-new-roman { font-family: 'Times New Roman', serif; }
+.font-arial { font-family: 'Arial', sans-serif; }
+.font-comic-sans { font-family: 'Comic Sans MS', cursive; }
+.font-tahoma { font-family: 'Tahoma', sans-serif; }
+.font-trebuchet { font-family: 'Trebuchet MS', sans-serif; }
+.font-nunito { font-family: 'Nunito', sans-serif; }
+.font-raleway { font-family: 'Raleway', sans-serif; }
+.font-oswald { font-family: 'Oswald', sans-serif; }
+.font-pacifico { font-family: 'Pacifico', cursive; }
+.font-dancing-script { font-family: 'Dancing Script', cursive; }
+.font-quicksand { font-family: 'Quicksand', sans-serif; }
+
+/* Visual Effects Animations */
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+@keyframes lightLeakMovement {
+  0% { transform: translateX(-20%) rotate(0deg); }
+  100% { transform: translateX(20%) rotate(5deg); }
+}
+
+@keyframes fireFlicker {
+  0%, 100% { transform: scaleY(1) scaleX(1); }
+  50% { transform: scaleY(1.2) scaleX(0.9); }
+}
+
+@keyframes oceanWaves {
+  0% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-30%) translateY(-15px); }
+  100% { transform: translateX(-50%) translateY(0); }
+}
+
+@keyframes auroraFlow {
+  0% { transform: translateX(-100%) rotate(-2deg); }
+  100% { transform: translateX(100%) rotate(2deg); }
+}
+
+@keyframes lightning {
+  0%, 90%, 100% { background: transparent; }
+  91%, 95% { background: rgba(255,255,255,0.6); }
+}
+
+@keyframes galaxyRotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes prismShift {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+@keyframes vhsNoise {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(2px); }
+}
+
+@keyframes vhsGlitch {
+  0% { transform: translateY(0); }
+  10% { transform: translateY(-1px); }
+  20% { transform: translateY(1px); }
+  30% { transform: translateY(0); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes fairyFloat {
+  0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(-15px) scale(1.1); opacity: 1; }
+}
+
+@keyframes kaleidoscopeRotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes rainDrop {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes binaryFall {
+  0% { transform: translateY(0); opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+/* New animations for enhanced effects */
+@keyframes nebulaDrift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(30px, -20px) rotate(8deg); }
+}
+
+@keyframes emojiDrop {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(180deg); opacity: 0; }
+}
+
+@keyframes shootingStar {
+  0% { transform: translate(0, 0) rotate(45deg); opacity: 1; }
+  100% { transform: translate(200px, 200px) rotate(45deg); opacity: 0; }
+}
+
+@keyframes fireworkExplode {
+  0% { transform: scale(0); opacity: 1; }
+  50% { transform: scale(4); opacity: 0.8; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+@keyframes smokeFlow {
+  0% { transform: translate(0, 0) rotate(0deg); opacity: 0.8; }
+  100% { transform: translate(40px, -30px) rotate(15deg); opacity: 0.3; }
+}
+
+@keyframes moonPulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes planetRotation {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes fabricWave {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(5px, -5px) scale(1.02); }
+}
+
+@keyframes mosaicFade {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
 }
 
 /* Font families */
