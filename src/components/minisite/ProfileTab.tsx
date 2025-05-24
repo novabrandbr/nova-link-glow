@@ -61,35 +61,28 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
 
   const visualEffects = [
     { value: 'none', label: 'Nenhum' },
-    { value: 'bubbles', label: 'Bolhas' },
+    { value: 'bubbles', label: 'Bolhas de Sabão' },
     { value: 'glitch', label: 'Efeito Glitch' },
     { value: 'lightleak', label: 'Light Leak Profissional' },
     { value: 'vignette', label: 'Efeito Vignette' },
     { value: 'spark', label: 'Efeito Spark' },
-    { value: 'particles', label: 'Partículas' },
-    { value: 'snow', label: 'Neve' },
-    { value: 'confetti', label: 'Confete' },
-    { value: 'matrix', label: 'Efeito Matrix' },
     { value: 'fire', label: 'Fogo' },
-    { value: 'stars', label: 'Estrelas' },
     { value: 'waves', label: 'Ondas do Mar' },
-    { value: 'smoke', label: 'Fumaça' },
-    { value: 'fireworks', label: 'Fogos de Artifício' },
     { value: 'aurora', label: 'Aurora Boreal' },
     { value: 'nightsky', label: 'Céu Noturno com Lua e Estrelas' },
     { value: 'rain', label: 'Chuva com Relâmpagos' },
     { value: 'galaxy', label: 'Galáxia / Espaço Sideral' },
     { value: 'prism', label: 'Efeito Prisma / Holográfico' },
-    { value: 'binary', label: 'Códigos Binários Descendo' },
+    { value: 'binary', label: 'Códigos Binários (Matrix)' },
     { value: 'vhs', label: 'Efeito VHS com Linhas de Ruído' },
     { value: 'fairy', label: 'Pó de Fada / Brilhos Flutuantes' },
-    { value: 'paper', label: 'Papel Amassado ou Textura 3D' },
+    { value: 'paper', label: 'Textura 3D (Tecido ou Papel)' },
     { value: 'kaleidoscope', label: 'Efeito Caleidoscópio' },
     { value: 'emojirain', label: 'Chuva de Emojis' },
     { value: 'photomosaic', label: 'Mosaico de Fotos' },
-    { value: 'clock', label: 'Relógio Analógico Animado' },
-    { value: 'neonbeat', label: 'Efeito de Neon Pulando ao Ritmo' },
-    { value: 'tvstatic', label: 'Glitch Estático (TV fora do ar)' },
+    { value: 'shootingstars', label: 'Estrelas Cadentes' },
+    { value: 'smoke', label: 'Fumaça' },
+    { value: 'fireworks', label: 'Fogos de Artifício' },
     { value: 'custom', label: 'Upload Personalizado' }
   ];
 
@@ -375,13 +368,16 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               <Input 
                 id="username"
                 value={profile.username}
-                onChange={(e) => handleChange('username', e.target.value)}
+                onChange={(e) => handleChange('username', e.target.value.substring(0, 25))}
                 placeholder="seu-username"
                 className="flex-1"
+                maxLength={25}
               />
             </div>
             <div className="mt-1 flex items-center justify-between">
-              <span className="text-sm text-gray-400">A URL do seu perfil será: novabrand.site/{profile.username}</span>
+              <span className="text-sm text-gray-400">
+                A URL do seu perfil será: novabrand.site/{profile.username} ({profile.username.length}/25)
+              </span>
               <div className="flex items-center">
                 <Switch 
                   id="premium"
@@ -428,7 +424,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </div>
           </div>
           
-          {/* Font Selection moved here - below description color */}
+          {/* Font Selection */}
           <div className="space-y-2">
             <Label htmlFor="font">Fonte</Label>
             <Select 
@@ -486,7 +482,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               <Input 
                 value={profile.socialIcons.twitter || ''}
                 onChange={(e) => handleSocialChange('twitter', e.target.value)}
-                placeholder="@seutwitter"
+                placeholder="@seuX"
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -624,6 +620,19 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   </div>
                 </div>
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="gradientOpacity">Opacidade do degradê: {Math.round((profile.overlayOpacity || 1) * 100)}%</Label>
+                <Input 
+                  type="range"
+                  id="gradientOpacity"
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  value={profile.overlayOpacity || 1}
+                  onChange={(e) => handleChange('overlayOpacity', parseFloat(e.target.value))}
+                  className="block w-full"
+                />
+              </div>
             </div>
           )}
           
@@ -680,7 +689,10 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                       <video 
                         src={profile.backgroundVideo} 
                         className="w-full h-32 object-cover rounded-md"
-                        controls
+                        autoPlay
+                        muted={profile.backgroundVideoMuted}
+                        loop
+                        controls={false}
                       />
                     )}
                     <Button 

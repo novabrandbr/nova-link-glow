@@ -121,7 +121,7 @@ const Dashboard = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   
-  // Improved phone preview positioning with smooth following
+  // Improved phone preview positioning - now stays truly centered
   useEffect(() => {
     const handleScroll = () => {
       if (previewContainerRef.current) {
@@ -129,43 +129,32 @@ const Dashboard = () => {
         const windowHeight = window.innerHeight;
         const previewHeight = previewContainerRef.current.offsetHeight;
         
-        // Calculate the ideal position to keep preview centered
+        // Keep preview always centered vertically
         const headerHeight = 64;
         const availableHeight = windowHeight - headerHeight;
-        const centeredPosition = Math.max(
-          headerHeight,
-          scrollTop + (availableHeight - previewHeight) / 2
-        );
+        const centeredPosition = headerHeight + (availableHeight - previewHeight) / 2;
         
-        // Apply smooth positioning
+        // Apply positioning
         previewContainerRef.current.style.position = 'fixed';
-        previewContainerRef.current.style.top = `${centeredPosition}px`;
-        previewContainerRef.current.style.transition = 'top 0.3s ease-out';
+        previewContainerRef.current.style.top = `${Math.max(headerHeight, centeredPosition)}px`;
+        previewContainerRef.current.style.right = '0';
+        previewContainerRef.current.style.width = '40%';
+        previewContainerRef.current.style.height = 'auto';
+        previewContainerRef.current.style.maxHeight = `${availableHeight}px`;
         previewContainerRef.current.style.zIndex = '10';
+        previewContainerRef.current.style.transition = 'none'; // Remove transition for smoother experience
       }
     };
     
-    // Throttle scroll events for better performance
-    let scrollTimeout: number | null = null;
-    const throttledScroll = () => {
-      if (scrollTimeout === null) {
-        scrollTimeout = window.setTimeout(() => {
-          handleScroll();
-          scrollTimeout = null;
-        }, 16); // ~60fps
-      }
-    };
-    
-    window.addEventListener('scroll', throttledScroll);
+    window.addEventListener('scroll', handleScroll);
     window.addEventListener('resize', handleScroll);
     
     // Initial positioning
-    setTimeout(handleScroll, 100);
+    handleScroll();
     
     return () => {
-      window.removeEventListener('scroll', throttledScroll);
+      window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('resize', handleScroll);
-      if (scrollTimeout) window.clearTimeout(scrollTimeout);
     };
   }, [activePanel, activeMinisiteTab]);
   
