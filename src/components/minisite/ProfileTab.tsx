@@ -64,17 +64,32 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     { value: 'bubbles', label: 'Bolhas' },
     { value: 'glitch', label: 'Efeito Glitch' },
     { value: 'lightleak', label: 'Light Leak Profissional' },
-    { value: 'vintage', label: 'Efeito Vintage' },
+    { value: 'vignette', label: 'Efeito Vignette' },
     { value: 'spark', label: 'Efeito Spark' },
     { value: 'particles', label: 'Partículas' },
     { value: 'snow', label: 'Neve' },
     { value: 'confetti', label: 'Confete' },
     { value: 'matrix', label: 'Efeito Matrix' },
-    { value: 'flames', label: 'Chamas' },
+    { value: 'fire', label: 'Fogo' },
     { value: 'stars', label: 'Estrelas' },
-    { value: 'waves', label: 'Ondas' },
+    { value: 'waves', label: 'Ondas do Mar' },
     { value: 'smoke', label: 'Fumaça' },
     { value: 'fireworks', label: 'Fogos de Artifício' },
+    { value: 'aurora', label: 'Aurora Boreal' },
+    { value: 'nightsky', label: 'Céu Noturno com Lua e Estrelas' },
+    { value: 'rain', label: 'Chuva com Relâmpagos' },
+    { value: 'galaxy', label: 'Galáxia / Espaço Sideral' },
+    { value: 'prism', label: 'Efeito Prisma / Holográfico' },
+    { value: 'binary', label: 'Códigos Binários Descendo' },
+    { value: 'vhs', label: 'Efeito VHS com Linhas de Ruído' },
+    { value: 'fairy', label: 'Pó de Fada / Brilhos Flutuantes' },
+    { value: 'paper', label: 'Papel Amassado ou Textura 3D' },
+    { value: 'kaleidoscope', label: 'Efeito Caleidoscópio' },
+    { value: 'emojirain', label: 'Chuva de Emojis' },
+    { value: 'photomosaic', label: 'Mosaico de Fotos' },
+    { value: 'clock', label: 'Relógio Analógico Animado' },
+    { value: 'neonbeat', label: 'Efeito de Neon Pulando ao Ritmo' },
+    { value: 'tvstatic', label: 'Glitch Estático (TV fora do ar)' },
     { value: 'custom', label: 'Upload Personalizado' }
   ];
 
@@ -127,7 +142,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 2MB)
     if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
@@ -154,7 +168,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
@@ -181,7 +194,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 10MB)
     if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
@@ -208,7 +220,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
@@ -416,6 +427,26 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
           </div>
+          
+          {/* Font Selection moved here - below description color */}
+          <div className="space-y-2">
+            <Label htmlFor="font">Fonte</Label>
+            <Select 
+              value={profile.font}
+              onValueChange={(value) => handleChange('font', value)}
+            >
+              <SelectTrigger id="font">
+                <SelectValue placeholder="Selecione uma fonte" />
+              </SelectTrigger>
+              <SelectContent>
+                {fontOptions.map(font => (
+                  <SelectItem key={font.value} value={font.value}>
+                    {font.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         
         <div className="space-y-2">
@@ -508,25 +539,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </div>
           </div>
         </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="font">Fonte</Label>
-          <Select 
-            value={profile.font}
-            onValueChange={(value) => handleChange('font', value)}
-          >
-            <SelectTrigger id="font">
-              <SelectValue placeholder="Selecione uma fonte" />
-            </SelectTrigger>
-            <SelectContent>
-              {fontOptions.map(font => (
-                <SelectItem key={font.value} value={font.value}>
-                  {font.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </div>
       
       {/* Background */}
@@ -574,9 +586,44 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           )}
           
           {profile.backgroundType === 'gradient' && (
-            <div className="space-y-2">
-              <Label>Degradê</Label>
-              <p className="text-sm text-gray-500">Configurações de degradê seriam aqui</p>
+            <div className="space-y-4">
+              <Label>Degradê Personalizado</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="gradientColor1">Primeira cor</Label>
+                  <div className="flex items-center space-x-2">
+                    <Input 
+                      type="color"
+                      id="gradientColor1"
+                      value={profile.backgroundColor}
+                      onChange={(e) => handleChange('backgroundColor', e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input 
+                      value={profile.backgroundColor}
+                      onChange={(e) => handleChange('backgroundColor', e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gradientColor2">Segunda cor</Label>
+                  <div className="flex items-center space-x-2">
+                    <Input 
+                      type="color"
+                      id="gradientColor2"
+                      value={profile.backgroundGradient || "#6A0DAD"}
+                      onChange={(e) => handleChange('backgroundGradient', e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input 
+                      value={profile.backgroundGradient || "#6A0DAD"}
+                      onChange={(e) => handleChange('backgroundGradient', e.target.value)}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
           
@@ -625,11 +672,17 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               <div className="space-y-2">
                 {profile.backgroundVideo ? (
                   <div className="space-y-2">
-                    <video 
-                      src={profile.backgroundVideo} 
-                      className="w-full h-32 object-cover rounded-md"
-                      controls
-                    />
+                    {profile.backgroundVideo.includes('youtube.com') || profile.backgroundVideo.includes('youtu.be') ? (
+                      <div className="aspect-video bg-gray-100 rounded-md flex items-center justify-center">
+                        <span className="text-gray-500">Vídeo do YouTube: {profile.backgroundVideo}</span>
+                      </div>
+                    ) : (
+                      <video 
+                        src={profile.backgroundVideo} 
+                        className="w-full h-32 object-cover rounded-md"
+                        controls
+                      />
+                    )}
                     <Button 
                       variant="outline" 
                       onClick={handleVideoReplace}
@@ -659,7 +712,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 <p className="text-xs text-gray-500">Ou insira um link do YouTube:</p>
                 <Input 
                   placeholder="https://youtube.com/watch?v=..."
-                  value={profile.backgroundVideo || ''}
+                  value={profile.backgroundVideo?.includes('youtube.com') || profile.backgroundVideo?.includes('youtu.be') ? profile.backgroundVideo : ''}
                   onChange={(e) => handleChange('backgroundVideo', e.target.value)}
                 />
               </div>
@@ -766,7 +819,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </Select>
           </div>
           
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3 max-h-60 overflow-y-auto">
             {visualEffects.filter(e => e.value !== 'custom').map(effect => (
               <div 
                 key={effect.value}
@@ -821,12 +874,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                           className="hidden"
                           accept="image/*,video/*"
                           onChange={handleEffectUpload}
-                        />
-                        <p className="text-xs text-gray-500">Ou insira um link do YouTube:</p>
-                        <Input 
-                          placeholder="https://youtube.com/watch?v=..."
-                          value={profile.visualEffectCustomUrl || ''}
-                          onChange={(e) => handleChange('visualEffectCustomUrl', e.target.value)}
                         />
                       </div>
                     )}

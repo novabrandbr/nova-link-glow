@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 
@@ -11,32 +12,37 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
   const [bubbleElements, setBubbleElements] = useState<React.ReactNode[]>([]);
   
   useEffect(() => {
-    // For effects that need angle variation (light leak, glitch)
-    const angleInterval = setInterval(() => {
-      setAngle(prevAngle => (prevAngle + 90) % 360);
-    }, 5000);
+    let angleInterval: NodeJS.Timeout;
+    let visibilityInterval: NodeJS.Timeout;
+    let bubbleInterval: NodeJS.Timeout;
     
-    // For effects that need to appear/disappear (glitch, light leak)
-    const visibilityInterval = setInterval(() => {
-      setShowEffect(prev => !prev);
-    }, 3000);
+    // For effects that need angle variation (light leak, glitch)
+    if (profile.visualEffect === 'lightleak' || profile.visualEffect === 'glitch') {
+      angleInterval = setInterval(() => {
+        setAngle(prevAngle => (prevAngle + 45) % 360);
+      }, profile.visualEffect === 'glitch' ? 3000 : 4000);
+    }
+    
+    // For glitch effect - appears for 1 second, disappears for 2-3 seconds
+    if (profile.visualEffect === 'glitch') {
+      visibilityInterval = setInterval(() => {
+        setShowEffect(true);
+        setTimeout(() => setShowEffect(false), 1000); // Show for 1 second
+      }, 4000); // Every 4 seconds (1 second on + 3 seconds off)
+    }
     
     // Generate new bubble elements periodically
     if (profile.visualEffect === 'bubbles') {
       generateBubbles();
-      const bubbleInterval = setInterval(generateBubbles, 2000);
-      return () => {
-        clearInterval(angleInterval);
-        clearInterval(visibilityInterval);
-        clearInterval(bubbleInterval);
-      };
+      bubbleInterval = setInterval(generateBubbles, 2000);
     }
     
     return () => {
-      clearInterval(angleInterval);
-      clearInterval(visibilityInterval);
+      if (angleInterval) clearInterval(angleInterval);
+      if (visibilityInterval) clearInterval(visibilityInterval);
+      if (bubbleInterval) clearInterval(bubbleInterval);
     };
-  }, [profile.visualEffect]);
+  }, [profile.visualEffect, profile.visualEffectSpeed]);
   
   if (profile.visualEffect === 'none') return null;
   
@@ -48,17 +54,13 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
   
   // Helper function to apply opacity to colors
   const applyOpacity = (hexColor: string, opacity: number) => {
-    // Convert hex to rgb
     let r = 0, g = 0, b = 0;
     
-    // 3 digits
     if (hexColor.length === 4) {
       r = parseInt(hexColor[1] + hexColor[1], 16);
       g = parseInt(hexColor[2] + hexColor[2], 16);
       b = parseInt(hexColor[3] + hexColor[3], 16);
-    } 
-    // 6 digits
-    else if (hexColor.length === 7) {
+    } else if (hexColor.length === 7) {
       r = parseInt(hexColor.substring(1, 3), 16);
       g = parseInt(hexColor.substring(3, 5), 16);
       b = parseInt(hexColor.substring(5, 7), 16);
@@ -69,47 +71,46 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
   
   const rgba = applyOpacity(color, opacity);
   
-  // Generate bubbles that look like soap bubbles
+  // Generate bubbles that look like soap bubbles with random movement
   const generateBubbles = () => {
-    const count = 5; // Generate 5 new bubbles at a time
+    const count = 8;
     const newBubbles = [];
     
     for (let i = 0; i < count; i++) {
-      const size = Math.random() * 30 * (profile.visualEffectSize || 1) + 10;
-      const left = `${Math.random() * 100}%`;
-      const startPosition = `${80 + Math.random() * 20}%`; // Start from bottom area
-      const horizontalMovement = Math.random() * 100 - 50; // Random horizontal drift
-      
-      const delay = Math.random() * 2;
-      const duration = (Math.random() * 8 + 4) / speed;
+      const bubbleSize = Math.random() * 40 * size + 15;
+      const startLeft = Math.random() * 100;
+      const endLeft = startLeft + (Math.random() * 60 - 30); // Random horizontal drift
+      const delay = Math.random() * 3;
+      const duration = (Math.random() * 6 + 4) / speed;
       
       const bubbleStyle: React.CSSProperties = {
         position: 'absolute',
-        width: `${size}px`,
-        height: `${size}px`,
+        width: `${bubbleSize}px`,
+        height: `${bubbleSize}px`,
         borderRadius: '50%',
-        left,
-        bottom: '0',
-        border: `1px solid ${rgba}`,
-        boxShadow: `0 0 10px ${rgba}, inset 0 0 10px ${rgba}`,
-        opacity: Math.random() * 0.5 + 0.2,
-        animation: `soapBubble ${duration}s ease-out forwards`,
+        left: `${startLeft}%`,
+        bottom: '-50px',
+        background: `radial-gradient(circle at 30% 30%, rgba(255,255,255,0.8), transparent 50%), radial-gradient(circle, ${rgba} 0%, transparent 70%)`,
+        border: `2px solid ${rgba}`,
+        boxShadow: `0 0 20px ${rgba}, inset -10px -10px 20px rgba(255,255,255,0.3)`,
+        opacity: Math.random() * 0.6 + 0.3,
+        animation: `soapBubble${i} ${duration}s ease-out forwards`,
         animationDelay: `${delay}s`,
-        transform: 'translateY(0) translateX(0)',
         zIndex: 5,
+        pointerEvents: 'none'
       };
       
       const keyframes = `
-        @keyframes soapBubble {
+        @keyframes soapBubble${i} {
           0% {
-            transform: translateY(0) translateX(0);
+            transform: translateY(0) translateX(0) rotate(0deg);
             opacity: 0;
           }
           10% {
-            opacity: ${Math.random() * 0.5 + 0.2};
+            opacity: ${Math.random() * 0.6 + 0.3};
           }
           100% {
-            transform: translateY(-${startPosition}) translateX(${horizontalMovement}px);
+            transform: translateY(-150vh) translateX(${endLeft - startLeft}%) rotate(${Math.random() * 360}deg);
             opacity: 0;
           }
         }
@@ -124,406 +125,419 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     }
     
     setBubbleElements(prevBubbles => {
-      // Keep only bubbles that are still visible (less than their duration + delay)
-      const filtered = prevBubbles.slice(-15); // Keep last 15 bubbles
+      const filtered = prevBubbles.slice(-20);
       return [...filtered, ...newBubbles];
     });
   };
-  
-  // Style objects for different effects
+
+  // Common effect styles
   const effectStyles = {
-    bubbles: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      overflow: 'hidden',
-      zIndex: 10,
-    },
-    glitch: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: `linear-gradient(${angle}deg, ${rgba} 2px, transparent 2px)`,
-      backgroundSize: `${10 * size}px 100%`,
-      pointerEvents: 'none',
-      zIndex: 10,
-      opacity: showEffect ? 0.7 : 0,
-      transition: 'opacity 0.3s ease',
-      animationDuration: `${8/speed}s`,
-    },
-    lightleak: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      background: `linear-gradient(${angle}deg, ${rgba} 0%, transparent 20%, transparent 80%, ${rgba} 100%)`,
-      opacity: showEffect ? opacity : 0,
-      transition: 'opacity 0.5s ease, background 1s ease',
-      animationDuration: `${12/speed}s`,
-    },
-    spark: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      overflow: 'hidden',
-    },
-    particles: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      overflow: 'hidden',
-    },
-    snow: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      overflow: 'hidden',
-    },
-    confetti: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      overflow: 'hidden',
-    },
-    matrix: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      overflow: 'hidden',
-      color: rgba,
-      fontFamily: 'monospace',
-    },
-    flames: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      height: `${30 * size}%`,
-      pointerEvents: 'none',
-      zIndex: 10,
-      backgroundImage: `linear-gradient(to top, ${rgba}, transparent)`,
-      animationDuration: `${3/speed}s`,
-    },
-    stars: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      overflow: 'hidden',
-    },
-    waves: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: `
-        radial-gradient(ellipse at center, transparent 0%, transparent 40%, ${rgba} 50%, transparent 60%, transparent 100%)
-      `,
-      backgroundSize: `${200 * size}% ${200 * size}%`,
-      pointerEvents: 'none',
-      zIndex: 10,
-      animation: `waveMovement ${10/speed}s infinite alternate`,
-      animationTimingFunction: 'ease-in-out',
-    },
-    smoke: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: `
-        radial-gradient(circle at center, ${rgba} 0%, transparent 50%), 
-        radial-gradient(circle at 60% 40%, ${rgba} 0%, transparent 70%)
-      `,
-      backgroundSize: `${200 * size}% ${200 * size}%`,
-      pointerEvents: 'none',
-      zIndex: 10,
-      animationDuration: `${10/speed}s`,
-    },
-    fireworks: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      overflow: 'hidden',
-    },
-    vignette: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      boxShadow: `inset 0 0 ${50 * size}px ${30 * size}px rgba(0, 0, 0, ${opacity})`,
-      pointerEvents: 'none',
-      zIndex: 10,
-    },
-    oldscreen: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundImage: `
-        linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, ${opacity/2}) 50%),
-        linear-gradient(90deg, rgba(255, 0, 0, ${opacity/10}), rgba(0, 255, 0, ${opacity/10}), rgba(0, 0, 255, ${opacity/10}))
-      `,
-      backgroundSize: `100% 2px, 3px 100%`,
-      animation: `oldScreenNoise ${0.5/speed}s infinite linear`,
-      pointerEvents: 'none',
-      zIndex: 10,
-      opacity: opacity,
-    },
-    custom: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      pointerEvents: 'none',
-      zIndex: 10,
-      backgroundImage: `url(${profile.visualEffectCustomUrl})`,
-      backgroundSize: 'cover',
-      opacity,
-    },
-  } as { [key: string]: React.CSSProperties };
-  
-  // Generate particles for various effects
-  const generateParticles = (count: number, type: string) => {
-    const particles = [];
-    for (let i = 0; i < count; i++) {
-      const delay = Math.random() * 5;
-      const duration = (Math.random() * 5 + 5) / speed;
-      const size = Math.random() * 10 * (profile.visualEffectSize || 1) + 3;
-      const left = `${Math.random() * 100}%`;
-      
-      let style: React.CSSProperties = {
-        position: 'absolute',
-        left,
-        backgroundColor: rgba,
-        opacity: 0,
-        animation: `${type === 'bubbles' ? 'bubbles' : type === 'snow' ? 'snowfall' : type === 'confetti' ? 'confetti' : 'matrixDrop'} ${duration}s linear infinite`,
-        animationDelay: `${delay}s`,
-        zIndex: 5,
-      };
-      
-      if (type === 'snow') {
-        style = {
-          ...style,
-          width: `${size/2}px`,
-          height: `${size/2}px`,
-          borderRadius: '50%',
-          top: '-10px',
-        };
-      } else if (type === 'confetti') {
-        const colors = [rgba, applyOpacity('#FF0000', opacity), applyOpacity('#00FF00', opacity), applyOpacity('#0000FF', opacity)];
-        style = {
-          ...style,
-          width: `${size/2}px`,
-          height: `${size}px`,
-          backgroundColor: colors[Math.floor(Math.random() * colors.length)],
-          top: '-10px',
-        };
-      } else if (type === 'matrix') {
-        style = {
-          ...style,
-          fontSize: `${size}px`,
-          color: rgba,
-          top: '-20px',
-          fontFamily: 'monospace',
-        };
-      } else if (type === 'stars') {
-        style = {
-          ...style,
-          width: `${size/2}px`,
-          height: `${size/2}px`,
-          borderRadius: '50%',
-          backgroundColor: 'white',
-          boxShadow: `0 0 ${size/2}px ${size/4}px ${rgba}`,
-          top: `${Math.random() * 100}%`,
-          animation: 'twinkle 2s ease-in-out infinite',
-          animationDelay: `${delay}s`,
-        };
-      } else if (type === 'fireworks') {
-        style = {
-          ...style,
-          width: `${size*2}px`,
-          height: `${size*2}px`,
-          borderRadius: '50%',
-          backgroundImage: `radial-gradient(circle, ${rgba} 0%, transparent 70%)`,
-          top: `${30 + Math.random() * 40}%`,
-          animation: 'firework 3s ease-out infinite',
-          animationDelay: `${delay}s`,
-        };
-      }
-      
-      particles.push(<div key={i} style={style}>{type === 'matrix' ? String.fromCharCode(33 + Math.floor(Math.random() * 94)) : ''}</div>);
-    }
-    return particles;
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none' as const,
+    zIndex: 1,
+    overflow: 'hidden' as const
   };
   
-  // Generate spark particles
-  const generateSparks = () => {
-    const sparks = [];
-    const count = 20;
-    
-    for (let i = 0; i < count; i++) {
-      const delay = Math.random() * 3;
-      const size = Math.random() * 6 * (profile.visualEffectSize || 1) + 2;
-      const left = `${Math.random() * 100}%`;
-      const top = `${Math.random() * 100}%`;
-      
-      const style: React.CSSProperties = {
-        position: 'absolute',
-        width: `${size}px`,
-        height: `${size}px`,
-        backgroundColor: rgba,
-        borderRadius: '50%',
-        boxShadow: `0 0 ${size}px ${size/2}px ${rgba}`,
-        top,
-        left,
-        opacity: 0,
-        animation: `spark ${3/speed}s ease-in-out infinite`,
-        animationDelay: `${delay}s`,
-        zIndex: 5,
-      };
-      
-      sparks.push(<div key={i} style={style} />);
-    }
-    
-    return sparks;
-  };
-
-  // Keyframes for waves animation
-  const waveKeyframes = `
-    @keyframes waveMovement {
-      0% { background-position: 0% 0%; }
-      25% { background-position: 100% 0%; }
-      50% { background-position: 100% 100%; }
-      75% { background-position: 0% 100%; }
-      100% { background-position: 0% 0%; }
-    }
-  `;
-
-  // Keyframes for old screen effect
-  const oldScreenKeyframes = `
-    @keyframes oldScreenNoise {
-      0% { background-position: 0 0; }
-      100% { background-position: 100% 100%; }
-    }
-  `;
-
+  // Effect-specific rendering
   switch (profile.visualEffect) {
     case 'bubbles':
       return (
-        <div style={effectStyles.bubbles}>
+        <div style={effectStyles}>
           {bubbleElements}
         </div>
       );
+      
     case 'glitch':
-      return <div style={effectStyles.glitch} />;
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            backgroundImage: `repeating-linear-gradient(${angle}deg, ${rgba} 0px, transparent 2px, transparent 4px, ${rgba} 6px)`,
+            opacity: showEffect ? 0.8 : 0,
+            transition: 'opacity 0.1s ease',
+            mixBlendMode: 'overlay'
+          }} 
+        />
+      );
+      
     case 'lightleak':
-      return <div style={effectStyles.lightleak} />;
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            background: `linear-gradient(${angle}deg, ${rgba} 0%, transparent 30%, transparent 70%, ${rgba} 100%)`,
+            opacity: opacity * 0.6,
+            animation: `lightLeakMovement ${8/speed}s ease-in-out infinite alternate`
+          }} 
+        />
+      );
+      
+    case 'vignette':
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            boxShadow: `inset 0 0 ${100 * size}px ${50 * size}px rgba(0, 0, 0, ${opacity})`,
+          }} 
+        />
+      );
+      
     case 'spark':
       return (
-        <div style={effectStyles.spark}>
+        <div style={effectStyles}>
           {generateSparks()}
         </div>
       );
-    case 'particles':
+      
+    case 'fire':
       return (
-        <div style={effectStyles.particles}>
-          {generateParticles(20, 'particles')}
-        </div>
+        <div 
+          style={{
+            ...effectStyles,
+            background: `linear-gradient(to top, ${rgba} 0%, rgba(255,69,0,${opacity*0.8}) 30%, rgba(255,140,0,${opacity*0.6}) 60%, transparent 100%)`,
+            height: `${40 * size}%`,
+            bottom: 0,
+            top: 'auto',
+            animation: `fireFlicker ${2/speed}s ease-in-out infinite alternate`
+          }} 
+        />
       );
-    case 'snow':
-      return (
-        <div style={effectStyles.snow}>
-          {generateParticles(50, 'snow')}
-        </div>
-      );
-    case 'confetti':
-      return (
-        <div style={effectStyles.confetti}>
-          {generateParticles(40, 'confetti')}
-        </div>
-      );
-    case 'matrix':
-      return (
-        <div style={effectStyles.matrix}>
-          {generateParticles(30, 'matrix')}
-        </div>
-      );
-    case 'flames':
-      return <div style={effectStyles.flames} className="animate-flames" />;
-    case 'stars':
-      return (
-        <div style={effectStyles.stars}>
-          {generateParticles(50, 'stars')}
-        </div>
-      );
+      
     case 'waves':
       return (
-        <>
-          <style>{waveKeyframes}</style>
-          <div style={effectStyles.waves} />
-        </>
+        <div 
+          style={{
+            ...effectStyles,
+            background: `
+              radial-gradient(ellipse 200% 100% at 50% 90%, transparent 40%, ${rgba} 50%, transparent 60%),
+              radial-gradient(ellipse 300% 80% at 80% 100%, transparent 40%, ${applyOpacity(color, opacity*0.5)} 50%, transparent 60%),
+              radial-gradient(ellipse 250% 120% at 20% 100%, transparent 40%, ${applyOpacity(color, opacity*0.3)} 50%, transparent 60%)
+            `,
+            animation: `oceanWaves ${6/speed}s ease-in-out infinite`
+          }} 
+        />
       );
-    case 'smoke':
-      return <div style={effectStyles.smoke} className="animate-smoke" />;
-    case 'fireworks':
+      
+    case 'aurora':
       return (
-        <div style={effectStyles.fireworks}>
-          {generateParticles(15, 'fireworks')}
+        <div 
+          style={{
+            ...effectStyles,
+            background: `
+              linear-gradient(${angle}deg, 
+                rgba(0,255,100,${opacity*0.3}) 0%, 
+                rgba(100,0,255,${opacity*0.4}) 30%, 
+                rgba(0,200,255,${opacity*0.3}) 60%, 
+                transparent 100%
+              )
+            `,
+            animation: `auroraFlow ${10/speed}s ease-in-out infinite alternate`
+          }} 
+        />
+      );
+      
+    case 'nightsky':
+      return (
+        <div style={effectStyles}>
+          {generateStars(100)}
+          <div 
+            style={{
+              position: 'absolute',
+              top: '10%',
+              right: '20%',
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: `radial-gradient(circle, rgba(255,255,200,${opacity}) 0%, rgba(200,200,255,${opacity*0.5}) 70%, transparent 100%)`,
+              boxShadow: `0 0 50px rgba(255,255,200,${opacity*0.5})`
+            }} 
+          />
         </div>
       );
-    case 'vignette':
-      return <div style={effectStyles.vignette} />;
-    case 'oldscreen':
+      
+    case 'rain':
       return (
-        <>
-          <style>{oldScreenKeyframes}</style>
-          <div style={effectStyles.oldscreen} />
-        </>
+        <div style={effectStyles}>
+          {generateRain(50)}
+          <div 
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'transparent',
+              animation: `lightning ${3/speed}s ease-in-out infinite`
+            }} 
+          />
+        </div>
       );
-    case 'custom':
-      return profile.visualEffectCustomUrl ? <div style={effectStyles.custom} /> : null;
+      
+    case 'galaxy':
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            background: `
+              radial-gradient(ellipse at center, ${rgba} 0%, transparent 50%),
+              radial-gradient(ellipse at 20% 80%, rgba(255,100,200,${opacity*0.4}) 0%, transparent 50%),
+              radial-gradient(ellipse at 80% 20%, rgba(100,200,255,${opacity*0.4}) 0%, transparent 50%)
+            `,
+            animation: `galaxyRotation ${15/speed}s linear infinite`
+          }} 
+        >
+          {generateStars(200)}
+        </div>
+      );
+      
+    case 'prism':
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            background: `
+              linear-gradient(45deg, 
+                rgba(255,0,150,${opacity*0.3}) 0%,
+                rgba(0,255,255,${opacity*0.3}) 25%,
+                rgba(255,255,0,${opacity*0.3}) 50%,
+                rgba(150,0,255,${opacity*0.3}) 75%,
+                rgba(255,100,0,${opacity*0.3}) 100%
+              )
+            `,
+            animation: `prismShift ${4/speed}s ease-in-out infinite alternate`
+          }} 
+        />
+      );
+      
+    case 'binary':
+      return (
+        <div style={effectStyles}>
+          {generateBinaryCode(30)}
+        </div>
+      );
+      
+    case 'vhs':
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            background: `
+              linear-gradient(rgba(0,0,0,0) 50%, rgba(0,0,0,${opacity*0.1}) 50%),
+              linear-gradient(90deg, rgba(255,0,0,${opacity*0.05}), rgba(0,255,0,${opacity*0.05}), rgba(0,0,255,${opacity*0.05}))
+            `,
+            backgroundSize: '100% 4px, 6px 100%',
+            animation: `vhsNoise ${0.5/speed}s infinite linear`
+          }} 
+        />
+      );
+      
+    case 'fairy':
+      return (
+        <div style={effectStyles}>
+          {generateFairyDust(40)}
+        </div>
+      );
+      
+    case 'paper':
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            background: `
+              radial-gradient(circle at 20% 30%, rgba(0,0,0,${opacity*0.1}) 1px, transparent 1px),
+              radial-gradient(circle at 80% 70%, rgba(0,0,0,${opacity*0.1}) 1px, transparent 1px),
+              linear-gradient(135deg, rgba(255,255,255,${opacity*0.1}) 0%, rgba(0,0,0,${opacity*0.05}) 100%)
+            `,
+            backgroundSize: '50px 50px, 30px 30px, 100% 100%'
+          }} 
+        />
+      );
+      
+    case 'kaleidoscope':
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            background: `
+              conic-gradient(from ${angle}deg, 
+                ${rgba} 0deg, 
+                transparent 60deg, 
+                ${applyOpacity(color, opacity*0.5)} 120deg, 
+                transparent 180deg, 
+                ${rgba} 240deg, 
+                transparent 300deg
+              )
+            `,
+            animation: `kaleidoscopeRotation ${6/speed}s linear infinite`
+          }} 
+        />
+      );
+      
     default:
       return null;
+  }
+  
+  // Helper functions for generating particles
+  function generateSparks() {
+    const sparks = [];
+    const count = 15;
+    
+    for (let i = 0; i < count; i++) {
+      const sparkSize = Math.random() * 8 * size + 3;
+      const left = `${Math.random() * 100}%`;
+      const top = `${Math.random() * 100}%`;
+      const delay = Math.random() * 2;
+      
+      sparks.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${sparkSize}px`,
+            height: `${sparkSize}px`,
+            backgroundColor: color,
+            borderRadius: '50%',
+            boxShadow: `0 0 ${sparkSize*2}px ${color}`,
+            top,
+            left,
+            opacity: 0,
+            animation: `sparkle ${2/speed}s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return sparks;
+  }
+  
+  function generateStars(count: number) {
+    const stars = [];
+    
+    for (let i = 0; i < count; i++) {
+      const starSize = Math.random() * 3 + 1;
+      const left = `${Math.random() * 100}%`;
+      const top = `${Math.random() * 100}%`;
+      const delay = Math.random() * 3;
+      
+      stars.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${starSize}px`,
+            height: `${starSize}px`,
+            backgroundColor: 'white',
+            borderRadius: '50%',
+            boxShadow: `0 0 ${starSize*3}px rgba(255,255,255,${opacity})`,
+            top,
+            left,
+            animation: `twinkle ${3/speed}s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return stars;
+  }
+  
+  function generateRain(count: number) {
+    const drops = [];
+    
+    for (let i = 0; i < count; i++) {
+      const left = `${Math.random() * 100}%`;
+      const delay = Math.random() * 2;
+      const duration = (Math.random() * 1 + 0.5) / speed;
+      
+      drops.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: '2px',
+            height: '20px',
+            background: `linear-gradient(to bottom, transparent, ${rgba})`,
+            left,
+            top: '-20px',
+            animation: `rainDrop ${duration}s linear infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return drops;
+  }
+  
+  function generateBinaryCode(count: number) {
+    const codes = [];
+    
+    for (let i = 0; i < count; i++) {
+      const left = `${Math.random() * 100}%`;
+      const delay = Math.random() * 5;
+      const duration = (Math.random() * 3 + 2) / speed;
+      
+      codes.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            left,
+            top: '-20px',
+            color: rgba,
+            fontFamily: 'monospace',
+            fontSize: `${12 * size}px`,
+            animation: `binaryFall ${duration}s linear infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        >
+          {Math.random() > 0.5 ? '1' : '0'}
+        </div>
+      );
+    }
+    
+    return codes;
+  }
+  
+  function generateFairyDust(count: number) {
+    const particles = [];
+    
+    for (let i = 0; i < count; i++) {
+      const particleSize = Math.random() * 4 + 2;
+      const left = `${Math.random() * 100}%`;
+      const top = `${Math.random() * 100}%`;
+      const delay = Math.random() * 4;
+      
+      particles.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${particleSize}px`,
+            height: `${particleSize}px`,
+            background: `radial-gradient(circle, ${rgba} 0%, transparent 70%)`,
+            borderRadius: '50%',
+            boxShadow: `0 0 ${particleSize*4}px ${color}`,
+            top,
+            left,
+            animation: `fairyFloat ${4/speed}s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return particles;
   }
 };
 

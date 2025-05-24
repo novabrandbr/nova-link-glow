@@ -121,77 +121,90 @@ const Dashboard = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   
-  // Set up the phone preview to follow scroll with improved behavior
+  // Improved phone preview positioning with smooth following
   useEffect(() => {
     const handleScroll = () => {
       if (previewContainerRef.current) {
         const scrollTop = window.scrollY;
-        const headerHeight = 64; // Approximate header height
-        
-        // Calculate viewport center
-        const viewportHeight = window.innerHeight;
+        const windowHeight = window.innerHeight;
         const previewHeight = previewContainerRef.current.offsetHeight;
         
-        // Calculate the position that would center the preview in the viewport
-        const centeredTop = Math.max(0, scrollTop + (viewportHeight - previewHeight) / 2 - headerHeight);
+        // Calculate the ideal position to keep preview centered
+        const headerHeight = 64;
+        const availableHeight = windowHeight - headerHeight;
+        const centeredPosition = Math.max(
+          headerHeight,
+          scrollTop + (availableHeight - previewHeight) / 2
+        );
         
-        // Apply the new position with smooth transition
-        previewContainerRef.current.style.transform = `translateY(${centeredTop}px)`;
-        previewContainerRef.current.style.transition = 'transform 0.2s ease-out';
+        // Apply smooth positioning
+        previewContainerRef.current.style.position = 'fixed';
+        previewContainerRef.current.style.top = `${centeredPosition}px`;
+        previewContainerRef.current.style.transition = 'top 0.3s ease-out';
+        previewContainerRef.current.style.zIndex = '10';
       }
     };
     
-    window.addEventListener('scroll', handleScroll);
-    // Trigger once on mount to position correctly
-    setTimeout(handleScroll, 100);
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [activePanel, activeMinisiteTab]);
-  
-  // Improved scroll syncing with a throttled scroll handler
-  useEffect(() => {
-    const handleScroll = () => {
-      if (panelRef.current && previewRef.current) {
-        const panelScrollTop = panelRef.current.scrollTop;
-        const panelHeight = panelRef.current.clientHeight;
-        const panelScrollHeight = panelRef.current.scrollHeight;
-        
-        // Calculate scroll percentage
-        const scrollPercentage = panelScrollTop / (panelScrollHeight - panelHeight);
-        
-        // Apply the same percentage to the preview
-        const previewScrollHeight = previewRef.current.scrollHeight;
-        const previewHeight = previewRef.current.clientHeight;
-        const previewScrollPosition = scrollPercentage * (previewScrollHeight - previewHeight);
-        
-        // Apply smooth scrolling to preview
-        previewRef.current.scrollTo({
-          top: previewScrollPosition,
-          behavior: 'smooth'
-        });
-      }
-    };
-    
-    // Add scroll event listener with throttling
+    // Throttle scroll events for better performance
     let scrollTimeout: number | null = null;
     const throttledScroll = () => {
       if (scrollTimeout === null) {
         scrollTimeout = window.setTimeout(() => {
           handleScroll();
           scrollTimeout = null;
-        }, 10);
+        }, 16); // ~60fps
       }
+    };
+    
+    window.addEventListener('scroll', throttledScroll);
+    window.addEventListener('resize', handleScroll);
+    
+    // Initial positioning
+    setTimeout(handleScroll, 100);
+    
+    return () => {
+      window.removeEventListener('scroll', throttledScroll);
+      window.removeEventListener('resize', handleScroll);
+      if (scrollTimeout) window.clearTimeout(scrollTimeout);
+    };
+  }, [activePanel, activeMinisiteTab]);
+  
+  // Enhanced scroll synchronization between panel and preview
+  useEffect(() => {
+    const handlePanelScroll = () => {
+      if (panelRef.current && previewRef.current) {
+        const panel = panelRef.current;
+        const preview = previewRef.current;
+        
+        const panelScrollTop = panel.scrollTop;
+        const panelScrollHeight = panel.scrollHeight - panel.clientHeight;
+        const previewScrollHeight = preview.scrollHeight - preview.clientHeight;
+        
+        if (panelScrollHeight > 0 && previewScrollHeight > 0) {
+          const scrollPercentage = panelScrollTop / panelScrollHeight;
+          const previewScrollPosition = scrollPercentage * previewScrollHeight;
+          
+          preview.scrollTo({
+            top: previewScrollPosition,
+            behavior: 'smooth'
+          });
+        }
+      }
+    };
+    
+    let scrollTimeout: number | null = null;
+    const debouncedScroll = () => {
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = window.setTimeout(handlePanelScroll, 10);
     };
     
     const panelElement = panelRef.current;
     if (panelElement) {
-      panelElement.addEventListener('scroll', throttledScroll);
+      panelElement.addEventListener('scroll', debouncedScroll);
       
       return () => {
-        if (scrollTimeout) window.clearTimeout(scrollTimeout);
-        panelElement.removeEventListener('scroll', throttledScroll);
+        if (scrollTimeout) clearTimeout(scrollTimeout);
+        panelElement.removeEventListener('scroll', debouncedScroll);
       };
     }
   }, [activePanel, activeMinisiteTab]);
@@ -357,9 +370,9 @@ const Dashboard = () => {
         <div className="w-3/5 border-r border-gray-200 flex flex-col overflow-hidden">
           {renderPanel()}
         </div>
-        <div className="w-2/5 bg-gray-50 flex justify-center p-6 overflow-hidden relative">
-          <div className="sticky top-20" ref={previewContainerRef}>
-            <div className="overflow-auto" ref={previewRef}>
+        <div className="w-2/5 bg-gray-50 flex justify-center p-6 relative">
+          <div ref={previewContainerRef} className="w-full max-w-sm">
+            <div className="overflow-auto max-h-[80vh]" ref={previewRef}>
               <PhonePreview 
                 profile={profile} 
                 links={links} 
