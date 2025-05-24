@@ -122,80 +122,6 @@ const Dashboard = () => {
   const [activeMinisiteTab, setActiveMinisiteTab] = useState<string>("profile");
   const previewRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const previewContainerRef = useRef<HTMLDivElement>(null);
-  
-  // Improved phone preview positioning - now stays centered with proper sizing
-  useEffect(() => {
-    const handleScroll = () => {
-      if (previewContainerRef.current) {
-        const windowHeight = window.innerHeight;
-        const headerHeight = 64;
-        const availableHeight = windowHeight - headerHeight;
-        
-        // Fixed position, always centered
-        previewContainerRef.current.style.position = 'fixed';
-        previewContainerRef.current.style.top = `${headerHeight}px`;
-        previewContainerRef.current.style.right = '1rem';
-        previewContainerRef.current.style.width = '35%';
-        previewContainerRef.current.style.height = `${availableHeight}px`;
-        previewContainerRef.current.style.zIndex = '10';
-        previewContainerRef.current.style.display = 'flex';
-        previewContainerRef.current.style.alignItems = 'center';
-        previewContainerRef.current.style.justifyContent = 'center';
-      }
-    };
-    
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
-    
-    // Initial positioning
-    handleScroll();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [activePanel, activeMinisiteTab]);
-  
-  // Enhanced scroll synchronization between panel and preview
-  useEffect(() => {
-    const handlePanelScroll = () => {
-      if (panelRef.current && previewRef.current) {
-        const panel = panelRef.current;
-        const preview = previewRef.current;
-        
-        const panelScrollTop = panel.scrollTop;
-        const panelScrollHeight = panel.scrollHeight - panel.clientHeight;
-        const previewScrollHeight = preview.scrollHeight - preview.clientHeight;
-        
-        if (panelScrollHeight > 0 && previewScrollHeight > 0) {
-          const scrollPercentage = panelScrollTop / panelScrollHeight;
-          const previewScrollPosition = scrollPercentage * previewScrollHeight;
-          
-          preview.scrollTo({
-            top: previewScrollPosition,
-            behavior: 'smooth'
-          });
-        }
-      }
-    };
-    
-    let scrollTimeout: number | null = null;
-    const debouncedScroll = () => {
-      if (scrollTimeout) clearTimeout(scrollTimeout);
-      scrollTimeout = window.setTimeout(handlePanelScroll, 10);
-    };
-    
-    const panelElement = panelRef.current;
-    if (panelElement) {
-      panelElement.addEventListener('scroll', debouncedScroll);
-      
-      return () => {
-        if (scrollTimeout) clearTimeout(scrollTimeout);
-        panelElement.removeEventListener('scroll', debouncedScroll);
-      };
-    }
-  }, [activePanel, activeMinisiteTab]);
   
   const [links, setLinks] = useState<LinkType[]>([
     { 
@@ -336,20 +262,18 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout activePanel={activePanel} setActivePanel={setActivePanel}>
-      <div className="flex flex-1">
+      <div className="flex flex-1 h-screen">
         <div className="w-3/5 border-r border-gray-200 flex flex-col overflow-hidden">
           {renderPanel()}
         </div>
-        <div className="w-2/5 bg-gray-50 relative">
-          <div ref={previewContainerRef} className="w-full h-full flex items-center justify-center">
-            <div className="w-full max-w-[280px] h-full max-h-[580px] overflow-auto" ref={previewRef}>
-              <PhonePreview 
-                profile={profile} 
-                links={links} 
-                audioSettings={audioSettings}
-                pageStyle={pageStyle}
-              />
-            </div>
+        <div className="w-2/5 bg-gray-50 flex items-center justify-center p-4 sticky top-0 h-screen">
+          <div className="w-full max-w-[320px] h-full flex items-center justify-center">
+            <PhonePreview 
+              profile={profile} 
+              links={links} 
+              audioSettings={audioSettings}
+              pageStyle={pageStyle}
+            />
           </div>
         </div>
       </div>
