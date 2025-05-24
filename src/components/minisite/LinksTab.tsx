@@ -1,4 +1,3 @@
-
 import React, { useRef, useState } from 'react';
 import { LinkType } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
@@ -32,11 +31,10 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
       color: '#6A0DAD',
       label: 'Novidade',
       labelColor: '#FF0000',
-      labelPosition: 'top',
+      labelPosition: 'top-center',
       textAlign: 'center',
       mediaType: 'none',
-      description: '',
-      titleColor: '#000000' // Add default title color
+      titleColor: '#000000'
     };
     
     setLinks([...links, newLink]);
@@ -427,7 +425,6 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                           value={link.label || 'no-label'} 
                           onValueChange={(value) => {
                             if (value === 'custom') {
-                              // Show custom input field but don't change label yet
                               updateLink(link.id, 'label', '');
                             } else {
                               updateLink(link.id, 'label', value === 'no-label' ? '' : value);
@@ -482,49 +479,27 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, setLinks }) => {
                       </div>
                     </div>
                     
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <Label htmlFor={`position-${link.id}`}>Posição do rótulo</Label>
-                        <div className="flex items-center space-x-4">
-                          <Button 
-                            type="button" 
-                            variant={link.labelPosition === 'top' ? 'default' : 'outline'} 
-                            size="sm"
-                            onClick={() => updateLink(link.id, 'labelPosition', 'top')}
-                            className="flex-1"
-                          >
-                            Topo
-                          </Button>
-                          <Button 
-                            type="button" 
-                            variant={link.labelPosition === 'center' ? 'default' : 'outline'} 
-                            size="sm"
-                            onClick={() => updateLink(link.id, 'labelPosition', 'center')}
-                            className="flex-1"
-                          >
-                            Centro
-                          </Button>
-                          <Button 
-                            type="button" 
-                            variant={link.labelPosition === 'bottom' ? 'default' : 'outline'} 
-                            size="sm"
-                            onClick={() => updateLink(link.id, 'labelPosition', 'bottom')}
-                            className="flex-1"
-                          >
-                            Embaixo
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Label>Descrição (opcional)</Label>
-                        <Textarea
-                          placeholder="Adicione uma descrição para o link"
-                          value={link.description || ''}
-                          onChange={(e) => updateLink(link.id, 'description', e.target.value)}
-                          rows={2}
-                        />
-                      </div>
+                    <div className="space-y-1">
+                      <Label htmlFor={`position-${link.id}`}>Posição do rótulo</Label>
+                      <Select 
+                        value={link.labelPosition || 'top-center'} 
+                        onValueChange={(value: 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center-center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right') => updateLink(link.id, 'labelPosition', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Posição do rótulo" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="top-left">Topo Esquerda</SelectItem>
+                          <SelectItem value="top-center">Topo Centro</SelectItem>
+                          <SelectItem value="top-right">Topo Direita</SelectItem>
+                          <SelectItem value="center-left">Centro Esquerda</SelectItem>
+                          <SelectItem value="center-center">Centro Centro</SelectItem>
+                          <SelectItem value="center-right">Centro Direita</SelectItem>
+                          <SelectItem value="bottom-left">Inferior Esquerda</SelectItem>
+                          <SelectItem value="bottom-center">Inferior Centro</SelectItem>
+                          <SelectItem value="bottom-right">Inferior Direita</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                     
                     <div className="flex justify-between items-center pt-2 border-t">

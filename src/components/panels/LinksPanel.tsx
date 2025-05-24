@@ -22,7 +22,7 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
     color: "#6A0DAD", 
     label: "",
     labelColor: "#FF0000",
-    labelPosition: "top",
+    labelPosition: "top-center",
     textAlign: "center",
     mediaType: "none" as 'none' | 'image' | 'video',
     mediaUrl: ""
@@ -52,7 +52,7 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
       color: newLink.color,
       label: newLink.label || undefined,
       labelColor: newLink.labelColor,
-      labelPosition: newLink.labelPosition as 'top' | 'center' | 'bottom',
+      labelPosition: newLink.labelPosition as 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center-center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right',
       textAlign: newLink.textAlign as 'left' | 'center' | 'right',
       mediaType: newLink.mediaType,
       mediaUrl: newLink.mediaUrl
@@ -65,7 +65,7 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
       color: "#6A0DAD", 
       label: "",
       labelColor: "#FF0000",
-      labelPosition: "top",
+      labelPosition: "top-center",
       textAlign: "center",
       mediaType: "none",
       mediaUrl: ""
@@ -393,9 +393,15 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
               <SelectValue placeholder="Posição do rótulo" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="top">No topo</SelectItem>
-              <SelectItem value="center">No centro</SelectItem>
-              <SelectItem value="bottom">Em baixo</SelectItem>
+              <SelectItem value="top-left">Topo Esquerda</SelectItem>
+              <SelectItem value="top-center">Topo Centro</SelectItem>
+              <SelectItem value="top-right">Topo Direita</SelectItem>
+              <SelectItem value="center-left">Centro Esquerda</SelectItem>
+              <SelectItem value="center-center">Centro Centro</SelectItem>
+              <SelectItem value="center-right">Centro Direita</SelectItem>
+              <SelectItem value="bottom-left">Inferior Esquerda</SelectItem>
+              <SelectItem value="bottom-center">Inferior Centro</SelectItem>
+              <SelectItem value="bottom-right">Inferior Direita</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -557,16 +563,22 @@ const LinksPanel = ({ links, setLinks }: LinksPanelProps) => {
                     <div className="space-y-2">
                       <label className="block text-sm font-medium">Posição do rótulo</label>
                       <Select 
-                        onValueChange={(value: string) => updateLink(link.id, { labelPosition: value as 'top' | 'center' | 'bottom' })}
-                        defaultValue={link.labelPosition || "top"}
+                        onValueChange={(value: string) => updateLink(link.id, { labelPosition: value as 'top-left' | 'top-center' | 'top-right' | 'center-left' | 'center-center' | 'center-right' | 'bottom-left' | 'bottom-center' | 'bottom-right' })}
+                        defaultValue={link.labelPosition || "top-center"}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Posição do rótulo" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="top">No topo</SelectItem>
-                          <SelectItem value="center">No centro</SelectItem>
-                          <SelectItem value="bottom">Em baixo</SelectItem>
+                          <SelectItem value="top-left">Topo Esquerda</SelectItem>
+                          <SelectItem value="top-center">Topo Centro</SelectItem>
+                          <SelectItem value="top-right">Topo Direita</SelectItem>
+                          <SelectItem value="center-left">Centro Esquerda</SelectItem>
+                          <SelectItem value="center-center">Centro Centro</SelectItem>
+                          <SelectItem value="center-right">Centro Direita</SelectItem>
+                          <SelectItem value="bottom-left">Inferior Esquerda</SelectItem>
+                          <SelectItem value="bottom-center">Inferior Centro</SelectItem>
+                          <SelectItem value="bottom-right">Inferior Direita</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
