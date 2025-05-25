@@ -13,6 +13,7 @@ import {
   Users
 } from "lucide-react";
 import VisualEffect from "@/components/effects/VisualEffect";
+import "./PhonePreview.css";
 
 interface PhonePreviewProps {
   profile: UserProfile;
@@ -456,13 +457,13 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div className="bg-gray-100 min-h-screen flex items-center justify-center p-4">
       <div className="phone-mockup">
         <div className="camera"></div>
         <div className="speaker"></div>
         <div className="screen">
           <div
-            className="min-h-screen flex flex-col"
+            className="min-h-full flex flex-col"
             style={{
               backgroundColor: profile.backgroundColor,
               backgroundImage: profile.backgroundType === 'gradient' ? profile.backgroundGradient : profile.backgroundType === 'image' ? `url(${profile.backgroundImage})` : profile.backgroundType === 'video' ? `url(${profile.backgroundVideo})` : 'none',
