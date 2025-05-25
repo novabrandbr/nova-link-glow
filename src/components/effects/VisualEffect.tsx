@@ -187,6 +187,80 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
           {bubbleElements}
         </div>
       );
+
+    case 'glitch':
+      return (
+        <div style={effectStyles}>
+          <div 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              background: `
+                repeating-linear-gradient(
+                  90deg,
+                  transparent,
+                  transparent 2px,
+                  ${applyOpacity(color, opacity*0.1)} 2px,
+                  ${applyOpacity(color, opacity*0.1)} 4px
+                )
+              `,
+              animation: `glitchShake ${2/speed}s infinite linear`
+            }}
+          />
+          <div 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              background: `linear-gradient(90deg, rgba(255,0,0,${opacity*0.02}), rgba(0,255,0,${opacity*0.02}), rgba(0,0,255,${opacity*0.02}))`,
+              backgroundSize: '3px 100%',
+              animation: `glitchNoise ${0.3/speed}s infinite linear`
+            }}
+          />
+        </div>
+      );
+
+    case 'lightleak':
+      return (
+        <div style={effectStyles}>
+          <div 
+            style={{
+              position: 'absolute',
+              width: '200%',
+              height: '100%',
+              left: '-50%',
+              background: `linear-gradient(45deg, 
+                transparent 0%, 
+                ${applyOpacity('#ff9500', opacity*0.4)} 20%, 
+                ${applyOpacity('#ffff00', opacity*0.6)} 40%, 
+                ${applyOpacity('#ff6b00', opacity*0.4)} 60%, 
+                transparent 80%
+              )`,
+              animation: `lightLeakMove ${8/speed}s ease-in-out infinite alternate`,
+              filter: 'blur(2px)'
+            }}
+          />
+        </div>
+      );
+
+    case 'vignette':
+      return (
+        <div 
+          style={{
+            ...effectStyles,
+            background: `radial-gradient(circle, transparent 40%, ${applyOpacity('#000000', opacity*0.8)} 100%)`,
+            pointerEvents: 'none'
+          }}
+        />
+      );
+
+    case 'spark':
+      return (
+        <div style={effectStyles}>
+          {generateSparks(20)}
+        </div>
+      );
       
     case 'aurora':
       return (
@@ -360,6 +434,13 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
           {generateShootingStars(6)}
         </div>
       );
+
+    case 'texture3d':
+      return (
+        <div style={effectStyles}>
+          {generate3DTexture()}
+        </div>
+      );
       
     case 'kaleidoscope':
       return (
@@ -388,12 +469,114 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
           {generateEmojiRain(15)}
         </div>
       );
+
+    case 'mosaic':
+      return (
+        <div style={effectStyles}>
+          {generateMosaicPhotos(12)}
+        </div>
+      );
       
     default:
       return null;
   }
   
   // Helper functions for effects
+  function generateSparks(count: number) {
+    const sparks = [];
+    
+    for (let i = 0; i < count; i++) {
+      const sparkSize = Math.random() * 4 * size + 2;
+      const left = `${Math.random() * 100}%`;
+      const top = `${Math.random() * 100}%`;
+      const delay = Math.random() * 3;
+      
+      sparks.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${sparkSize}px`,
+            height: `${sparkSize}px`,
+            background: rgba,
+            borderRadius: '50%',
+            boxShadow: `0 0 ${sparkSize*3}px ${color}`,
+            top,
+            left,
+            animation: `sparkle ${2/speed}s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return sparks;
+  }
+
+  function generate3DTexture() {
+    const elements = [];
+    
+    for (let i = 0; i < 8; i++) {
+      elements.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${100 + i * 20}px`,
+            height: `${100 + i * 20}px`,
+            left: `${20 + i * 10}%`,
+            top: `${10 + i * 5}%`,
+            border: `2px solid ${applyOpacity(color, opacity * (0.8 - i * 0.1))}`,
+            borderRadius: i % 2 === 0 ? '50%' : '0%',
+            animation: `texture3DRotate ${8 + i * 2/speed}s linear infinite`,
+            transformStyle: 'preserve-3d',
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return elements;
+  }
+
+  function generateMosaicPhotos(count: number) {
+    const photos = [];
+    const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3'];
+    
+    for (let i = 0; i < count; i++) {
+      const photoSize = Math.random() * 40 * size + 30;
+      const left = `${Math.random() * 90}%`;
+      const top = `${Math.random() * 90}%`;
+      const delay = Math.random() * 4;
+      const duration = (Math.random() * 6 + 8) / speed;
+      const bgColor = colors[Math.floor(Math.random() * colors.length)];
+      
+      photos.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${photoSize}px`,
+            height: `${photoSize}px`,
+            background: `linear-gradient(45deg, ${applyOpacity(bgColor, opacity*0.7)}, ${applyOpacity(color, opacity*0.5)})`,
+            borderRadius: '8px',
+            border: `2px solid ${applyOpacity('#ffffff', opacity*0.8)}`,
+            boxShadow: `0 4px 8px ${applyOpacity('#000000', opacity*0.3)}`,
+            top,
+            left,
+            animation: `mosaicFloat ${duration}s ease-in-out infinite alternate`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return photos;
+  }
+
+  // ... keep existing code (all other helper functions remain the same)
   function generateOceanWaves() {
     const waves = [];
     
