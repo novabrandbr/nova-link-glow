@@ -1261,15 +1261,16 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
   `;
   
   return (
-    <div className="w-[320px]">
+    <div className="w-[280px] h-[560px] mx-auto flex-shrink-0">
       <style>{animationStyles}</style>
-      <div className="border-[10px] border-gray-800 rounded-[40px] overflow-hidden shadow-xl">
-        <div className="bg-gray-800 h-7 flex items-center justify-center">
-          <div className="w-1/3 h-5 rounded-full bg-gray-700"></div>
+      <div className="w-full h-full border-[8px] border-gray-800 rounded-[32px] overflow-hidden shadow-xl bg-black">
+        {/* iPhone notch */}
+        <div className="bg-gray-800 h-6 flex items-center justify-center relative">
+          <div className="w-20 h-4 rounded-full bg-gray-700"></div>
         </div>
         
         <div 
-          className={`h-[600px] overflow-y-auto relative ${getFontClass()}`}
+          className={`h-[calc(100%-1.5rem)] overflow-y-auto relative ${getFontClass()}`}
           style={{ 
             backgroundColor: profile.backgroundColor,
           }}
@@ -1302,28 +1303,28 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
           {/* Visual effects layer */}
           {renderVisualEffects()}
           
-          <div className={`flex flex-col p-6 relative z-10 ${getProfilePositionClass()}`}>
+          <div className={`flex flex-col p-4 relative z-10 ${getProfilePositionClass()}`}>
             {/* Profile info section (conditionally rendered) */}
             {profile.showProfileInfo && (
               <>
                 {profile.avatarShape === 'banner' ? (
-                  <div className="w-full mb-4">
+                  <div className="w-full mb-3">
                     {profile.avatar ? (
                       <img
                         src={profile.avatar}
                         alt={profile.name}
-                        className="w-full h-24 object-cover"
+                        className="w-full h-20 object-cover"
                       />
                     ) : (
-                      <div className="w-full h-24 bg-gray-200 flex items-center justify-center">
-                        <span className="text-2xl font-bold text-gray-400">
+                      <div className="w-full h-20 bg-gray-200 flex items-center justify-center">
+                        <span className="text-xl font-bold text-gray-400">
                           {profile.name.substring(0, 1)}
                         </span>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className={`w-20 h-20 ${getAvatarShapeClass()} overflow-hidden border-2 border-gray-200 bg-gray-200`}>
+                  <div className={`w-16 h-16 ${getAvatarShapeClass()} overflow-hidden border-2 border-gray-200 bg-gray-200`}>
                     {profile.avatar ? (
                       <img
                         src={profile.avatar}
@@ -1332,7 +1333,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-2xl font-bold text-gray-400">
+                        <span className="text-lg font-bold text-gray-400">
                           {profile.name.substring(0, 1)}
                         </span>
                       </div>
@@ -1340,27 +1341,27 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
                   </div>
                 )}
                 
-                <div className="flex items-center mt-4">
-                  <h2 className="text-xl font-bold" style={{ color: profile.nameColor || "#000000" }}>
+                <div className="flex items-center mt-3">
+                  <h2 className="text-lg font-bold" style={{ color: profile.nameColor || "#000000" }}>
                     {profile.name}
                   </h2>
                   
                   {profile.isVerified && (
-                    <span className="ml-1 bg-blue-500 text-white rounded-full p-1 flex items-center justify-center" style={{width: "16px", height: "16px"}}>
-                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3">
+                    <span className="ml-1 bg-blue-500 text-white rounded-full p-1 flex items-center justify-center" style={{width: "14px", height: "14px"}}>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="w-2 h-2">
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
                     </span>
                   )}
                 </div>
                 
-                <p className="text-sm mt-2" style={{ color: profile.bioColor || "#666666" }}>
+                <p className="text-xs mt-2" style={{ color: profile.bioColor || "#666666" }}>
                   {profile.bio}
                 </p>
                 
                 {/* Social icons */}
                 {Object.entries(profile.socialIcons).some(([_, value]) => value) && (
-                  <div className="flex gap-3 mt-3 flex-wrap justify-center">
+                  <div className="flex gap-2 mt-2 flex-wrap justify-center">
                     {Object.entries(profile.socialIcons).map(([platform, url]) => {
                       if (!url) return null;
                       
@@ -1405,14 +1406,14 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
             {/* Audio player */}
             {renderAudioPlayer()}
             
-            <div className="text-xs mt-8" style={{ color: profile.footerColor || "#666666" }}>
+            <div className="text-xs mt-6" style={{ color: profile.footerColor || "#666666" }}>
               {!profile.isPremium && `novabrand.site/${profile.username}`}
             </div>
           </div>
         </div>
       </div>
       
-      <p className="text-center text-sm text-gray-500 mt-4">
+      <p className="text-center text-xs text-gray-500 mt-2">
         Pré-visualização em tempo real
       </p>
     </div>

@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import LinksPanel from "@/components/panels/LinksPanel";
@@ -124,15 +125,15 @@ const Dashboard = () => {
   const panelRef = useRef<HTMLDivElement>(null);
   const previewContainerRef = useRef<HTMLDivElement>(null);
   
-  // Improved phone preview positioning - now stays centered with proper sizing
+  // Improved phone preview positioning - fixed without scrollbars
   useEffect(() => {
-    const handleScroll = () => {
+    const handleResize = () => {
       if (previewContainerRef.current) {
         const windowHeight = window.innerHeight;
         const headerHeight = 64;
         const availableHeight = windowHeight - headerHeight;
         
-        // Fixed position, always centered
+        // Fixed position, always centered, no overflow
         previewContainerRef.current.style.position = 'fixed';
         previewContainerRef.current.style.top = `${headerHeight}px`;
         previewContainerRef.current.style.right = '1rem';
@@ -142,18 +143,17 @@ const Dashboard = () => {
         previewContainerRef.current.style.display = 'flex';
         previewContainerRef.current.style.alignItems = 'center';
         previewContainerRef.current.style.justifyContent = 'center';
+        previewContainerRef.current.style.overflow = 'hidden'; // Remove scrollbars
       }
     };
     
-    window.addEventListener('scroll', handleScroll);
-    window.addEventListener('resize', handleScroll);
+    window.addEventListener('resize', handleResize);
     
     // Initial positioning
-    handleScroll();
+    handleResize();
     
     return () => {
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', handleResize);
     };
   }, [activePanel, activeMinisiteTab]);
   
@@ -336,13 +336,13 @@ const Dashboard = () => {
 
   return (
     <DashboardLayout activePanel={activePanel} setActivePanel={setActivePanel}>
-      <div className="flex flex-1">
+      <div className="flex flex-1 h-full">
         <div className="w-3/5 border-r border-gray-200 flex flex-col overflow-hidden">
           {renderPanel()}
         </div>
-        <div className="w-2/5 bg-gray-50 relative">
-          <div ref={previewContainerRef} className="w-full h-full flex items-center justify-center">
-            <div className="w-full max-w-[280px] h-full max-h-[580px] overflow-auto" ref={previewRef}>
+        <div className="w-2/5 bg-gray-50 relative overflow-hidden">
+          <div ref={previewContainerRef} className="w-full h-full flex items-center justify-center overflow-hidden">
+            <div className="w-full max-w-[320px] h-full flex items-center justify-center overflow-hidden">
               <PhonePreview 
                 profile={profile} 
                 links={links} 
