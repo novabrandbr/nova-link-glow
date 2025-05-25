@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef } from "react";
 import { LinkType, UserProfile, AudioSettings, PageStyle } from "@/pages/Dashboard";
 import { 
@@ -495,7 +496,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
 
             {profile.visualEffect !== 'none' && (
               <VisualEffect
-                type={profile.visualEffect}
+                effect={profile.visualEffect}
                 color={profile.visualEffectColor}
                 opacity={profile.visualEffectOpacity}
                 speed={profile.visualEffectSpeed}
