@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 
@@ -8,19 +9,28 @@ interface VisualEffectProps {
 const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
   const [bubbleElements, setBubbleElements] = useState<React.ReactNode[]>([]);
   const [auroraPhase, setAuroraPhase] = useState(0);
+  const [glitchPhase, setGlitchPhase] = useState(0);
   
   useEffect(() => {
     let bubbleInterval: NodeJS.Timeout;
     let auroraInterval: NodeJS.Timeout;
+    let glitchInterval: NodeJS.Timeout;
     
-    // For aurora effect
+    // Aurora effect animation
     if (profile.visualEffect === 'aurora') {
       auroraInterval = setInterval(() => {
         setAuroraPhase(prev => (prev + 1) % 360);
       }, 100);
     }
     
-    // Generate soap bubbles from random angles
+    // Glitch effect animation
+    if (profile.visualEffect === 'glitch') {
+      glitchInterval = setInterval(() => {
+        setGlitchPhase(prev => (prev + 1) % 100);
+      }, 50);
+    }
+    
+    // Soap bubbles generation
     if (profile.visualEffect === 'bubbles') {
       generateSoapBubbles();
       bubbleInterval = setInterval(generateSoapBubbles, 3000);
@@ -29,12 +39,13 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     return () => {
       if (bubbleInterval) clearInterval(bubbleInterval);
       if (auroraInterval) clearInterval(auroraInterval);
+      if (glitchInterval) clearInterval(glitchInterval);
     };
   }, [profile.visualEffect, profile.visualEffectSpeed]);
   
   if (profile.visualEffect === 'none') return null;
   
-  // Determine opacity and color with fallbacks
+  // Default values with fallbacks
   const opacity = profile.visualEffectOpacity || 0.7;
   const color = profile.visualEffectColor || '#6A0DAD';
   const speed = profile.visualEffectSpeed || 1;
@@ -59,15 +70,145 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
   
   const rgba = applyOpacity(color, opacity);
   
-  // Generate realistic soap bubbles from random angles and positions
+  // Common effect styles - positioned as background layer
+  const effectStyles = {
+    position: 'fixed' as const,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    pointerEvents: 'none' as const,
+    zIndex: -1,
+    overflow: 'hidden' as const
+  };
+
+  // Global keyframes for all effects
+  const globalKeyframes = `
+    @keyframes auroraFlow {
+      0%, 100% { transform: translateX(-20%) translateY(-10%) rotate(0deg); }
+      50% { transform: translateX(20%) translateY(10%) rotate(10deg); }
+    }
+    @keyframes moonPulse {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    @keyframes lightning {
+      0%, 90%, 100% { background: transparent; }
+      92%, 94%, 96% { background: rgba(255,255,255,0.3); }
+    }
+    @keyframes prismShift {
+      0% { transform: rotate(0deg) scale(1); }
+      50% { transform: rotate(180deg) scale(1.2); }
+      100% { transform: rotate(360deg) scale(1); }
+    }
+    @keyframes vhsGlitch {
+      0%, 100% { transform: translateX(0); }
+      10% { transform: translateX(-2px); }
+      20% { transform: translateX(2px); }
+      30% { transform: translateX(-1px); }
+      40% { transform: translateX(1px); }
+      50% { transform: translateX(0); }
+    }
+    @keyframes vhsNoise {
+      0% { opacity: 0.8; }
+      50% { opacity: 0.6; }
+      100% { opacity: 0.8; }
+    }
+    @keyframes kaleidoscopeRotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
+    }
+    @keyframes rainDrop {
+      0% { transform: translateY(-20px); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+    @keyframes binaryFall {
+      0% { transform: translateY(-20px); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(100vh); opacity: 0; }
+    }
+    @keyframes emojiDrop {
+      0% { transform: translateY(-50px) rotate(0deg); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+    }
+    @keyframes shootingStar {
+      0% { transform: translateX(0) translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      100% { transform: translateX(-200px) translateY(200px); opacity: 0; }
+    }
+    @keyframes fireworkExplode {
+      0% { transform: scale(0.1); opacity: 1; }
+      50% { transform: scale(1.5); opacity: 0.8; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    @keyframes fairyFloat {
+      0%, 100% { transform: translateY(0px) translateX(0px); }
+      25% { transform: translateY(-10px) translateX(5px); }
+      50% { transform: translateY(-5px) translateX(-3px); }
+      75% { transform: translateY(-8px) translateX(7px); }
+    }
+    @keyframes oceanWaves {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-15px); }
+    }
+    @keyframes fireFlicker {
+      0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.8; }
+      50% { transform: scaleY(1.3) scaleX(0.8); opacity: 1; }
+    }
+    @keyframes smokeFlow {
+      0% { transform: translateY(0px) translateX(0px) rotate(0deg); opacity: 0.6; }
+      50% { transform: translateY(-30px) translateX(10px) rotate(5deg); opacity: 0.8; }
+      100% { transform: translateY(-60px) translateX(-5px) rotate(-3deg); opacity: 0.4; }
+    }
+    @keyframes nebulaDrift {
+      0%, 100% { transform: translateX(0px) rotate(0deg); }
+      50% { transform: translateX(20px) rotate(5deg); }
+    }
+    @keyframes planetRotation {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes glitchShift {
+      0%, 100% { transform: translateX(0) skew(0deg); filter: hue-rotate(0deg); }
+      10% { transform: translateX(-2px) skew(1deg); filter: hue-rotate(90deg); }
+      20% { transform: translateX(2px) skew(-1deg); filter: hue-rotate(180deg); }
+      30% { transform: translateX(-1px) skew(0.5deg); filter: hue-rotate(270deg); }
+      40% { transform: translateX(1px) skew(-0.5deg); filter: hue-rotate(360deg); }
+      50% { transform: translateX(0) skew(0deg); }
+    }
+    @keyframes lightLeak {
+      0% { transform: translateX(-100%) rotate(-5deg); opacity: 0; }
+      50% { opacity: 0.8; }
+      100% { transform: translateX(100vw) rotate(5deg); opacity: 0; }
+    }
+    @keyframes vignetteBreath {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes sparkFloat {
+      0%, 100% { transform: translateY(0px) scale(1); opacity: 0.8; }
+      50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+    }
+    @keyframes texture3DRotate {
+      0% { transform: rotateX(0deg) rotateY(0deg); }
+      100% { transform: rotateX(360deg) rotateY(360deg); }
+    }
+  `;
+
+  // Generate soap bubbles from random angles
   const generateSoapBubbles = () => {
-    const count = Math.floor(Math.random() * 3) + 2; // 2-4 bubbles
+    const count = Math.floor(Math.random() * 3) + 2;
     const newBubbles = [];
     
     for (let i = 0; i < count; i++) {
       const bubbleSize = Math.random() * 60 * size + 40;
       
-      // Random starting positions from different angles
       const startPositions = [
         { side: 'bottom-left', left: -10, top: 110, direction: 'diagonal-up-right' },
         { side: 'bottom-right', left: 110, top: 110, direction: 'diagonal-up-left' },
@@ -80,7 +221,6 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       const duration = (Math.random() * 6 + 8) / speed;
       const delay = Math.random() * 4;
       
-      // Movement based on direction
       let endLeft = startPos.left;
       let endTop = startPos.top;
       
@@ -134,22 +274,10 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       
       const keyframes = `
         @keyframes soapBubbleFloat${Date.now()}-${i} {
-          0% {
-            transform: scale(0.2) rotate(0deg);
-            opacity: 0;
-          }
-          10% {
-            opacity: 0.8;
-            transform: scale(1) rotate(10deg);
-          }
-          90% {
-            opacity: 0.6;
-            transform: translateY(${endTop - startPos.top}vh) translateX(${endLeft - startPos.left}vw) scale(1.1) rotate(360deg);
-          }
-          100% {
-            transform: translateY(${endTop - startPos.top}vh) translateX(${endLeft - startPos.left}vw) scale(0.8) rotate(380deg);
-            opacity: 0;
-          }
+          0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
+          10% { opacity: 0.8; transform: scale(1) rotate(10deg); }
+          90% { opacity: 0.6; transform: translateY(${endTop - startPos.top}vh) translateX(${endLeft - startPos.left}vw) scale(1.1) rotate(360deg); }
+          100% { transform: translateY(${endTop - startPos.top}vh) translateX(${endLeft - startPos.left}vw) scale(0.8) rotate(380deg); opacity: 0; }
         }
       `;
       
@@ -166,31 +294,94 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       return [...filtered, ...newBubbles];
     });
   };
-
-  // Common effect styles - FIXED: position fixed and z-index to stay behind content
-  const effectStyles = {
-    position: 'fixed' as const,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    pointerEvents: 'none' as const,
-    zIndex: -2,
-    overflow: 'hidden' as const
-  };
   
   // Effect-specific rendering
   switch (profile.visualEffect) {
     case 'bubbles':
       return (
-        <div style={{...effectStyles, zIndex: -2}}>
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           {bubbleElements}
+        </div>
+      );
+      
+    case 'glitch':
+      return (
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          <div 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              background: `
+                repeating-linear-gradient(
+                  0deg,
+                  transparent 0px,
+                  ${applyOpacity(color, opacity*0.1)} 2px,
+                  transparent 4px
+                ),
+                repeating-linear-gradient(
+                  90deg,
+                  transparent 0px,
+                  ${applyOpacity(color, opacity*0.05)} 1px,
+                  transparent 3px
+                )
+              `,
+              animation: `glitchShift ${2/speed}s infinite`,
+              mixBlendMode: 'multiply'
+            }} 
+          />
+        </div>
+      );
+      
+    case 'lightleak':
+      return (
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          <div 
+            style={{
+              position: 'absolute',
+              width: '200%',
+              height: '120%',
+              top: '-10%',
+              left: '-50%',
+              background: `linear-gradient(45deg, transparent 40%, ${rgba} 50%, transparent 60%)`,
+              animation: `lightLeak ${8/speed}s ease-in-out infinite`,
+              filter: 'blur(20px)'
+            }} 
+          />
+        </div>
+      );
+      
+    case 'vignette':
+      return (
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          <div 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              background: `radial-gradient(ellipse at center, transparent 40%, ${rgba} 100%)`,
+              animation: `vignetteBreath ${4/speed}s ease-in-out infinite`
+            }} 
+          />
+        </div>
+      );
+      
+    case 'spark':
+      return (
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          {generateSparkParticles(20)}
         </div>
       );
       
     case 'aurora':
       return (
         <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           <div 
             style={{
               position: 'absolute',
@@ -218,117 +409,160 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     case 'nightsky':
       return (
         <div style={effectStyles}>
-          {generateStars(200)}
-          <div 
-            style={{
-              position: 'absolute',
-              top: '10%',
-              right: '20%',
-              width: '80px',
-              height: '80px',
-              borderRadius: '50%',
-              background: `radial-gradient(circle, rgba(255,255,220,${opacity*0.8}) 0%, rgba(200,200,255,${opacity*0.5}) 70%, transparent 100%)`,
-              boxShadow: `0 0 60px rgba(255,255,220,${opacity*0.4})`,
-              animation: `moonPulse ${6/speed}s ease-in-out infinite`
-            }} 
-          />
-          {generateShootingStars(3)}
+          <style>{globalKeyframes}</style>
+          <div style={{...effectStyles, background: 'linear-gradient(to bottom, #000428 0%, #004e92 100%)'}}>
+            {generateStars(200)}
+            <div 
+              style={{
+                position: 'absolute',
+                top: '10%',
+                right: '20%',
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                background: `radial-gradient(circle, rgba(255,255,220,${opacity*0.8}) 0%, rgba(200,200,255,${opacity*0.5}) 70%, transparent 100%)`,
+                boxShadow: `0 0 60px rgba(255,255,220,${opacity*0.4})`,
+                animation: `moonPulse ${6/speed}s ease-in-out infinite`
+              }} 
+            />
+            {generateShootingStars(3)}
+          </div>
         </div>
       );
       
     case 'rainlightning':
       return (
         <div style={effectStyles}>
-          {generateRain(60)}
-          <div 
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              background: 'transparent',
-              animation: `lightning ${8/speed}s infinite`
-            }} 
-          />
+          <style>{globalKeyframes}</style>
+          <div style={{...effectStyles, background: 'linear-gradient(to bottom, #2c3e50 0%, #34495e 100%)'}}>
+            {generateRain(60)}
+            <div 
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                background: 'transparent',
+                animation: `lightning ${8/speed}s infinite`
+              }} 
+            />
+          </div>
         </div>
       );
       
     case 'galaxy':
       return (
         <div style={effectStyles}>
-          {generateStars(300)}
-          {generateNebula()}
-          {generatePlanets()}
+          <style>{globalKeyframes}</style>
+          <div style={{...effectStyles, background: 'radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 30%, #0f0f23 100%)'}}>
+            {generateStars(300)}
+            {generateNebula()}
+            {generatePlanets()}
+          </div>
         </div>
       );
       
     case 'prism':
       return (
-        <div 
-          style={{
-            ...effectStyles,
-            background: `
-              linear-gradient(45deg, 
-                transparent 0%,
-                ${applyOpacity('#ff0096', opacity*0.3)} 16%,
-                ${applyOpacity('#00ffff', opacity*0.3)} 33%,
-                ${applyOpacity('#ffff00', opacity*0.3)} 50%,
-                ${applyOpacity('#9600ff', opacity*0.3)} 66%,
-                ${applyOpacity('#ff6400', opacity*0.3)} 83%,
-                transparent 100%
-              )
-            `,
-            animation: `prismShift ${8/speed}s ease-in-out infinite`,
-            filter: 'blur(0.5px)'
-          }} 
-        />
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          <div 
+            style={{
+              ...effectStyles,
+              background: `
+                linear-gradient(45deg, 
+                  transparent 0%,
+                  ${applyOpacity('#ff0096', opacity*0.3)} 16%,
+                  ${applyOpacity('#00ffff', opacity*0.3)} 33%,
+                  ${applyOpacity('#ffff00', opacity*0.3)} 50%,
+                  ${applyOpacity('#9600ff', opacity*0.3)} 66%,
+                  ${applyOpacity('#ff6400', opacity*0.3)} 83%,
+                  transparent 100%
+                )
+              `,
+              animation: `prismShift ${8/speed}s ease-in-out infinite`,
+              filter: 'blur(0.5px)'
+            }} 
+          />
+        </div>
       );
       
     case 'binary':
       return (
         <div style={effectStyles}>
-          {generateBinaryMatrix(50)}
+          <style>{globalKeyframes}</style>
+          <div style={{...effectStyles, background: 'linear-gradient(to bottom, #000000 0%, #001a00 100%)'}}>
+            {generateBinaryMatrix(50)}
+          </div>
         </div>
       );
       
     case 'vhs':
       return (
-        <div 
-          style={{
-            ...effectStyles,
-            background: `
-              repeating-linear-gradient(
-                0deg,
-                rgba(0,0,0,${opacity*0.1}) 0px,
-                rgba(0,0,0,${opacity*0.05}) 1px,
-                transparent 3px
-              )
-            `,
-            animation: `vhsGlitch ${2/speed}s infinite linear`
-          }} 
-        >
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           <div 
             style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              background: `linear-gradient(90deg, rgba(255,0,0,${opacity*0.02}), rgba(0,255,0,${opacity*0.02}), rgba(0,0,255,${opacity*0.02}))`,
-              backgroundSize: '3px 100%',
-              animation: `vhsNoise ${0.5/speed}s infinite linear`
-            }}
-          />
+              ...effectStyles,
+              background: `
+                repeating-linear-gradient(
+                  0deg,
+                  rgba(0,0,0,${opacity*0.1}) 0px,
+                  rgba(0,0,0,${opacity*0.05}) 1px,
+                  transparent 3px
+                )
+              `,
+              animation: `vhsGlitch ${2/speed}s infinite linear`
+            }} 
+          >
+            <div 
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                background: `linear-gradient(90deg, rgba(255,0,0,${opacity*0.02}), rgba(0,255,0,${opacity*0.02}), rgba(0,0,255,${opacity*0.02}))`,
+                backgroundSize: '3px 100%',
+                animation: `vhsNoise ${0.5/speed}s infinite linear`
+              }}
+            />
+          </div>
         </div>
       );
       
     case 'fairydust':
       return (
         <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           {generateFairyDust(25)}
+        </div>
+      );
+      
+    case 'texture3d':
+      return (
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          <div 
+            style={{
+              ...effectStyles,
+              background: `
+                linear-gradient(45deg, ${rgba} 25%, transparent 25%),
+                linear-gradient(-45deg, ${rgba} 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, ${rgba} 75%),
+                linear-gradient(-45deg, transparent 75%, ${rgba} 75%)
+              `,
+              backgroundSize: '40px 40px',
+              backgroundPosition: '0 0, 0 20px, 20px -20px, -20px 0px',
+              animation: `texture3DRotate ${10/speed}s linear infinite`,
+              perspective: '1000px',
+              transformStyle: 'preserve-3d'
+            }} 
+          />
         </div>
       );
       
     case 'ocean':
       return (
         <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           {generateOceanWaves()}
         </div>
       );
@@ -336,6 +570,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     case 'fire':
       return (
         <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           {generateFire()}
         </div>
       );
@@ -343,6 +578,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     case 'smoke':
       return (
         <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           {generateSmoke()}
         </div>
       );
@@ -350,50 +586,134 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     case 'fireworks':
       return (
         <div style={effectStyles}>
-          {generateFireworks(4)}
+          <style>{globalKeyframes}</style>
+          <div style={{...effectStyles, background: 'linear-gradient(to bottom, #000428 0%, #004e92 100%)'}}>
+            {generateFireworks(4)}
+          </div>
         </div>
       );
       
     case 'shootingstars':
       return (
         <div style={effectStyles}>
-          {generateShootingStars(6)}
+          <style>{globalKeyframes}</style>
+          <div style={{...effectStyles, background: 'linear-gradient(to bottom, #000428 0%, #004e92 100%)'}}>
+            {generateShootingStars(6)}
+          </div>
         </div>
       );
       
     case 'kaleidoscope':
       return (
-        <div 
-          style={{
-            ...effectStyles,
-            background: `
-              conic-gradient(from 0deg, 
-                ${rgba} 0deg, 
-                transparent 60deg, 
-                ${applyOpacity(color, opacity*0.7)} 120deg, 
-                transparent 180deg,
-                ${rgba} 240deg,
-                transparent 300deg
-              )
-            `,
-            animation: `kaleidoscopeRotation ${10/speed}s linear infinite`,
-            transformOrigin: 'center'
-          }} 
-        />
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          <div 
+            style={{
+              ...effectStyles,
+              background: `
+                conic-gradient(from 0deg, 
+                  ${rgba} 0deg, 
+                  transparent 60deg, 
+                  ${applyOpacity(color, opacity*0.7)} 120deg, 
+                  transparent 180deg,
+                  ${rgba} 240deg,
+                  transparent 300deg
+                )
+              `,
+              animation: `kaleidoscopeRotation ${10/speed}s linear infinite`,
+              transformOrigin: 'center'
+            }} 
+          />
+        </div>
       );
       
     case 'emojirain':
       return (
         <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
           {generateEmojiRain(15)}
         </div>
       );
+      
+    case 'photomosaic':
+      return (
+        <div style={effectStyles}>
+          <style>{globalKeyframes}</style>
+          {generatePhotoMosaic(20)}
+        </div>
+      );
+      
+    case 'custom':
+      if (profile.visualEffectCustomUrl) {
+        return (
+          <div style={effectStyles}>
+            {profile.visualEffectCustomUrl.startsWith('data:image') ? (
+              <img 
+                src={profile.visualEffectCustomUrl} 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: opacity
+                }}
+                alt="Custom effect" 
+              />
+            ) : (
+              <video 
+                src={profile.visualEffectCustomUrl} 
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  opacity: opacity
+                }}
+                autoPlay 
+                muted 
+                loop 
+              />
+            )}
+          </div>
+        );
+      }
+      return null;
       
     default:
       return null;
   }
   
   // Helper functions for effects
+  function generateSparkParticles(count: number) {
+    const sparks = [];
+    
+    for (let i = 0; i < count; i++) {
+      const sparkSize = Math.random() * 4 * size + 2;
+      const left = `${Math.random() * 100}%`;
+      const top = `${Math.random() * 100}%`;
+      const delay = Math.random() * 4;
+      
+      sparks.push(
+        <div 
+          key={i}
+          style={{
+            position: 'absolute',
+            width: `${sparkSize}px`,
+            height: `${sparkSize}px`,
+            background: rgba,
+            borderRadius: '50%',
+            boxShadow: `0 0 ${sparkSize*3}px ${color}`,
+            top,
+            left,
+            animation: `sparkFloat ${3/speed}s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none'
+          }} 
+        />
+      );
+    }
+    
+    return sparks;
+  }
+  
   function generateOceanWaves() {
     const waves = [];
     
@@ -582,6 +902,38 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
     }
     
     return drops;
+  }
+  
+  function generatePhotoMosaic(count: number) {
+    const photos = [];
+    
+    for (let i = 0; i < count; i++) {
+      const photoSize = Math.random() * 40 * size + 30;
+      const left = `${Math.random() * 90}%`;
+      const top = `${Math.random() * 90}%`;
+      const delay = Math.random() * 4;
+      
+      photos.push(
+        <div 
+          key={`photo-${i}`}
+          style={{
+            position: 'absolute',
+            width: `${photoSize}px`,
+            height: `${photoSize}px`,
+            left,
+            top,
+            background: `linear-gradient(45deg, ${rgba} 0%, ${applyOpacity(color, opacity*0.6)} 100%)`,
+            borderRadius: '4px',
+            animation: `fairyFloat ${4/speed}s ease-in-out infinite`,
+            animationDelay: `${delay}s`,
+            pointerEvents: 'none',
+            opacity: opacity * 0.7
+          }} 
+        />
+      );
+    }
+    
+    return photos;
   }
   
   function generateShootingStars(count: number) {

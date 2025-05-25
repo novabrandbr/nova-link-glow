@@ -61,23 +61,23 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
 
   const visualEffects = [
     { value: 'none', label: 'Nenhum' },
-    { value: 'bubbles', label: 'Bolhas de Sabão' },
-    { value: 'glitch', label: 'Efeito Glitch' },
+    { value: 'bubbles', label: 'Bolha de Sabão' },
+    { value: 'glitch', label: 'Glitch' },
     { value: 'lightleak', label: 'Light Leak Profissional' },
-    { value: 'vignette', label: 'Efeito Vignette' },
-    { value: 'spark', label: 'Efeito Spark' },
+    { value: 'vignette', label: 'Vignette' },
+    { value: 'spark', label: 'Spark (Brilhos)' },
     { value: 'fire', label: 'Fogo' },
-    { value: 'waves', label: 'Ondas do Mar' },
+    { value: 'ocean', label: 'Ondas do Mar' },
     { value: 'aurora', label: 'Aurora Boreal' },
     { value: 'nightsky', label: 'Céu Noturno com Lua e Estrelas' },
-    { value: 'rain', label: 'Chuva com Relâmpagos' },
+    { value: 'rainlightning', label: 'Chuva com Relâmpagos' },
     { value: 'galaxy', label: 'Galáxia / Espaço Sideral' },
-    { value: 'prism', label: 'Efeito Prisma / Holográfico' },
+    { value: 'prism', label: 'Prisma Holográfico' },
     { value: 'binary', label: 'Códigos Binários (Matrix)' },
-    { value: 'vhs', label: 'Efeito VHS com Linhas de Ruído' },
-    { value: 'fairy', label: 'Pó de Fada / Brilhos Flutuantes' },
-    { value: 'paper', label: 'Textura 3D (Tecido ou Papel)' },
-    { value: 'kaleidoscope', label: 'Efeito Caleidoscópio' },
+    { value: 'vhs', label: 'VHS com Linhas de Ruído' },
+    { value: 'fairydust', label: 'Pó de Fada / Brilho Flutuante' },
+    { value: 'texture3d', label: 'Textura 3D' },
+    { value: 'kaleidoscope', label: 'Kaleidoscópico' },
     { value: 'emojirain', label: 'Chuva de Emojis' },
     { value: 'photomosaic', label: 'Mosaico de Fotos' },
     { value: 'shootingstars', label: 'Estrelas Cadentes' },
@@ -424,7 +424,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </div>
           </div>
           
-          {/* Font Selection */}
           <div className="space-y-2">
             <Label htmlFor="font">Fonte</Label>
             <Select 
@@ -831,17 +830,44 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </Select>
           </div>
           
-          <div className="grid grid-cols-3 gap-3 max-h-60 overflow-y-auto">
+          {/* Grid com 3 linhas iniciais visíveis - 9 efeitos por vez */}
+          <div className="grid grid-cols-3 gap-3 h-80 overflow-y-auto border rounded-lg p-3">
             {visualEffects.filter(e => e.value !== 'custom').map(effect => (
               <div 
                 key={effect.value}
-                className={`border rounded-lg p-3 cursor-pointer ${profile.visualEffect === effect.value ? 'border-purple-500 bg-purple-50' : 'border-gray-200'}`}
+                className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
+                  profile.visualEffect === effect.value 
+                    ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' 
+                    : 'border-gray-200 hover:border-purple-300'
+                }`}
                 onClick={() => handleChange('visualEffect', effect.value)}
               >
-                <div className="aspect-video bg-gray-100 mb-2 rounded-sm flex items-center justify-center text-sm text-gray-500">
-                  {effect.label}
+                <div className="aspect-video bg-gradient-to-br from-gray-50 to-gray-100 mb-2 rounded-sm flex items-center justify-center text-xs text-gray-500 font-medium">
+                  {effect.value === 'none' && '✕'}
+                  {effect.value === 'bubbles' && '○○○'}
+                  {effect.value === 'glitch' && '▓▒░'}
+                  {effect.value === 'lightleak' && '☀️'}
+                  {effect.value === 'vignette' && '◐'}
+                  {effect.value === 'spark' && '✨'}
+                  {effect.value === 'fire' && '🔥'}
+                  {effect.value === 'ocean' && '🌊'}
+                  {effect.value === 'aurora' && '💫'}
+                  {effect.value === 'nightsky' && '🌙'}
+                  {effect.value === 'rainlightning' && '⚡'}
+                  {effect.value === 'galaxy' && '🌌'}
+                  {effect.value === 'prism' && '🔮'}
+                  {effect.value === 'binary' && '1010'}
+                  {effect.value === 'vhs' && '📼'}
+                  {effect.value === 'fairydust' && '⭐'}
+                  {effect.value === 'texture3d' && '🔳'}
+                  {effect.value === 'kaleidoscope' && '🎨'}
+                  {effect.value === 'emojirain' && '😊'}
+                  {effect.value === 'photomosaic' && '🖼️'}
+                  {effect.value === 'shootingstars' && '☄️'}
+                  {effect.value === 'smoke' && '💨'}
+                  {effect.value === 'fireworks' && '🎆'}
                 </div>
-                <p className="text-xs text-center">{effect.label}</p>
+                <p className="text-xs text-center font-medium">{effect.label}</p>
               </div>
             ))}
           </div>
