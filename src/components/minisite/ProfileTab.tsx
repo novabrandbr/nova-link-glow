@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
@@ -17,7 +18,6 @@ import {
   Upload, 
   Instagram, 
   Facebook, 
-  Twitter, 
   Youtube, 
   Music, 
   Linkedin, 
@@ -65,7 +65,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     { value: 'glitch', label: 'Glitch' },
     { value: 'lightleak', label: 'Light Leak Profissional' },
     { value: 'vignette', label: 'Vignette' },
-    { value: 'spark', label: 'Spark (Brilhos)' },
     { value: 'fire', label: 'Fogo' },
     { value: 'ocean', label: 'Ondas do Mar' },
     { value: 'aurora', label: 'Aurora Boreal' },
@@ -493,7 +492,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Music className="h-5 w-5 text-black" />
+              <Music className="h-5 w-5 text-green-500" />
               <Input 
                 value={profile.socialIcons.tiktok || ''}
                 onChange={(e) => handleSocialChange('tiktok', e.target.value)}
@@ -590,13 +589,13 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                     <Input 
                       type="color"
                       id="gradientColor1"
-                      value={profile.backgroundColor}
-                      onChange={(e) => handleChange('backgroundColor', e.target.value)}
+                      value={profile.backgroundGradientColor1 || "#667eea"}
+                      onChange={(e) => handleChange('backgroundGradientColor1', e.target.value)}
                       className="w-16 h-10"
                     />
                     <Input 
-                      value={profile.backgroundColor}
-                      onChange={(e) => handleChange('backgroundColor', e.target.value)}
+                      value={profile.backgroundGradientColor1 || "#667eea"}
+                      onChange={(e) => handleChange('backgroundGradientColor1', e.target.value)}
                       className="flex-1"
                     />
                   </div>
@@ -607,28 +606,28 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                     <Input 
                       type="color"
                       id="gradientColor2"
-                      value={profile.backgroundGradient || "#6A0DAD"}
-                      onChange={(e) => handleChange('backgroundGradient', e.target.value)}
+                      value={profile.backgroundGradientColor2 || "#764ba2"}
+                      onChange={(e) => handleChange('backgroundGradientColor2', e.target.value)}
                       className="w-16 h-10"
                     />
                     <Input 
-                      value={profile.backgroundGradient || "#6A0DAD"}
-                      onChange={(e) => handleChange('backgroundGradient', e.target.value)}
+                      value={profile.backgroundGradientColor2 || "#764ba2"}
+                      onChange={(e) => handleChange('backgroundGradientColor2', e.target.value)}
                       className="flex-1"
                     />
                   </div>
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gradientOpacity">Opacidade do degradê: {Math.round((profile.overlayOpacity || 1) * 100)}%</Label>
+                <Label htmlFor="gradientOpacity">Opacidade do degradê: {Math.round((profile.backgroundGradientOpacity || 1) * 100)}%</Label>
                 <Input 
                   type="range"
                   id="gradientOpacity"
                   min="0"
                   max="1"
                   step="0.01"
-                  value={profile.overlayOpacity || 1}
-                  onChange={(e) => handleChange('overlayOpacity', parseFloat(e.target.value))}
+                  value={profile.backgroundGradientOpacity || 1}
+                  onChange={(e) => handleChange('backgroundGradientOpacity', parseFloat(e.target.value))}
                   className="block w-full"
                 />
               </div>
@@ -830,8 +829,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </Select>
           </div>
           
-          {/* Grid com 3 linhas iniciais visíveis - 9 efeitos por vez */}
-          <div className="grid grid-cols-3 gap-3 h-80 overflow-y-auto border rounded-lg p-3">
+          {/* Grid com 3 linhas de efeitos visuais */}
+          <div className="grid grid-cols-3 gap-3 min-h-[300px]">
             {visualEffects.filter(e => e.value !== 'custom').map(effect => (
               <div 
                 key={effect.value}
@@ -848,7 +847,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   {effect.value === 'glitch' && '▓▒░'}
                   {effect.value === 'lightleak' && '☀️'}
                   {effect.value === 'vignette' && '◐'}
-                  {effect.value === 'spark' && '✨'}
                   {effect.value === 'fire' && '🔥'}
                   {effect.value === 'ocean' && '🌊'}
                   {effect.value === 'aurora' && '💫'}
