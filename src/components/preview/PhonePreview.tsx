@@ -1,3 +1,4 @@
+
 import React, { useRef } from 'react';
 import { User } from "lucide-react";
 import LinkCard from "@/components/LinkCard";
@@ -60,7 +61,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({
   visualEffects = [],
   extendedBackgroundColor = '#ffffff'
 }) => {
-  const backgroundRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   const getBackgroundStyle = () => {
     const baseStyle: React.CSSProperties = {};
@@ -89,7 +90,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({
     if (backgroundType === 'video' && backgroundVideo) {
       return (
         <video
-          ref={backgroundRef}
+          ref={videoRef}
           src={backgroundVideo}
           autoPlay
           loop
@@ -109,7 +110,6 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({
 
     return (
       <div
-        ref={backgroundRef}
         style={{
           position: 'absolute',
           top: 0,
