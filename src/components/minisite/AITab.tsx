@@ -64,7 +64,7 @@ const AITab: React.FC<AITabProps> = ({ pageStyle, setPageStyle }) => {
     
     // Style type detection based on keywords
     if (promptLower.includes('netflix') || promptLower.includes('filme') || promptLower.includes('série')) {
-      newStyle.type = 'netflix';
+      newStyle.type = 'novabrandflix';
     } else if (promptLower.includes('revista') || promptLower.includes('magazine')) {
       newStyle.type = 'magazine';
     } else if (promptLower.includes('polaroid') || promptLower.includes('foto') || promptLower.includes('instantânea')) {
