@@ -60,29 +60,29 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
   ];
 
   const visualEffects = [
-    { value: 'none', label: 'Nenhum' },
-    { value: 'bubbles', label: 'Bolha de Sabão' },
-    { value: 'glitch', label: 'Glitch' },
-    { value: 'lightleak', label: 'Light Leak Profissional' },
-    { value: 'vignette', label: 'Vignette' },
-    { value: 'fire', label: 'Fogo' },
-    { value: 'ocean', label: 'Ondas do Mar' },
-    { value: 'aurora', label: 'Aurora Boreal' },
-    { value: 'nightsky', label: 'Céu Noturno com Lua e Estrelas' },
-    { value: 'rainlightning', label: 'Chuva com Relâmpagos' },
-    { value: 'galaxy', label: 'Galáxia / Espaço Sideral' },
-    { value: 'prism', label: 'Prisma Holográfico' },
-    { value: 'binary', label: 'Códigos Binários (Matrix)' },
-    { value: 'vhs', label: 'VHS com Linhas de Ruído' },
-    { value: 'fairydust', label: 'Pó de Fada / Brilho Flutuante' },
-    { value: 'texture3d', label: 'Textura 3D' },
-    { value: 'kaleidoscope', label: 'Kaleidoscópico' },
-    { value: 'emojirain', label: 'Chuva de Emojis' },
-    { value: 'photomosaic', label: 'Mosaico de Fotos' },
-    { value: 'shootingstars', label: 'Estrelas Cadentes' },
-    { value: 'smoke', label: 'Fumaça' },
-    { value: 'fireworks', label: 'Fogos de Artifício' },
-    { value: 'custom', label: 'Upload Personalizado' }
+    { value: 'none', label: 'Nenhum', icon: '✕' },
+    { value: 'bubbles', label: 'Bolha de Sabão', icon: '○○○' },
+    { value: 'glitch', label: 'Glitch', icon: '▓▒░' },
+    { value: 'lightleak', label: 'Light Leak Profissional', icon: '☀️' },
+    { value: 'vignette', label: 'Vignette', icon: '◐' },
+    { value: 'fire', label: 'Fogo', icon: '🔥' },
+    { value: 'ocean', label: 'Ondas do Mar', icon: '🌊' },
+    { value: 'aurora', label: 'Aurora Boreal', icon: '💫' },
+    { value: 'nightsky', label: 'Céu Noturno com Lua e Estrelas', icon: '🌙' },
+    { value: 'rainlightning', label: 'Chuva com Relâmpagos', icon: '⚡' },
+    { value: 'galaxy', label: 'Galáxia / Espaço Sideral', icon: '🌌' },
+    { value: 'prism', label: 'Prisma Holográfico', icon: '🔮' },
+    { value: 'binary', label: 'Códigos Binários (Matrix)', icon: '1010' },
+    { value: 'vhs', label: 'VHS com Linhas de Ruído', icon: '📼' },
+    { value: 'fairydust', label: 'Pó de Fada / Brilho Flutuante', icon: '⭐' },
+    { value: 'texture3d', label: 'Textura 3D', icon: '🔳' },
+    { value: 'kaleidoscope', label: 'Kaleidoscópico', icon: '🎨' },
+    { value: 'emojirain', label: 'Chuva de Emojis', icon: '😊' },
+    { value: 'photomosaic', label: 'Mosaico de Fotos', icon: '🖼️' },
+    { value: 'shootingstars', label: 'Estrelas Cadentes', icon: '☄️' },
+    { value: 'smoke', label: 'Fumaça', icon: '💨' },
+    { value: 'fireworks', label: 'Fogos de Artifício', icon: '🎆' },
+    { value: 'custom', label: 'Upload Personalizado', icon: '📤' }
   ];
 
   const avatarShapes = [
@@ -239,6 +239,39 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     videoInputRef.current?.click();
   };
 
+  // Função para renderizar avatar baseado no formato selecionado
+  const renderAvatarPreview = () => {
+    const baseClasses = "h-24 w-24";
+    let shapeClasses = "";
+    
+    switch (profile.avatarShape) {
+      case 'square':
+        shapeClasses = "rounded-none";
+        break;
+      case 'rounded':
+        shapeClasses = "rounded-lg";
+        break;
+      case 'triangle':
+        shapeClasses = "clip-path-triangle";
+        break;
+      case 'hexagon':
+        shapeClasses = "clip-path-hexagon";
+        break;
+      case 'banner':
+        shapeClasses = "w-full h-16 rounded-none";
+        break;
+      default:
+        shapeClasses = "rounded-full";
+    }
+
+    return (
+      <Avatar className={`${baseClasses} ${shapeClasses}`}>
+        <AvatarImage src={profile.avatar} />
+        <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+      </Avatar>
+    );
+  };
+
   return (
     <div className="space-y-8">
       {/* Perfil */}
@@ -298,18 +331,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           )}
         </div>
         
+        {/* Upload de avatar - sempre visível */}
         <div className="flex items-center space-x-4">
-          <Avatar className={`h-24 w-24 ${
-            profile.avatarShape === 'square' ? 'rounded-none' : 
-            profile.avatarShape === 'rounded' ? 'rounded-lg' : 
-            profile.avatarShape === 'triangle' ? 'clip-path-triangle' :
-            profile.avatarShape === 'hexagon' ? 'clip-path-hexagon' :
-            profile.avatarShape === 'banner' ? 'w-full h-16 rounded-none' :
-            'rounded-full'
-          }`}>
-            <AvatarImage src={profile.avatar} />
-            <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-          </Avatar>
+          {renderAvatarPreview()}
           <Button 
             variant="outline"
             onClick={() => fileInputRef.current?.click()}
@@ -443,6 +467,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           </div>
         </div>
         
+        {/* Redes sociais com ícones corretos */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label>Redes sociais</Label>
@@ -492,7 +517,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Music className="h-5 w-5 text-green-500" />
+              <div className="h-5 w-5 rounded bg-black flex items-center justify-center text-white text-xs font-bold">
+                TT
+              </div>
               <Input 
                 value={profile.socialIcons.tiktok || ''}
                 onChange={(e) => handleSocialChange('tiktok', e.target.value)}
@@ -516,7 +543,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Music className="h-5 w-5 text-green-500" />
+              <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
+                <div className="h-2 w-2 bg-black rounded-full"></div>
+              </div>
               <Input 
                 value={profile.socialIcons.spotify || ''}
                 onChange={(e) => handleSocialChange('spotify', e.target.value)}
@@ -524,7 +553,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <MessageSquare className="h-5 w-5 text-green-600" />
+              <div className="h-5 w-5 rounded bg-green-500 flex items-center justify-center text-white text-xs font-bold">
+                W
+              </div>
               <Input 
                 value={profile.socialIcons.whatsapp || ''}
                 onChange={(e) => handleSocialChange('whatsapp', e.target.value)}
@@ -811,173 +842,137 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
         
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="visualEffect">Tipo de efeito</Label>
-            <Select 
-              value={profile.visualEffect}
-              onValueChange={(value) => handleChange('visualEffect', value)}
-            >
-              <SelectTrigger id="visualEffect">
-                <SelectValue placeholder="Selecione um efeito" />
-              </SelectTrigger>
-              <SelectContent>
-                {visualEffects.map(effect => (
-                  <SelectItem key={effect.value} value={effect.value}>
-                    {effect.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Grid com 3 linhas de efeitos visuais */}
-          <div className="grid grid-cols-3 gap-3 min-h-[300px]">
-            {visualEffects.filter(e => e.value !== 'custom').map(effect => (
-              <div 
-                key={effect.value}
-                className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
-                  profile.visualEffect === effect.value 
-                    ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' 
-                    : 'border-gray-200 hover:border-purple-300'
-                }`}
-                onClick={() => handleChange('visualEffect', effect.value)}
-              >
-                <div className="aspect-video bg-gradient-to-br from-gray-50 to-gray-100 mb-2 rounded-sm flex items-center justify-center text-xs text-gray-500 font-medium">
-                  {effect.value === 'none' && '✕'}
-                  {effect.value === 'bubbles' && '○○○'}
-                  {effect.value === 'glitch' && '▓▒░'}
-                  {effect.value === 'lightleak' && '☀️'}
-                  {effect.value === 'vignette' && '◐'}
-                  {effect.value === 'fire' && '🔥'}
-                  {effect.value === 'ocean' && '🌊'}
-                  {effect.value === 'aurora' && '💫'}
-                  {effect.value === 'nightsky' && '🌙'}
-                  {effect.value === 'rainlightning' && '⚡'}
-                  {effect.value === 'galaxy' && '🌌'}
-                  {effect.value === 'prism' && '🔮'}
-                  {effect.value === 'binary' && '1010'}
-                  {effect.value === 'vhs' && '📼'}
-                  {effect.value === 'fairydust' && '⭐'}
-                  {effect.value === 'texture3d' && '🔳'}
-                  {effect.value === 'kaleidoscope' && '🎨'}
-                  {effect.value === 'emojirain' && '😊'}
-                  {effect.value === 'photomosaic' && '🖼️'}
-                  {effect.value === 'shootingstars' && '☄️'}
-                  {effect.value === 'smoke' && '💨'}
-                  {effect.value === 'fireworks' && '🎆'}
+            <Label htmlFor="visualEffect">Efeitos disponíveis</Label>
+            
+            {/* Grid com 3 linhas de efeitos visuais */}
+            <div className="grid grid-cols-3 gap-3 min-h-[300px]">
+              {visualEffects.map(effect => (
+                <div 
+                  key={effect.value}
+                  className={`border rounded-lg p-3 cursor-pointer transition-all hover:shadow-md ${
+                    profile.visualEffect === effect.value 
+                      ? 'border-purple-500 bg-purple-50 ring-2 ring-purple-200' 
+                      : 'border-gray-200 hover:border-purple-300'
+                  }`}
+                  onClick={() => handleChange('visualEffect', effect.value)}
+                >
+                  <div className="aspect-video bg-gradient-to-br from-gray-50 to-gray-100 mb-2 rounded-sm flex items-center justify-center text-xs text-gray-500 font-medium">
+                    {effect.icon}
+                  </div>
+                  <p className="text-xs text-center font-medium">{effect.label}</p>
                 </div>
-                <p className="text-xs text-center font-medium">{effect.label}</p>
-              </div>
-            ))}
-          </div>
-          
-          {profile.visualEffect !== 'none' && (
-            <div className="space-y-4 pl-2 border-l-2 border-purple-200 mt-4">
-              {profile.visualEffect === 'custom' && (
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Efeito personalizado</Label>
-                    {profile.visualEffectCustomUrl ? (
-                      <div>
-                        <div className="aspect-video bg-gray-100 mb-2 rounded-sm flex items-center justify-center">
-                          {profile.visualEffectCustomUrl.startsWith('data:image') ? (
-                            <img src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" alt="Efeito personalizado" />
-                          ) : (
-                            <video src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" autoPlay muted loop />
-                          )}
+              ))}
+            </div>
+            
+            {profile.visualEffect !== 'none' && (
+              <div className="space-y-4 pl-2 border-l-2 border-purple-200 mt-4">
+                {profile.visualEffect === 'custom' && (
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label>Efeito personalizado</Label>
+                      {profile.visualEffectCustomUrl ? (
+                        <div>
+                          <div className="aspect-video bg-gray-100 mb-2 rounded-sm flex items-center justify-center">
+                            {profile.visualEffectCustomUrl.startsWith('data:image') ? (
+                              <img src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" alt="Efeito personalizado" />
+                            ) : (
+                              <video src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" autoPlay muted loop />
+                            )}
+                          </div>
+                          <Button 
+                            variant="outline"
+                            onClick={() => effectUploadRef.current?.click()}
+                            className="w-full"
+                          >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Substituir efeito
+                          </Button>
                         </div>
-                        <Button 
-                          variant="outline"
-                          onClick={() => effectUploadRef.current?.click()}
-                          className="w-full"
-                        >
-                          <Upload className="mr-2 h-4 w-4" />
-                          Substituir efeito
-                        </Button>
-                      </div>
-                    ) : (
-                      <div className="space-y-2">
-                        <Button 
-                          variant="outline" 
-                          className="w-full h-20 border-dashed"
-                          onClick={() => effectUploadRef.current?.click()}
-                        >
-                          <Upload className="mr-2 h-4 w-4" />
-                          Upload de efeito personalizado
-                        </Button>
-                        <Input
-                          type="file"
-                          ref={effectUploadRef}
-                          className="hidden"
-                          accept="image/*,video/*"
-                          onChange={handleEffectUpload}
-                        />
-                      </div>
-                    )}
+                      ) : (
+                        <div className="space-y-2">
+                          <Button 
+                            variant="outline" 
+                            className="w-full h-20 border-dashed"
+                            onClick={() => effectUploadRef.current?.click()}
+                          >
+                            <Upload className="mr-2 h-4 w-4" />
+                            Upload de efeito personalizado
+                          </Button>
+                          <Input
+                            type="file"
+                            ref={effectUploadRef}
+                            className="hidden"
+                            accept="image/*,video/*"
+                            onChange={handleEffectUpload}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="space-y-2">
+                  <Label htmlFor="visualEffectColor">Cor do efeito</Label>
+                  <div className="flex items-center space-x-2">
+                    <Input 
+                      type="color"
+                      id="visualEffectColor"
+                      value={profile.visualEffectColor}
+                      onChange={(e) => handleChange('visualEffectColor', e.target.value)}
+                      className="w-16 h-10"
+                    />
+                    <Input 
+                      value={profile.visualEffectColor}
+                      onChange={(e) => handleChange('visualEffectColor', e.target.value)}
+                      className="flex-1"
+                    />
                   </div>
                 </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="visualEffectColor">Cor do efeito</Label>
-                <div className="flex items-center space-x-2">
+                
+                <div className="space-y-2">
+                  <Label htmlFor="visualEffectOpacity">Opacidade: {Math.round(profile.visualEffectOpacity * 100)}%</Label>
                   <Input 
-                    type="color"
-                    id="visualEffectColor"
-                    value={profile.visualEffectColor}
-                    onChange={(e) => handleChange('visualEffectColor', e.target.value)}
-                    className="w-16 h-10"
+                    type="range"
+                    id="visualEffectOpacity"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={profile.visualEffectOpacity}
+                    onChange={(e) => handleChange('visualEffectOpacity', parseFloat(e.target.value))}
+                    className="block w-full"
                   />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="visualEffectSpeed">Velocidade: {profile.visualEffectSpeed}x</Label>
                   <Input 
-                    value={profile.visualEffectColor}
-                    onChange={(e) => handleChange('visualEffectColor', e.target.value)}
-                    className="flex-1"
+                    type="range"
+                    id="visualEffectSpeed"
+                    min="0.1"
+                    max="3"
+                    step="0.1"
+                    value={profile.visualEffectSpeed}
+                    onChange={(e) => handleChange('visualEffectSpeed', parseFloat(e.target.value))}
+                    className="block w-full"
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="visualEffectSize">Tamanho: {profile.visualEffectSize}x</Label>
+                  <Input 
+                    type="range"
+                    id="visualEffectSize"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    value={profile.visualEffectSize}
+                    onChange={(e) => handleChange('visualEffectSize', parseFloat(e.target.value))}
+                    className="block w-full"
                   />
                 </div>
               </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="visualEffectOpacity">Opacidade: {Math.round(profile.visualEffectOpacity * 100)}%</Label>
-                <Input 
-                  type="range"
-                  id="visualEffectOpacity"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={profile.visualEffectOpacity}
-                  onChange={(e) => handleChange('visualEffectOpacity', parseFloat(e.target.value))}
-                  className="block w-full"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="visualEffectSpeed">Velocidade: {profile.visualEffectSpeed}x</Label>
-                <Input 
-                  type="range"
-                  id="visualEffectSpeed"
-                  min="0.1"
-                  max="3"
-                  step="0.1"
-                  value={profile.visualEffectSpeed}
-                  onChange={(e) => handleChange('visualEffectSpeed', parseFloat(e.target.value))}
-                  className="block w-full"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="visualEffectSize">Tamanho: {profile.visualEffectSize}x</Label>
-                <Input 
-                  type="range"
-                  id="visualEffectSize"
-                  min="0.5"
-                  max="2"
-                  step="0.1"
-                  value={profile.visualEffectSize}
-                  onChange={(e) => handleChange('visualEffectSize', parseFloat(e.target.value))}
-                  className="block w-full"
-                />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

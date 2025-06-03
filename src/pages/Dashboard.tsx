@@ -55,6 +55,7 @@ export type UserProfile = {
   backgroundVideo?: string;
   backgroundVideoMuted?: boolean;
   backgroundVideoVolume?: number;
+  backgroundExtendedColor?: string;
   overlay: boolean;
   overlayColor: string;
   overlayOpacity: number;
@@ -98,7 +99,7 @@ export type AudioSettings = {
 };
 
 export type PageStyle = {
-  type: "netflix" | "magazine" | "polaroid" | "traditional" | "arcade" | "recipe" | "reality" | "vhs" | "y2k" | 
+  type: "novabrandflix" | "magazine" | "polaroid" | "traditional" | "arcade" | "recipe" | "reality" | "vhs" | "y2k" | 
          "marketing" | "political" | "brazilian" | "american" | "stepbystep" | "connected" | "timeline" | "orbit" | 
          "notebook" | "meme" | "windows98" | "bakery" | "linkverse" | "lula" | "bolsonaro" | "trump" | "putin" | 
          "ballot" | "tropical" | "usa" | "soviet" | "france" | "portugal" | "spain" | "china" | "aesthetic" | 
@@ -244,6 +245,7 @@ const Dashboard = () => {
     backgroundGradientColor1: "#667eea",
     backgroundGradientColor2: "#764ba2",
     backgroundGradientOpacity: 1,
+    backgroundExtendedColor: "#FFFFFF",
     overlay: false,
     overlayColor: "#000000",
     overlayOpacity: 0.5,

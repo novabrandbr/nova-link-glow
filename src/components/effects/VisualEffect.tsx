@@ -87,12 +87,22 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
   // Global keyframes for all effects
   const globalKeyframes = `
     @keyframes auroraFlow {
-      0%, 100% { transform: translateX(-20%) translateY(-10%) rotate(0deg); }
-      50% { transform: translateX(20%) translateY(10%) rotate(10deg); }
+      0%, 100% { transform: translateX(-20%) translateY(-10%) rotate(0deg); opacity: ${opacity}; }
+      25% { transform: translateX(10%) translateY(5%) rotate(2deg); opacity: ${opacity * 0.7}; }
+      50% { transform: translateX(20%) translateY(10%) rotate(10deg); opacity: ${opacity}; }
+      75% { transform: translateX(-10%) translateY(-5%) rotate(-2deg); opacity: ${opacity * 0.8}; }
+    }
+    @keyframes auroraBreath {
+      0%, 100% { opacity: ${opacity * 0.3}; }
+      50% { opacity: ${opacity}; }
     }
     @keyframes moonPulse {
       0%, 100% { opacity: 0.8; transform: scale(1); }
       50% { opacity: 1; transform: scale(1.1); }
+    }
+    @keyframes starTwinkle {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 1; }
     }
     @keyframes lightning {
       0%, 90%, 100% { background: transparent; }
@@ -111,15 +121,25 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       30% { transform: translateX(0); filter: hue-rotate(270deg); }
     }
     @keyframes lightLeak {
-      0% { transform: translateX(-100%) rotate(-5deg); opacity: 0; }
+      0% { transform: translateX(-100%) translateY(-50%) rotate(-5deg); opacity: 0; }
       20% { opacity: ${opacity}; }
       80% { opacity: ${opacity}; }
-      100% { transform: translateX(100vw) rotate(5deg); opacity: 0; }
+      100% { transform: translateX(100vw) translateY(50%) rotate(5deg); opacity: 0; }
     }
     @keyframes lightLeakPause {
-      0%, 20% { opacity: 0; transform: translateX(-100%) rotate(-5deg); }
-      25%, 75% { opacity: ${opacity}; transform: translateX(0) rotate(0deg); }
-      80%, 100% { opacity: 0; transform: translateX(100vw) rotate(5deg); }
+      0%, 20% { opacity: 0; transform: translateX(-100%) translateY(-20%) rotate(-5deg); }
+      25%, 75% { opacity: ${opacity}; transform: translateX(0) translateY(0) rotate(0deg); }
+      80%, 100% { opacity: 0; transform: translateX(100vw) translateY(20%) rotate(5deg); }
+    }
+    @keyframes lightLeakVertical {
+      0%, 20% { opacity: 0; transform: translateY(-100%) translateX(-20%) rotate(85deg); }
+      25%, 75% { opacity: ${opacity}; transform: translateY(0) translateX(0) rotate(90deg); }
+      80%, 100% { opacity: 0; transform: translateY(100vh) translateX(20%) rotate(95deg); }
+    }
+    @keyframes lightLeakDiagonal {
+      0%, 20% { opacity: 0; transform: translate(-100%, -100%) rotate(45deg); }
+      25%, 75% { opacity: ${opacity}; transform: translate(0, 0) rotate(45deg); }
+      80%, 100% { opacity: 0; transform: translate(100vw, 100vh) rotate(45deg); }
     }
     @keyframes vignetteBreath {
       0%, 100% { transform: scale(1); }
@@ -155,6 +175,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
         { side: 'left', left: -15, top: Math.random() * 80 + 10, direction: 'right' },
         { side: 'right', left: 115, top: Math.random() * 80 + 10, direction: 'left' },
         { side: 'bottom', left: Math.random() * 80 + 10, top: 110, direction: 'up' },
+        { side: 'top', left: Math.random() * 80 + 10, top: -15, direction: 'down' },
       ];
       
       const startPos = startPositions[Math.floor(Math.random() * startPositions.length)];
@@ -167,6 +188,10 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       switch (startPos.direction) {
         case 'up':
           endTop = -20;
+          endLeft += (Math.random() - 0.5) * 60;
+          break;
+        case 'down':
+          endTop = 120;
           endLeft += (Math.random() - 0.5) * 60;
           break;
         case 'right':
@@ -274,6 +299,34 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
               pointerEvents: 'none'
             }} 
           />
+          <div 
+            style={{
+              position: 'absolute',
+              width: '120%',
+              height: '200%',
+              top: '-50%',
+              left: '-10%',
+              background: `linear-gradient(135deg, transparent 40%, ${applyOpacity(color, opacity*0.6)} 50%, transparent 60%)`,
+              animation: `lightLeakVertical ${15/speed}s ease-in-out infinite`,
+              filter: 'blur(15px)',
+              pointerEvents: 'none',
+              animationDelay: '3s'
+            }} 
+          />
+          <div 
+            style={{
+              position: 'absolute',
+              width: '140%',
+              height: '140%',
+              top: '-20%',
+              left: '-20%',
+              background: `linear-gradient(45deg, transparent 30%, ${applyOpacity(color, opacity*0.4)} 50%, transparent 70%)`,
+              animation: `lightLeakDiagonal ${18/speed}s ease-in-out infinite`,
+              filter: 'blur(25px)',
+              pointerEvents: 'none',
+              animationDelay: '6s'
+            }} 
+          />
         </div>
       );
       
@@ -302,21 +355,39 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
             style={{
               position: 'absolute',
               width: '120%',
-              height: '120%',
+              height: '60%',
               left: '-10%',
-              top: '-10%',
+              top: '0%',
               background: `
                 linear-gradient(${auroraPhase}deg, 
                   transparent 0%, 
-                  ${applyOpacity(color, opacity*0.3)} 20%, 
+                  ${applyOpacity('#4ade80', opacity*0.3)} 20%, 
                   transparent 40%,
-                  ${applyOpacity(color, opacity*0.4)} 60%, 
+                  ${applyOpacity('#3b82f6', opacity*0.4)} 60%, 
                   transparent 80%,
-                  ${applyOpacity(color, opacity*0.2)} 100%
+                  ${applyOpacity('#8b5cf6', opacity*0.2)} 100%
                 )
               `,
               animation: `auroraFlow ${15/speed}s ease-in-out infinite alternate`,
               transform: `rotate(${auroraPhase * 0.1}deg)`,
+              pointerEvents: 'none'
+            }} 
+          />
+          <div 
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '40%',
+              left: '0%',
+              top: '10%',
+              background: `
+                linear-gradient(${(auroraPhase + 90) % 360}deg, 
+                  transparent 0%, 
+                  ${applyOpacity(color, opacity*0.2)} 30%, 
+                  transparent 60%
+                )
+              `,
+              animation: `auroraBreath ${10/speed}s ease-in-out infinite`,
               pointerEvents: 'none'
             }} 
           />
@@ -327,7 +398,12 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
       return (
         <div style={effectStyles}>
           <style>{globalKeyframes}</style>
-          <div style={{...effectStyles, background: 'linear-gradient(to bottom, #000428 0%, #004e92 100%)'}}>
+          <div 
+            style={{
+              ...effectStyles, 
+              background: 'linear-gradient(to bottom, #000428 0%, #004e92 100%)'
+            }}
+          >
             {generateStars(200)}
             <div 
               style={{
@@ -439,12 +515,23 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
             left: '-50%',
             width: '200%',
             height: `${50 + i * 15}px`,
-            background: `linear-gradient(to top, ${rgba} 0%, transparent 100%)`,
+            background: `linear-gradient(to top, ${rgba} 0%, ${applyOpacity(color, opacity*0.6)} 50%, transparent 100%)`,
             borderRadius: '50% 50% 0 0',
             animation: `oceanWaves ${6 + i * 1.5/speed}s ease-in-out infinite`,
             animationDelay: `${i * 0.8}s`,
             opacity: opacity * (0.9 - i * 0.1),
-            pointerEvents: 'none'
+            pointerEvents: 'none',
+            '::before': {
+              content: '""',
+              position: 'absolute',
+              top: '-5px',
+              left: '10%',
+              right: '10%',
+              height: '10px',
+              background: 'rgba(255,255,255,0.6)',
+              borderRadius: '50%',
+              filter: 'blur(2px)'
+            }
           }} 
         />
       );
@@ -466,7 +553,11 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
             left: `${5 + i * 7.5}%`,
             width: `${15 + Math.random() * 25}px`,
             height: `${60 + Math.random() * 50}px`,
-            background: `linear-gradient(to top, ${rgba} 0%, ${applyOpacity(color, opacity*0.6)} 40%, ${applyOpacity(color, opacity*0.2)} 80%, transparent 100%)`,
+            background: `linear-gradient(to top, 
+              ${applyOpacity('#ff4500', opacity)} 0%, 
+              ${applyOpacity('#ffa500', opacity*0.8)} 40%, 
+              ${applyOpacity('#ffff00', opacity*0.4)} 80%, 
+              transparent 100%)`,
             borderRadius: '50% 50% 30% 30%',
             animation: `fireFlicker ${0.8 + Math.random() * 0.4/speed}s ease-in-out infinite alternate`,
             animationDelay: `${Math.random() * 0.5}s`,
@@ -501,6 +592,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
             boxShadow: `0 0 ${starSize*2}px rgba(255,255,255,${opacity*0.8})`,
             top,
             left,
+            animation: `starTwinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
             animationDelay: `${delay}s`,
             pointerEvents: 'none'
           }} 
