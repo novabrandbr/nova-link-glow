@@ -1,607 +1,322 @@
 
-import React, { useEffect, useState } from 'react';
-import { UserProfile } from '@/pages/Dashboard';
+import React, { useEffect, useRef } from 'react';
 
 interface VisualEffectProps {
-  profile: UserProfile;
+  effect: string;
+  color: string;
+  opacity: number;
+  speed: number;
+  size: number;
+  customUrl?: string;
 }
 
-const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
-  const [bubbleElements, setBubbleElements] = useState<React.ReactNode[]>([]);
-  const [auroraPhase, setAuroraPhase] = useState(0);
-  const [glitchPhase, setGlitchPhase] = useState(0);
-  
+const VisualEffect: React.FC<VisualEffectProps> = ({ 
+  effect, 
+  color, 
+  opacity, 
+  speed, 
+  size, 
+  customUrl 
+}) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    let bubbleInterval: NodeJS.Timeout;
-    let auroraInterval: NodeJS.Timeout;
-    let glitchInterval: NodeJS.Timeout;
-    
-    // Aurora effect animation
-    if (profile.visualEffect === 'aurora') {
-      auroraInterval = setInterval(() => {
-        setAuroraPhase(prev => (prev + 1) % 360);
-      }, 100);
-    }
-    
-    // Glitch effect animation
-    if (profile.visualEffect === 'glitch') {
-      glitchInterval = setInterval(() => {
-        setGlitchPhase(prev => (prev + 1) % 100);
-      }, 50);
-    }
-    
-    // Soap bubbles generation
-    if (profile.visualEffect === 'bubbles') {
-      generateSoapBubbles();
-      bubbleInterval = setInterval(generateSoapBubbles, 3000);
-    }
-    
-    return () => {
-      if (bubbleInterval) clearInterval(bubbleInterval);
-      if (auroraInterval) clearInterval(auroraInterval);
-      if (glitchInterval) clearInterval(glitchInterval);
+    if (!containerRef.current) return;
+
+    // Clear any existing animations
+    containerRef.current.innerHTML = '';
+
+    if (effect === 'none') return;
+
+    const container = containerRef.current;
+    let animationId: number;
+    let elements: HTMLElement[] = [];
+
+    const createBubbles = () => {
+      const bubble = document.createElement('div');
+      bubble.style.cssText = `
+        position: absolute;
+        width: ${Math.random() * size * 50 + 20}px;
+        height: ${Math.random() * size * 50 + 20}px;
+        border: 2px solid ${color};
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        opacity: ${opacity};
+        pointer-events: none;
+        animation: bubble-float ${20 / speed}s linear infinite;
+      `;
+      
+      // Random starting position
+      bubble.style.left = Math.random() * 100 + '%';
+      bubble.style.top = Math.random() * 100 + '%';
+      
+      container.appendChild(bubble);
+      elements.push(bubble);
+
+      // Remove bubble after animation
+      setTimeout(() => {
+        if (bubble.parentNode) {
+          bubble.parentNode.removeChild(bubble);
+          elements = elements.filter(el => el !== bubble);
+        }
+      }, 20000 / speed);
     };
-  }, [profile.visualEffect, profile.visualEffectSpeed]);
-  
-  if (profile.visualEffect === 'none') return null;
-  
-  // Default values with fallbacks
-  const opacity = profile.visualEffectOpacity || 0.7;
-  const color = profile.visualEffectColor || '#6A0DAD';
-  const speed = profile.visualEffectSpeed || 1;
-  const size = profile.visualEffectSize || 1;
-  
-  // Helper function to apply opacity to colors
-  const applyOpacity = (hexColor: string, opacity: number) => {
-    let r = 0, g = 0, b = 0;
-    
-    if (hexColor.length === 4) {
-      r = parseInt(hexColor[1] + hexColor[1], 16);
-      g = parseInt(hexColor[2] + hexColor[2], 16);
-      b = parseInt(hexColor[3] + hexColor[3], 16);
-    } else if (hexColor.length === 7) {
-      r = parseInt(hexColor.substring(1, 3), 16);
-      g = parseInt(hexColor.substring(3, 5), 16);
-      b = parseInt(hexColor.substring(5, 7), 16);
-    }
-    
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  };
-  
-  const rgba = applyOpacity(color, opacity);
-  
-  // Common effect styles - positioned as background layer
-  const effectStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    pointerEvents: 'none',
-    zIndex: 0,
-    overflow: 'hidden',
-    width: '100%',
-    height: '100%'
-  };
 
-  // Global keyframes for all effects
-  const globalKeyframes = `
-    @keyframes auroraFlow {
-      0%, 100% { transform: translateX(-20%) translateY(-10%) rotate(0deg); opacity: ${opacity}; }
-      25% { transform: translateX(10%) translateY(5%) rotate(2deg); opacity: ${opacity * 0.7}; }
-      50% { transform: translateX(20%) translateY(10%) rotate(10deg); opacity: ${opacity}; }
-      75% { transform: translateX(-10%) translateY(-5%) rotate(-2deg); opacity: ${opacity * 0.8}; }
-    }
-    @keyframes auroraBreath {
-      0%, 100% { opacity: ${opacity * 0.3}; }
-      50% { opacity: ${opacity}; }
-    }
-    @keyframes moonPulse {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.1); }
-    }
-    @keyframes starTwinkle {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-    @keyframes lightning {
-      0%, 90%, 100% { background: transparent; }
-      92%, 94%, 96% { background: rgba(255,255,255,0.3); }
-    }
-    @keyframes vhsGlitch {
-      0%, 100% { transform: translateX(0); }
-      10% { transform: translateX(-1px); }
-      20% { transform: translateX(1px); }
-      30% { transform: translateX(0); }
-    }
-    @keyframes glitchShift {
-      0%, 100% { transform: translateX(0); filter: hue-rotate(0deg); }
-      10% { transform: translateX(-1px); filter: hue-rotate(90deg); }
-      20% { transform: translateX(1px); filter: hue-rotate(180deg); }
-      30% { transform: translateX(0); filter: hue-rotate(270deg); }
-    }
-    @keyframes lightLeak {
-      0% { transform: translateX(-100%) translateY(-50%) rotate(-5deg); opacity: 0; }
-      20% { opacity: ${opacity}; }
-      80% { opacity: ${opacity}; }
-      100% { transform: translateX(100vw) translateY(50%) rotate(5deg); opacity: 0; }
-    }
-    @keyframes lightLeakPause {
-      0%, 20% { opacity: 0; transform: translateX(-100%) translateY(-20%) rotate(-5deg); }
-      25%, 75% { opacity: ${opacity}; transform: translateX(0) translateY(0) rotate(0deg); }
-      80%, 100% { opacity: 0; transform: translateX(100vw) translateY(20%) rotate(5deg); }
-    }
-    @keyframes lightLeakVertical {
-      0%, 20% { opacity: 0; transform: translateY(-100%) translateX(-20%) rotate(85deg); }
-      25%, 75% { opacity: ${opacity}; transform: translateY(0) translateX(0) rotate(90deg); }
-      80%, 100% { opacity: 0; transform: translateY(100vh) translateX(20%) rotate(95deg); }
-    }
-    @keyframes lightLeakDiagonal {
-      0%, 20% { opacity: 0; transform: translate(-100%, -100%) rotate(45deg); }
-      25%, 75% { opacity: ${opacity}; transform: translate(0, 0) rotate(45deg); }
-      80%, 100% { opacity: 0; transform: translate(100vw, 100vh) rotate(45deg); }
-    }
-    @keyframes vignetteBreath {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    @keyframes fireFlicker {
-      0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.8; }
-      50% { transform: scaleY(1.3) scaleX(0.8); opacity: 1; }
-    }
-    @keyframes oceanWaves {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-    }
-    @keyframes bubbleFloat {
-      0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.8; transform: scale(1) rotate(10deg); }
-      90% { opacity: 0.6; transform: translateY(-100vh) translateX(20vw) scale(1.1) rotate(360deg); }
-      100% { transform: translateY(-100vh) translateX(20vw) scale(0.8) rotate(380deg); opacity: 0; }
-    }
-  `;
+    const createGlitch = () => {
+      const glitch = document.createElement('div');
+      glitch.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        opacity: ${opacity};
+        background: linear-gradient(90deg, transparent 98%, ${color} 100%);
+        animation: glitch-effect ${2 / speed}s infinite;
+      `;
+      container.appendChild(glitch);
+      elements.push(glitch);
+    };
 
-  // Generate soap bubbles from random angles
-  const generateSoapBubbles = () => {
-    const count = Math.floor(Math.random() * 3) + 2;
-    const newBubbles = [];
-    
-    for (let i = 0; i < count; i++) {
-      const bubbleSize = Math.random() * 60 * size + 40;
-      
-      const startPositions = [
-        { side: 'bottom-left', left: -10, top: 110, direction: 'diagonal-up-right' },
-        { side: 'bottom-right', left: 110, top: 110, direction: 'diagonal-up-left' },
-        { side: 'left', left: -15, top: Math.random() * 80 + 10, direction: 'right' },
-        { side: 'right', left: 115, top: Math.random() * 80 + 10, direction: 'left' },
-        { side: 'bottom', left: Math.random() * 80 + 10, top: 110, direction: 'up' },
-        { side: 'top', left: Math.random() * 80 + 10, top: -15, direction: 'down' },
-      ];
-      
-      const startPos = startPositions[Math.floor(Math.random() * startPositions.length)];
-      const duration = (Math.random() * 6 + 8) / speed;
-      const delay = Math.random() * 4;
-      
-      let endLeft = startPos.left;
-      let endTop = startPos.top;
-      
-      switch (startPos.direction) {
-        case 'up':
-          endTop = -20;
-          endLeft += (Math.random() - 0.5) * 60;
-          break;
-        case 'down':
-          endTop = 120;
-          endLeft += (Math.random() - 0.5) * 60;
-          break;
-        case 'right':
-          endLeft = 120;
-          endTop += (Math.random() - 0.5) * 60;
-          break;
-        case 'left':
-          endLeft = -20;
-          endTop += (Math.random() - 0.5) * 60;
-          break;
-        case 'diagonal-up-right':
-          endLeft = 120;
-          endTop = -20;
-          break;
-        case 'diagonal-up-left':
-          endLeft = -20;
-          endTop = -20;
-          break;
+    const createLightLeak = () => {
+      const leak = document.createElement('div');
+      const angle = Math.random() * 360;
+      leak.style.cssText = `
+        position: absolute;
+        width: ${size * 200}px;
+        height: ${size * 100}px;
+        background: linear-gradient(${angle}deg, transparent, ${color}, transparent);
+        opacity: ${opacity};
+        pointer-events: none;
+        border-radius: 50%;
+        filter: blur(20px);
+        animation: light-leak ${8 / speed}s ease-in-out infinite;
+      `;
+      leak.style.left = Math.random() * 100 + '%';
+      leak.style.top = Math.random() * 100 + '%';
+      container.appendChild(leak);
+      elements.push(leak);
+
+      setTimeout(() => {
+        if (leak.parentNode) {
+          leak.parentNode.removeChild(leak);
+          elements = elements.filter(el => el !== leak);
+        }
+      }, 8000 / speed);
+    };
+
+    const createVignette = () => {
+      const vignette = document.createElement('div');
+      vignette.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+        background: radial-gradient(circle at center, transparent 40%, ${color} 100%);
+        opacity: ${opacity};
+      `;
+      container.appendChild(vignette);
+      elements.push(vignette);
+    };
+
+    const createFire = () => {
+      const fire = document.createElement('div');
+      fire.style.cssText = `
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: ${size * 100}px;
+        background: linear-gradient(0deg, ${color}, transparent);
+        opacity: ${opacity};
+        pointer-events: none;
+        animation: fire-flicker ${1 / speed}s ease-in-out infinite alternate;
+      `;
+      container.appendChild(fire);
+      elements.push(fire);
+    };
+
+    const createOceanWaves = () => {
+      const wave = document.createElement('div');
+      wave.style.cssText = `
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: ${size * 80}px;
+        background: ${color};
+        opacity: ${opacity};
+        pointer-events: none;
+        border-radius: 50% 50% 0 0;
+        animation: ocean-wave ${4 / speed}s ease-in-out infinite;
+      `;
+      container.appendChild(wave);
+      elements.push(wave);
+    };
+
+    const createAurora = () => {
+      const aurora = document.createElement('div');
+      aurora.style.cssText = `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: ${size * 150}px;
+        background: linear-gradient(90deg, transparent, ${color}, transparent);
+        opacity: ${opacity};
+        pointer-events: none;
+        filter: blur(10px);
+        animation: aurora-dance ${6 / speed}s ease-in-out infinite;
+      `;
+      container.appendChild(aurora);
+      elements.push(aurora);
+    };
+
+    const createNightSky = () => {
+      // Moon
+      const moon = document.createElement('div');
+      moon.style.cssText = `
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: ${size * 60}px;
+        height: ${size * 60}px;
+        background: #FFF8DC;
+        border-radius: 50%;
+        opacity: ${opacity};
+        pointer-events: none;
+        box-shadow: 0 0 20px rgba(255, 248, 220, 0.5);
+      `;
+      container.appendChild(moon);
+      elements.push(moon);
+
+      // Stars
+      for (let i = 0; i < 20; i++) {
+        const star = document.createElement('div');
+        star.style.cssText = `
+          position: absolute;
+          width: ${Math.random() * size * 4 + 2}px;
+          height: ${Math.random() * size * 4 + 2}px;
+          background: ${color};
+          border-radius: 50%;
+          opacity: ${opacity};
+          pointer-events: none;
+          animation: star-twinkle ${Math.random() * 3 + 1}s ease-in-out infinite alternate;
+        `;
+        star.style.left = Math.random() * 100 + '%';
+        star.style.top = Math.random() * 50 + '%';
+        container.appendChild(star);
+        elements.push(star);
       }
-      
-      const bubbleStyle: React.CSSProperties = {
-        position: 'absolute',
-        width: `${bubbleSize}px`,
-        height: `${bubbleSize}px`,
-        borderRadius: '50%',
-        left: `${startPos.left}%`,
-        top: `${startPos.top}%`,
-        background: `
-          radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.8), transparent 50%),
-          radial-gradient(ellipse at 70% 80%, rgba(255,255,255,0.4), transparent 40%),
-          radial-gradient(circle, transparent 65%, ${rgba} 75%, transparent 85%)
-        `,
-        border: `3px solid ${rgba}`,
-        boxShadow: `
-          0 0 ${bubbleSize/2}px ${applyOpacity(color, opacity * 0.6)},
-          inset -${bubbleSize/4}px -${bubbleSize/4}px ${bubbleSize/3}px rgba(255,255,255,0.7),
-          inset ${bubbleSize/6}px ${bubbleSize/6}px ${bubbleSize/4}px rgba(255,255,255,0.4)
-        `,
-        opacity: 0,
-        animation: `bubbleFloat ${duration}s ease-out forwards`,
-        animationDelay: `${delay}s`,
-        zIndex: 0,
-        pointerEvents: 'none',
-      };
-      
-      newBubbles.push(
-        <div key={`soap-bubble-${Date.now()}-${i}`} style={bubbleStyle} />
-      );
+    };
+
+    // Initialize effect
+    switch (effect) {
+      case 'bubbles':
+        const bubbleInterval = setInterval(createBubbles, 2000 / speed);
+        createBubbles(); // Create first bubble immediately
+        return () => clearInterval(bubbleInterval);
+        
+      case 'glitch':
+        createGlitch();
+        break;
+        
+      case 'lightleak':
+        const leakInterval = setInterval(createLightLeak, 5000 / speed);
+        createLightLeak(); // Create first leak immediately
+        return () => clearInterval(leakInterval);
+        
+      case 'vignette':
+        createVignette();
+        break;
+        
+      case 'fire':
+        createFire();
+        break;
+        
+      case 'ocean':
+        createOceanWaves();
+        break;
+        
+      case 'aurora':
+        createAurora();
+        break;
+        
+      case 'nightsky':
+        createNightSky();
+        break;
     }
-    
-    setBubbleElements(prevBubbles => {
-      const filtered = prevBubbles.slice(-8);
-      return [...filtered, ...newBubbles];
-    });
-  };
-  
-  // Effect-specific rendering
-  switch (profile.visualEffect) {
-    case 'bubbles':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          {bubbleElements}
-        </div>
-      );
-      
-    case 'glitch':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              background: `
-                repeating-linear-gradient(
-                  0deg,
-                  transparent 0px,
-                  ${applyOpacity(color, opacity*0.1)} 2px,
-                  transparent 4px
-                )
-              `,
-              animation: `glitchShift ${2/speed}s infinite`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'lightleak':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '200%',
-              height: '120%',
-              top: '-10%',
-              left: '-50%',
-              background: `linear-gradient(45deg, transparent 40%, ${rgba} 50%, transparent 60%)`,
-              animation: `lightLeakPause ${12/speed}s ease-in-out infinite`,
-              filter: 'blur(20px)',
-              pointerEvents: 'none'
-            }} 
-          />
-          <div 
-            style={{
-              position: 'absolute',
-              width: '120%',
-              height: '200%',
-              top: '-50%',
-              left: '-10%',
-              background: `linear-gradient(135deg, transparent 40%, ${applyOpacity(color, opacity*0.6)} 50%, transparent 60%)`,
-              animation: `lightLeakVertical ${15/speed}s ease-in-out infinite`,
-              filter: 'blur(15px)',
-              pointerEvents: 'none',
-              animationDelay: '3s'
-            }} 
-          />
-          <div 
-            style={{
-              position: 'absolute',
-              width: '140%',
-              height: '140%',
-              top: '-20%',
-              left: '-20%',
-              background: `linear-gradient(45deg, transparent 30%, ${applyOpacity(color, opacity*0.4)} 50%, transparent 70%)`,
-              animation: `lightLeakDiagonal ${18/speed}s ease-in-out infinite`,
-              filter: 'blur(25px)',
-              pointerEvents: 'none',
-              animationDelay: '6s'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'vignette':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              background: `radial-gradient(ellipse at center, transparent 40%, ${rgba} 100%)`,
-              animation: `vignetteBreath ${4/speed}s ease-in-out infinite`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'aurora':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '120%',
-              height: '60%',
-              left: '-10%',
-              top: '0%',
-              background: `
-                linear-gradient(${auroraPhase}deg, 
-                  transparent 0%, 
-                  ${applyOpacity('#4ade80', opacity*0.3)} 20%, 
-                  transparent 40%,
-                  ${applyOpacity('#3b82f6', opacity*0.4)} 60%, 
-                  transparent 80%,
-                  ${applyOpacity('#8b5cf6', opacity*0.2)} 100%
-                )
-              `,
-              animation: `auroraFlow ${15/speed}s ease-in-out infinite alternate`,
-              transform: `rotate(${auroraPhase * 0.1}deg)`,
-              pointerEvents: 'none'
-            }} 
-          />
-          <div 
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '40%',
-              left: '0%',
-              top: '10%',
-              background: `
-                linear-gradient(${(auroraPhase + 90) % 360}deg, 
-                  transparent 0%, 
-                  ${applyOpacity(color, opacity*0.2)} 30%, 
-                  transparent 60%
-                )
-              `,
-              animation: `auroraBreath ${10/speed}s ease-in-out infinite`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'nightsky':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              ...effectStyles, 
-              background: 'linear-gradient(to bottom, #000428 0%, #004e92 100%)'
-            }}
-          >
-            {generateStars(200)}
-            <div 
-              style={{
-                position: 'absolute',
-                top: '10%',
-                right: '20%',
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                background: `radial-gradient(circle, rgba(255,255,220,${opacity*0.8}) 0%, rgba(200,200,255,${opacity*0.5}) 70%, transparent 100%)`,
-                boxShadow: `0 0 60px rgba(255,255,220,${opacity*0.4})`,
-                animation: `moonPulse ${6/speed}s ease-in-out infinite`,
-                pointerEvents: 'none'
-              }} 
-            />
-          </div>
-        </div>
-      );
-      
-    case 'fire':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          {generateFire()}
-        </div>
-      );
-      
-    case 'ocean':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          {generateOceanWaves()}
-        </div>
-      );
-      
-    case 'vhs':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              ...effectStyles,
-              background: `
-                repeating-linear-gradient(
-                  0deg,
-                  rgba(0,0,0,${opacity*0.1}) 0px,
-                  rgba(0,0,0,${opacity*0.05}) 1px,
-                  transparent 3px
-                )
-              `,
-              animation: `vhsGlitch ${2/speed}s infinite linear`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'custom':
-      if (profile.visualEffectCustomUrl) {
-        return (
-          <div style={effectStyles}>
-            {profile.visualEffectCustomUrl.startsWith('data:image') ? (
-              <img 
-                src={profile.visualEffectCustomUrl} 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  opacity: opacity,
-                  pointerEvents: 'none'
-                }}
-                alt="Custom effect" 
-              />
-            ) : (
-              <video 
-                src={profile.visualEffectCustomUrl} 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  opacity: opacity,
-                  pointerEvents: 'none'
-                }}
-                autoPlay 
-                muted 
-                loop 
-              />
-            )}
-          </div>
-        );
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
       }
-      return null;
-      
-    default:
-      return null;
-  }
-  
-  // Helper functions for effects
-  function generateOceanWaves() {
-    const waves = [];
-    
-    for (let i = 0; i < 5; i++) {
-      waves.push(
-        <div 
-          key={i}
-          style={{
-            position: 'absolute',
-            bottom: `${i * 15}px`,
-            left: '-50%',
-            width: '200%',
-            height: `${50 + i * 15}px`,
-            background: `linear-gradient(to top, ${rgba} 0%, ${applyOpacity(color, opacity*0.6)} 50%, transparent 100%)`,
-            borderRadius: '50% 50% 0 0',
-            animation: `oceanWaves ${6 + i * 1.5/speed}s ease-in-out infinite`,
-            animationDelay: `${i * 0.8}s`,
-            opacity: opacity * (0.9 - i * 0.1),
-            pointerEvents: 'none',
-            '::before': {
-              content: '""',
-              position: 'absolute',
-              top: '-5px',
-              left: '10%',
-              right: '10%',
-              height: '10px',
-              background: 'rgba(255,255,255,0.6)',
-              borderRadius: '50%',
-              filter: 'blur(2px)'
-            }
-          }} 
-        />
-      );
-    }
-    
-    return waves;
-  }
-  
-  function generateFire() {
-    const flames = [];
-    
-    for (let i = 0; i < 12; i++) {
-      flames.push(
-        <div 
-          key={i}
-          style={{
-            position: 'absolute',
-            bottom: '0',
-            left: `${5 + i * 7.5}%`,
-            width: `${15 + Math.random() * 25}px`,
-            height: `${60 + Math.random() * 50}px`,
-            background: `linear-gradient(to top, 
-              ${applyOpacity('#ff4500', opacity)} 0%, 
-              ${applyOpacity('#ffa500', opacity*0.8)} 40%, 
-              ${applyOpacity('#ffff00', opacity*0.4)} 80%, 
-              transparent 100%)`,
-            borderRadius: '50% 50% 30% 30%',
-            animation: `fireFlicker ${0.8 + Math.random() * 0.4/speed}s ease-in-out infinite alternate`,
-            animationDelay: `${Math.random() * 0.5}s`,
-            filter: 'blur(1px)',
-            pointerEvents: 'none'
-          }} 
-        />
-      );
-    }
-    
-    return flames;
-  }
-  
-  function generateStars(count: number) {
-    const stars = [];
-    
-    for (let i = 0; i < count; i++) {
-      const starSize = Math.random() * 2 + 1;
-      const left = `${Math.random() * 100}%`;
-      const top = `${Math.random() * 100}%`;
-      const delay = Math.random() * 4;
-      
-      stars.push(
-        <div 
-          key={i}
-          style={{
-            position: 'absolute',
-            width: `${starSize}px`,
-            height: `${starSize}px`,
-            backgroundColor: 'white',
-            borderRadius: '50%',
-            boxShadow: `0 0 ${starSize*2}px rgba(255,255,255,${opacity*0.8})`,
-            top,
-            left,
-            animation: `starTwinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
-            animationDelay: `${delay}s`,
-            pointerEvents: 'none'
-          }} 
-        />
-      );
-    }
-    
-    return stars;
-  }
+      elements.forEach(el => {
+        if (el.parentNode) {
+          el.parentNode.removeChild(el);
+        }
+      });
+    };
+  }, [effect, color, opacity, speed, size]);
+
+  if (effect === 'none') return null;
+
+  return (
+    <>
+      <div
+        ref={containerRef}
+        className="fixed inset-0 pointer-events-none overflow-hidden"
+        style={{ zIndex: 1 }}
+      />
+      <style jsx>{`
+        @keyframes bubble-float {
+          0% { transform: translateY(0) translateX(0); }
+          25% { transform: translateY(-20px) translateX(10px); }
+          50% { transform: translateY(-40px) translateX(-5px); }
+          75% { transform: translateY(-60px) translateX(15px); }
+          100% { transform: translateY(-100vh) translateX(0); }
+        }
+        
+        @keyframes glitch-effect {
+          0%, 100% { transform: translateX(0); }
+          20% { transform: translateX(-2px); }
+          40% { transform: translateX(2px); }
+          60% { transform: translateX(-1px); }
+          80% { transform: translateX(1px); }
+        }
+        
+        @keyframes light-leak {
+          0% { transform: translateX(-100%) translateY(-50%); opacity: 0; }
+          50% { opacity: 1; }
+          100% { transform: translateX(100vw) translateY(50%); opacity: 0; }
+        }
+        
+        @keyframes fire-flicker {
+          0% { transform: scaleY(1) scaleX(1); }
+          100% { transform: scaleY(1.1) scaleX(0.95); }
+        }
+        
+        @keyframes ocean-wave {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes aurora-dance {
+          0%, 100% { transform: translateY(0) scaleX(1); }
+          33% { transform: translateY(-20px) scaleX(1.1); }
+          66% { transform: translateY(-10px) scaleX(0.9); }
+        }
+        
+        @keyframes star-twinkle {
+          0% { opacity: 0.3; transform: scale(1); }
+          100% { opacity: 1; transform: scale(1.2); }
+        }
+      `}</style>
+    </>
+  );
 };
 
 export default VisualEffect;

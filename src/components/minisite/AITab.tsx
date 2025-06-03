@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -63,8 +62,8 @@ const AITab: React.FC<AITabProps> = ({ pageStyle, setPageStyle }) => {
     let newStyle: Partial<PageStyle> = {};
     
     // Style type detection based on keywords
-    if (promptLower.includes('netflix') || promptLower.includes('filme') || promptLower.includes('série')) {
-      newStyle.type = 'netflix';
+    if (promptLower.includes('novabrandflix') || promptLower.includes('filme') || promptLower.includes('série')) {
+      newStyle.type = 'novabrandflix';
     } else if (promptLower.includes('revista') || promptLower.includes('magazine')) {
       newStyle.type = 'magazine';
     } else if (promptLower.includes('polaroid') || promptLower.includes('foto') || promptLower.includes('instantânea')) {
