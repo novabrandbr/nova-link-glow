@@ -96,65 +96,60 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
 
   const politicalStyles = [
     { 
-      id: 'lula' as const, 
+      id: 'political' as const, 
       name: 'Lula Verso', 
       description: 'Fundo vermelho vibrante com estrela branca do PT' 
     },
     { 
-      id: 'bolsonaro' as const, 
+      id: 'brazilian' as const, 
       name: 'Mytho Style', 
       description: 'Fundo verde e amarelo com elementos patrióticos' 
     },
     { 
-      id: 'trump' as const, 
+      id: 'american' as const, 
       name: 'Trump Tower', 
       description: 'Fundo dourado e azul com águia americana' 
     },
     { 
-      id: 'putin' as const, 
+      id: 'marketing' as const, 
       name: 'Putin Power', 
       description: 'Fundo escuro com símbolos da Rússia' 
-    },
-    { 
-      id: 'ballot' as const, 
-      name: 'Urna Eletrônica', 
-      description: 'Layout que imita tela de urna com interface retro' 
     }
   ];
 
   const countryStyles = [
     { 
-      id: 'tropical' as const, 
+      id: 'brazilian' as const, 
       name: 'Brasil Tropical', 
       description: 'Fundo com coqueiros, céu azul e cores vivas' 
     },
     { 
-      id: 'usa' as const, 
+      id: 'american' as const, 
       name: 'Estados Unidos Estrelado', 
       description: 'Fundo com bandeira dos EUA e estrelas animadas' 
     },
     { 
-      id: 'soviet' as const, 
+      id: 'political' as const, 
       name: 'Rússia Soviética', 
       description: 'Fundo vermelho escuro com estética vintage' 
     },
     { 
-      id: 'france' as const, 
+      id: 'magazine' as const, 
       name: 'França Chique', 
       description: 'Fundo com torre Eiffel e tipografia serifada' 
     },
     { 
-      id: 'portugal' as const, 
+      id: 'traditional' as const, 
       name: 'Portugal Azulejos', 
       description: 'Padrão tradicional de azulejos portugueses' 
     },
     { 
-      id: 'spain' as const, 
+      id: 'y2k' as const, 
       name: 'Espanha Flamenca', 
       description: 'Cores quentes com ícones de dança flamenca' 
     },
     { 
-      id: 'china' as const, 
+      id: 'arcade' as const, 
       name: 'China Tradicional', 
       description: 'Fundo vermelho com dourado e lanternas' 
     }
@@ -162,27 +157,27 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
 
   const creativeStyles = [
     { 
-      id: 'notebook' as const, 
+      id: 'stepbystep' as const, 
       name: 'Caderno de Colégio', 
       description: 'Fundo com linhas azuis e rabiscos escolares' 
     },
     { 
-      id: 'meme' as const, 
+      id: 'reality' as const, 
       name: 'Meme BR', 
       description: 'Molduras de memes com tipografia impact bold' 
     },
     { 
-      id: 'windows98' as const, 
+      id: 'vhs' as const, 
       name: 'Windows 98 Retro', 
       description: 'Layout com janelas cinza e ícones pixelados' 
     },
     { 
-      id: 'bakery' as const, 
+      id: 'recipe' as const, 
       name: 'Papel de Pão', 
       description: 'Fundo bege texturizado de saco de padaria' 
     },
     { 
-      id: 'linkverse' as const, 
+      id: 'orbit' as const, 
       name: 'Link Verso', 
       description: 'Fundo cósmico com partículas e efeitos flutuantes' 
     },
