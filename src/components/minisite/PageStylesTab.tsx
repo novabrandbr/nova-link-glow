@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { PageStyle } from '@/pages/Dashboard';
 import { Label } from '@/components/ui/label';
@@ -52,9 +53,9 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
               onValueChange={(value) => handleStyleChange(value as PageStyle['type'])}
               className="grid grid-cols-2 gap-4"
             >
-              <div className={`border-2 rounded-lg p-4 ${pageStyle.type === 'novabrandflix' ? 'border-purple-500' : 'border-gray-200'}`}>
-                <RadioGroupItem value="novabrandflix" id="novabrandflix" className="sr-only" />
-                <Label htmlFor="novabrandflix" className="cursor-pointer">
+              <div className={`border-2 rounded-lg p-4 ${pageStyle.type === 'netflix' ? 'border-purple-500' : 'border-gray-200'}`}>
+                <RadioGroupItem value="netflix" id="netflix" className="sr-only" />
+                <Label htmlFor="netflix" className="cursor-pointer">
                   <div className="aspect-video bg-gray-100 rounded mb-2 flex items-center justify-center">
                     <div className="w-full p-2">
                       <div className="grid grid-cols-2 gap-2 w-full">
@@ -70,8 +71,8 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
                       </div>
                     </div>
                   </div>
-                  <div className="font-medium">Nova Brand Flix</div>
-                  <div className="text-sm text-gray-500">Cards verticais em grade. Parece com um tal de "algo-flix", mas é nosso.</div>
+                  <div className="font-medium">Estilo Netflix</div>
+                  <div className="text-sm text-gray-500">Layout em grade com cards verticais</div>
                 </Label>
               </div>
               
@@ -617,11 +618,11 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
         </TabsContent>
       </Tabs>
       
-      {/* Nova Brand Flix Card Settings */}
-      {pageStyle.type === 'novabrandflix' && (
+      {/* Netflix Card Settings */}
+      {pageStyle.type === 'netflix' && (
         <Card className="mt-6">
           <CardContent className="pt-6">
-            <h4 className="font-medium text-lg mb-4">Configurações do Card Nova Brand Flix</h4>
+            <h4 className="font-medium text-lg mb-4">Configurações do Card Netflix</h4>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -676,6 +677,144 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
                     <span className="text-xs ml-2">Horizontal</span>
                   </button>
                 </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Magazine Style Settings */}
+      {pageStyle.type === 'magazine' && (
+        <Card className="mt-6">
+          <CardContent className="pt-6">
+            <h4 className="font-medium text-lg mb-4">Configurações do Card Magazine</h4>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="showMedia" className="font-medium">Mostrar mídia em tela cheia</Label>
+                  <p className="text-sm text-gray-500">Imagem ou vídeo em todo o card</p>
+                </div>
+                <Switch 
+                  id="showMedia" 
+                  checked={pageStyle.cardSettings?.showMedia ?? true}
+                  onCheckedChange={(checked) => handleCardSettingChange('showMedia', checked)}
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="showGradient" className="font-medium">Usar gradiente</Label>
+                  <p className="text-sm text-gray-500">Adiciona gradiente sobre a mídia</p>
+                </div>
+                <Switch 
+                  id="showGradient" 
+                  checked={pageStyle.cardSettings?.showGradient ?? false}
+                  onCheckedChange={(checked) => handleCardSettingChange('showGradient', checked)}
+                />
+              </div>
+              
+              {pageStyle.cardSettings?.showGradient && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="gradientColor" className="font-medium">Cor do gradiente</Label>
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="color"
+                        id="gradientColor"
+                        value={pageStyle.cardSettings?.gradientColor || "#000000"}
+                        onChange={(e) => handleCardSettingChange('gradientColor', e.target.value)}
+                        className="w-10 h-10 rounded cursor-pointer"
+                      />
+                      <span>{pageStyle.cardSettings?.gradientColor || "#000000"}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="gradientOpacity" className="font-medium">Opacidade do gradiente</Label>
+                    <div className="flex items-center gap-4">
+                      <input
+                        type="range"
+                        id="gradientOpacity"
+                        min="0"
+                        max="1"
+                        step="0.1"
+                        value={pageStyle.cardSettings?.gradientOpacity || 0.5}
+                        onChange={(e) => handleCardSettingChange('gradientOpacity', parseFloat(e.target.value))}
+                        className="w-full"
+                      />
+                      <span>{pageStyle.cardSettings?.gradientOpacity}</span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* Arcade Theme Settings */}
+      {pageStyle.type === 'arcade' && (
+        <Card className="mt-6">
+          <CardContent className="pt-6">
+            <h4 className="font-medium text-lg mb-4">Configurações do Tema Arcade</h4>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="arcadeBtnColor">Cor dos botões</Label>
+                <Input 
+                  type="color"
+                  id="arcadeBtnColor"
+                  defaultValue={pageStyle.buttonColor || "#FF0000"}
+                  onChange={(e) => setPageStyle(prev => ({ ...prev, buttonColor: e.target.value }))}
+                  className="w-16 h-10"
+                />
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="showRanking" className="font-medium">Mostrar ranking</Label>
+                  <p className="text-sm text-gray-500">Adiciona números nos links como se fossem fases</p>
+                </div>
+                <Switch 
+                  id="showRanking" 
+                  checked={pageStyle.cardSettings?.showLabels ?? true}
+                  onCheckedChange={(checked) => handleCardSettingChange('showLabels', checked)}
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+      
+      {/* VHS Theme Settings */}
+      {pageStyle.type === 'vhs' && (
+        <Card className="mt-6">
+          <CardContent className="pt-6">
+            <h4 className="font-medium text-lg mb-4">Configurações do Tema VHS</h4>
+            
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <Label htmlFor="showVHSeffect" className="font-medium">Efeito de TV antiga</Label>
+                  <p className="text-sm text-gray-500">Adiciona ruídos e linhas de TV</p>
+                </div>
+                <Switch 
+                  id="showVHSeffect" 
+                  checked={pageStyle.cardSettings?.showOverlay ?? true}
+                  onCheckedChange={(checked) => handleCardSettingChange('showOverlay', checked)}
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="vhsColor">Cor principal</Label>
+                <Input 
+                  type="color"
+                  id="vhsColor"
+                  defaultValue={pageStyle.buttonColor || "#4169E1"}
+                  onChange={(e) => setPageStyle(prev => ({ ...prev, buttonColor: e.target.value }))}
+                  className="w-16 h-10"
+                />
               </div>
             </div>
           </CardContent>
