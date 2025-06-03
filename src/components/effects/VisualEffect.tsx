@@ -271,7 +271,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({
         className="fixed inset-0 pointer-events-none overflow-hidden"
         style={{ zIndex: 1 }}
       />
-      <style jsx>{`
+      <style>{`
         @keyframes bubble-float {
           0% { transform: translateY(0) translateX(0); }
           25% { transform: translateY(-20px) translateX(10px); }
