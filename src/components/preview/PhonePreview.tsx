@@ -5,78 +5,37 @@ import LinkCard from "@/components/LinkCard";
 import ProfileImage from "@/components/ProfileImage";
 import SocialLinks from "@/components/SocialLinks";
 import VisualEffect from "@/components/effects/VisualEffect";
-import { PageStyle } from "@/pages/Dashboard";
+import { PageStyle, UserProfile, LinkType, AudioSettings } from "@/pages/Dashboard";
 
 interface PhonePreviewProps {
-  user?: {
-    name?: string;
-    bio?: string;
-    image?: string;
-  };
-  links: {
-    id: string;
-    title: string;
-    url: string;
-  }[];
-  pageStyle?: PageStyle;
-  backgroundType?: 'color' | 'image' | 'video' | 'gradient';
-  backgroundColor?: string;
-  backgroundImage?: string;
-  backgroundVideo?: string;
-  backgroundOpacity?: number;
-  socialLinks?: {
-    icon: string;
-    url: string;
-  }[];
-  profileShape?: 'circle' | 'square';
-  linkColor?: string;
-  customGradient?: boolean;
-  firstColor?: string;
-  secondColor?: string;
-  visualEffects?: {
-    effect: string;
-    color: string;
-    opacity: number;
-    speed: number;
-    size: number;
-  }[];
-  extendedBackgroundColor?: string;
+  profile: UserProfile;
+  links: LinkType[];
+  pageStyle: PageStyle;
+  audioSettings: AudioSettings;
 }
 
 const PhonePreview: React.FC<PhonePreviewProps> = ({ 
-  user, 
+  profile,
   links, 
-  pageStyle = { type: 'traditional' },
-  backgroundType = 'color',
-  backgroundColor = '#ffffff',
-  backgroundImage,
-  backgroundVideo,
-  backgroundOpacity = 1,
-  socialLinks = [],
-  profileShape = 'circle',
-  linkColor = '#6A0DAD',
-  customGradient,
-  firstColor = '#6A0DAD',
-  secondColor = '#C9A0FF',
-  visualEffects = [],
-  extendedBackgroundColor = '#ffffff'
+  pageStyle,
+  audioSettings
 }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const getBackgroundStyle = () => {
     const baseStyle: React.CSSProperties = {};
 
-    if (backgroundType === 'image' && backgroundImage) {
-      baseStyle.backgroundImage = `url(${backgroundImage})`;
+    if (profile.backgroundType === 'image' && profile.backgroundImage) {
+      baseStyle.backgroundImage = `url(${profile.backgroundImage})`;
       baseStyle.backgroundSize = 'cover';
       baseStyle.backgroundPosition = 'center';
       baseStyle.backgroundRepeat = 'no-repeat';
-    } else if (backgroundType === 'video' && backgroundVideo) {
+    } else if (profile.backgroundType === 'video' && profile.backgroundVideo) {
       // Video background handled separately
-    } else if (backgroundType === 'gradient' && customGradient && firstColor && secondColor) {
-      baseStyle.background = `linear-gradient(135deg, ${firstColor}, ${secondColor})`;
+    } else if (profile.backgroundType === 'gradient' && profile.backgroundGradientColor1 && profile.backgroundGradientColor2) {
+      baseStyle.background = `linear-gradient(135deg, ${profile.backgroundGradientColor1}, ${profile.backgroundGradientColor2})`;
     } else {
-      baseStyle.backgroundColor = backgroundColor;
+      baseStyle.backgroundColor = profile.backgroundColor;
     }
 
     if (pageStyle.type === 'novabrandflix') {
@@ -87,11 +46,11 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({
   };
 
   const renderBackground = () => {
-    if (backgroundType === 'video' && backgroundVideo) {
+    if (profile.backgroundType === 'video' && profile.backgroundVideo) {
       return (
         <video
           ref={videoRef}
-          src={backgroundVideo}
+          src={profile.backgroundVideo}
           autoPlay
           loop
           muted
@@ -102,7 +61,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            opacity: backgroundOpacity,
+            opacity: profile.backgroundGradientOpacity || 1,
           }}
         />
       );
@@ -116,56 +75,77 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({
           left: 0,
           width: '100%',
           height: '100%',
-          opacity: backgroundOpacity,
+          opacity: profile.backgroundGradientOpacity || 1,
           ...getBackgroundStyle(),
         }}
       />
     );
   };
 
+  // Convert social icons to social links format
+  const socialLinks = Object.entries(profile.socialIcons || {})
+    .filter(([_, url]) => url)
+    .map(([platform, url]) => ({
+      icon: platform.charAt(0).toUpperCase(),
+      url: url as string
+    }));
+
   return (
     <div className="flex justify-center p-4">
       <div className="relative w-full max-w-sm bg-gray-50 rounded-3xl shadow-lg overflow-hidden">
         {renderBackground()}
 
-        {visualEffects && visualEffects.map((effect, index) => (
+        {profile.visualEffect && profile.visualEffect !== 'none' && (
           <VisualEffect
-            key={index}
-            effect={effect.effect}
-            color={effect.color}
-            opacity={effect.opacity}
-            speed={effect.speed}
-            size={effect.size}
+            effect={profile.visualEffect}
+            color={profile.visualEffectColor}
+            opacity={profile.visualEffectOpacity}
+            speed={profile.visualEffectSpeed}
+            size={profile.visualEffectSize}
           />
-        ))}
+        )}
 
         <div className="relative z-10 p-6 flex flex-col items-center">
-          {user?.image ? (
-            <ProfileImage src={user.image} alt={user?.name || 'Profile'} shape={profileShape} />
+          {profile.avatar ? (
+            <ProfileImage 
+              src={profile.avatar} 
+              alt={profile.name || 'Profile'} 
+              shape={profile.avatarShape === 'circle' ? 'circle' : 'square'} 
+            />
           ) : (
             <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
               <User className="w-12 h-12 text-gray-500" />
             </div>
           )}
 
-          {user?.name && (
-            <h1 className="mt-4 text-2xl font-bold text-center text-gray-900">{user.name}</h1>
+          {profile.name && (
+            <h1 
+              className="mt-4 text-2xl font-bold text-center"
+              style={{ color: profile.nameColor }}
+            >
+              {profile.name}
+            </h1>
           )}
 
-          {user?.bio && (
-            <p className="mt-2 text-center text-gray-600">{user.bio}</p>
+          {profile.bio && (
+            <p 
+              className="mt-2 text-center"
+              style={{ color: profile.bioColor }}
+            >
+              {profile.bio}
+            </p>
           )}
 
           <SocialLinks socialLinks={socialLinks} />
 
           <div className="mt-6 w-full space-y-4">
-            {links.map(link => (
+            {links.filter(link => link.active).map(link => (
               <LinkCard
                 key={link.id}
                 title={link.title}
                 url={link.url}
                 pageStyle={pageStyle}
-                linkColor={linkColor}
+                linkColor={link.color}
               />
             ))}
           </div>
