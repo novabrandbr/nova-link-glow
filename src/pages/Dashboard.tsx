@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import LinksPanel from "@/components/panels/LinksPanel";
@@ -16,6 +15,10 @@ import AITab from "@/components/minisite/AITab";
 import HelpPanel from "@/components/panels/HelpPanel";
 import NotificationsPanel from "@/components/panels/NotificationsPanel";
 import SettingsPanel from "@/components/panels/SettingsPanel";
+import DashboardOverview from "@/components/panels/DashboardOverview";
+import EnhancedStatsPanel from "@/components/panels/EnhancedStatsPanel";
+import ReorganizedProfileTab from "@/components/minisite/ReorganizedProfileTab";
+import StylePreview from "@/components/minisite/StylePreview";
 
 export type LinkType = {
   id: string;
@@ -289,7 +292,7 @@ const Dashboard = () => {
   const renderMinisiteTab = () => {
     switch (activeMinisiteTab) {
       case "profile":
-        return <ProfileTab profile={profile} setProfile={setProfile} />;
+        return <ReorganizedProfileTab profile={profile} setProfile={setProfile} />;
       case "links":
         return <LinksTab links={links} setLinks={setLinks} />;
       case "styles":
@@ -299,14 +302,14 @@ const Dashboard = () => {
       case "ai":
         return <AITab pageStyle={pageStyle} setPageStyle={setPageStyle} />;
       default:
-        return <ProfileTab profile={profile} setProfile={setProfile} />;
+        return <ReorganizedProfileTab profile={profile} setProfile={setProfile} />;
     }
   };
 
   const renderPanel = () => {
     switch (activePanel) {
       case "dashboard":
-        return <div className="p-6">Dashboard overview content</div>;
+        return <DashboardOverview />;
       case "minisite":
         return (
           <div className="flex flex-col h-full">
@@ -320,7 +323,7 @@ const Dashboard = () => {
           </div>
         );
       case "stats":
-        return <StatsPanel />;
+        return <EnhancedStatsPanel />;
       case "profile":
         return <ProfilePanel profile={profile} setProfile={setProfile} />;
       case "plans":
