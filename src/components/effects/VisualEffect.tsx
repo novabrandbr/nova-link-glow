@@ -1,607 +1,486 @@
 
-import React, { useEffect, useState } from 'react';
-import { UserProfile } from '@/pages/Dashboard';
+import React, { useEffect, useRef } from 'react';
 
 interface VisualEffectProps {
-  profile: UserProfile;
+  type: string;
+  color: string;
+  opacity: number;
+  speed: number;
+  size: number;
+  customUrl?: string;
 }
 
-const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
-  const [bubbleElements, setBubbleElements] = useState<React.ReactNode[]>([]);
-  const [auroraPhase, setAuroraPhase] = useState(0);
-  const [glitchPhase, setGlitchPhase] = useState(0);
-  
+const VisualEffect: React.FC<VisualEffectProps> = ({
+  type,
+  color,
+  opacity,
+  speed,
+  size,
+  customUrl
+}) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animationRef = useRef<number>();
+
   useEffect(() => {
-    let bubbleInterval: NodeJS.Timeout;
-    let auroraInterval: NodeJS.Timeout;
-    let glitchInterval: NodeJS.Timeout;
-    
-    // Aurora effect animation
-    if (profile.visualEffect === 'aurora') {
-      auroraInterval = setInterval(() => {
-        setAuroraPhase(prev => (prev + 1) % 360);
-      }, 100);
-    }
-    
-    // Glitch effect animation
-    if (profile.visualEffect === 'glitch') {
-      glitchInterval = setInterval(() => {
-        setGlitchPhase(prev => (prev + 1) % 100);
-      }, 50);
-    }
-    
-    // Soap bubbles generation
-    if (profile.visualEffect === 'bubbles') {
-      generateSoapBubbles();
-      bubbleInterval = setInterval(generateSoapBubbles, 3000);
-    }
-    
-    return () => {
-      if (bubbleInterval) clearInterval(bubbleInterval);
-      if (auroraInterval) clearInterval(auroraInterval);
-      if (glitchInterval) clearInterval(glitchInterval);
+    if (type === 'none') return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
-  }, [profile.visualEffect, profile.visualEffectSpeed]);
-  
-  if (profile.visualEffect === 'none') return null;
-  
-  // Default values with fallbacks
-  const opacity = profile.visualEffectOpacity || 0.7;
-  const color = profile.visualEffectColor || '#6A0DAD';
-  const speed = profile.visualEffectSpeed || 1;
-  const size = profile.visualEffectSize || 1;
-  
-  // Helper function to apply opacity to colors
-  const applyOpacity = (hexColor: string, opacity: number) => {
-    let r = 0, g = 0, b = 0;
-    
-    if (hexColor.length === 4) {
-      r = parseInt(hexColor[1] + hexColor[1], 16);
-      g = parseInt(hexColor[2] + hexColor[2], 16);
-      b = parseInt(hexColor[3] + hexColor[3], 16);
-    } else if (hexColor.length === 7) {
-      r = parseInt(hexColor.substring(1, 3), 16);
-      g = parseInt(hexColor.substring(3, 5), 16);
-      b = parseInt(hexColor.substring(5, 7), 16);
-    }
-    
-    return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-  };
-  
-  const rgba = applyOpacity(color, opacity);
-  
-  // Common effect styles - positioned as background layer
-  const effectStyles: React.CSSProperties = {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    pointerEvents: 'none',
-    zIndex: 0,
-    overflow: 'hidden',
-    width: '100%',
-    height: '100%'
-  };
 
-  // Global keyframes for all effects
-  const globalKeyframes = `
-    @keyframes auroraFlow {
-      0%, 100% { transform: translateX(-20%) translateY(-10%) rotate(0deg); opacity: ${opacity}; }
-      25% { transform: translateX(10%) translateY(5%) rotate(2deg); opacity: ${opacity * 0.7}; }
-      50% { transform: translateX(20%) translateY(10%) rotate(10deg); opacity: ${opacity}; }
-      75% { transform: translateX(-10%) translateY(-5%) rotate(-2deg); opacity: ${opacity * 0.8}; }
-    }
-    @keyframes auroraBreath {
-      0%, 100% { opacity: ${opacity * 0.3}; }
-      50% { opacity: ${opacity}; }
-    }
-    @keyframes moonPulse {
-      0%, 100% { opacity: 0.8; transform: scale(1); }
-      50% { opacity: 1; transform: scale(1.1); }
-    }
-    @keyframes starTwinkle {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 1; }
-    }
-    @keyframes lightning {
-      0%, 90%, 100% { background: transparent; }
-      92%, 94%, 96% { background: rgba(255,255,255,0.3); }
-    }
-    @keyframes vhsGlitch {
-      0%, 100% { transform: translateX(0); }
-      10% { transform: translateX(-1px); }
-      20% { transform: translateX(1px); }
-      30% { transform: translateX(0); }
-    }
-    @keyframes glitchShift {
-      0%, 100% { transform: translateX(0); filter: hue-rotate(0deg); }
-      10% { transform: translateX(-1px); filter: hue-rotate(90deg); }
-      20% { transform: translateX(1px); filter: hue-rotate(180deg); }
-      30% { transform: translateX(0); filter: hue-rotate(270deg); }
-    }
-    @keyframes lightLeak {
-      0% { transform: translateX(-100%) translateY(-50%) rotate(-5deg); opacity: 0; }
-      20% { opacity: ${opacity}; }
-      80% { opacity: ${opacity}; }
-      100% { transform: translateX(100vw) translateY(50%) rotate(5deg); opacity: 0; }
-    }
-    @keyframes lightLeakPause {
-      0%, 20% { opacity: 0; transform: translateX(-100%) translateY(-20%) rotate(-5deg); }
-      25%, 75% { opacity: ${opacity}; transform: translateX(0) translateY(0) rotate(0deg); }
-      80%, 100% { opacity: 0; transform: translateX(100vw) translateY(20%) rotate(5deg); }
-    }
-    @keyframes lightLeakVertical {
-      0%, 20% { opacity: 0; transform: translateY(-100%) translateX(-20%) rotate(85deg); }
-      25%, 75% { opacity: ${opacity}; transform: translateY(0) translateX(0) rotate(90deg); }
-      80%, 100% { opacity: 0; transform: translateY(100vh) translateX(20%) rotate(95deg); }
-    }
-    @keyframes lightLeakDiagonal {
-      0%, 20% { opacity: 0; transform: translate(-100%, -100%) rotate(45deg); }
-      25%, 75% { opacity: ${opacity}; transform: translate(0, 0) rotate(45deg); }
-      80%, 100% { opacity: 0; transform: translate(100vw, 100vh) rotate(45deg); }
-    }
-    @keyframes vignetteBreath {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-    }
-    @keyframes fireFlicker {
-      0%, 100% { transform: scaleY(1) scaleX(1); opacity: 0.8; }
-      50% { transform: scaleY(1.3) scaleX(0.8); opacity: 1; }
-    }
-    @keyframes oceanWaves {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-    }
-    @keyframes bubbleFloat {
-      0% { transform: scale(0.2) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.8; transform: scale(1) rotate(10deg); }
-      90% { opacity: 0.6; transform: translateY(-100vh) translateX(20vw) scale(1.1) rotate(360deg); }
-      100% { transform: translateY(-100vh) translateX(20vw) scale(0.8) rotate(380deg); opacity: 0; }
-    }
-  `;
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-  // Generate soap bubbles from random angles
-  const generateSoapBubbles = () => {
-    const count = Math.floor(Math.random() * 3) + 2;
-    const newBubbles = [];
-    
-    for (let i = 0; i < count; i++) {
-      const bubbleSize = Math.random() * 60 * size + 40;
-      
-      const startPositions = [
-        { side: 'bottom-left', left: -10, top: 110, direction: 'diagonal-up-right' },
-        { side: 'bottom-right', left: 110, top: 110, direction: 'diagonal-up-left' },
-        { side: 'left', left: -15, top: Math.random() * 80 + 10, direction: 'right' },
-        { side: 'right', left: 115, top: Math.random() * 80 + 10, direction: 'left' },
-        { side: 'bottom', left: Math.random() * 80 + 10, top: 110, direction: 'up' },
-        { side: 'top', left: Math.random() * 80 + 10, top: -15, direction: 'down' },
-      ];
-      
-      const startPos = startPositions[Math.floor(Math.random() * startPositions.length)];
-      const duration = (Math.random() * 6 + 8) / speed;
-      const delay = Math.random() * 4;
-      
-      let endLeft = startPos.left;
-      let endTop = startPos.top;
-      
-      switch (startPos.direction) {
-        case 'up':
-          endTop = -20;
-          endLeft += (Math.random() - 0.5) * 60;
+    let particles: any[] = [];
+    let time = 0;
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      time += speed * 0.01;
+
+      switch (type) {
+        case 'bubbles':
+          animateBubbles(ctx, particles, canvas.width, canvas.height, color, opacity, size, speed);
           break;
-        case 'down':
-          endTop = 120;
-          endLeft += (Math.random() - 0.5) * 60;
+        case 'glitch':
+          animateGlitch(ctx, canvas.width, canvas.height, color, opacity, time);
           break;
-        case 'right':
-          endLeft = 120;
-          endTop += (Math.random() - 0.5) * 60;
+        case 'aurora':
+          animateAurora(ctx, canvas.width, canvas.height, color, opacity, time, size);
           break;
-        case 'left':
-          endLeft = -20;
-          endTop += (Math.random() - 0.5) * 60;
+        case 'nightsky':
+          animateNightSky(ctx, particles, canvas.width, canvas.height, color, opacity, size);
           break;
-        case 'diagonal-up-right':
-          endLeft = 120;
-          endTop = -20;
+        case 'fire':
+          animateFire(ctx, particles, canvas.width, canvas.height, color, opacity, size, speed);
           break;
-        case 'diagonal-up-left':
-          endLeft = -20;
-          endTop = -20;
+        case 'ocean':
+          animateOcean(ctx, canvas.width, canvas.height, color, opacity, time, size);
+          break;
+        case 'lightleak':
+          animateLightLeak(ctx, canvas.width, canvas.height, color, opacity, time, size);
+          break;
+        case 'vignette':
+          animateVignette(ctx, canvas.width, canvas.height, color, opacity);
+          break;
+        case 'shootingstars':
+          animateShootingStars(ctx, particles, canvas.width, canvas.height, color, opacity, speed, size);
+          break;
+        case 'smoke':
+          animateSmoke(ctx, particles, canvas.width, canvas.height, color, opacity, speed, size);
+          break;
+        case 'fireworks':
+          animateFireworks(ctx, particles, canvas.width, canvas.height, color, opacity, speed, size);
           break;
       }
-      
-      const bubbleStyle: React.CSSProperties = {
-        position: 'absolute',
-        width: `${bubbleSize}px`,
-        height: `${bubbleSize}px`,
-        borderRadius: '50%',
-        left: `${startPos.left}%`,
-        top: `${startPos.top}%`,
-        background: `
-          radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.8), transparent 50%),
-          radial-gradient(ellipse at 70% 80%, rgba(255,255,255,0.4), transparent 40%),
-          radial-gradient(circle, transparent 65%, ${rgba} 75%, transparent 85%)
-        `,
-        border: `3px solid ${rgba}`,
-        boxShadow: `
-          0 0 ${bubbleSize/2}px ${applyOpacity(color, opacity * 0.6)},
-          inset -${bubbleSize/4}px -${bubbleSize/4}px ${bubbleSize/3}px rgba(255,255,255,0.7),
-          inset ${bubbleSize/6}px ${bubbleSize/6}px ${bubbleSize/4}px rgba(255,255,255,0.4)
-        `,
-        opacity: 0,
-        animation: `bubbleFloat ${duration}s ease-out forwards`,
-        animationDelay: `${delay}s`,
-        zIndex: 0,
-        pointerEvents: 'none',
-      };
-      
-      newBubbles.push(
-        <div key={`soap-bubble-${Date.now()}-${i}`} style={bubbleStyle} />
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      window.removeEventListener('resize', resizeCanvas);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, [type, color, opacity, speed, size]);
+
+  if (type === 'none') return null;
+
+  if (type === 'custom' && customUrl) {
+    if (customUrl.startsWith('data:image')) {
+      return (
+        <div 
+          className="fixed inset-0 pointer-events-none z-0"
+          style={{
+            backgroundImage: `url(${customUrl})`,
+            backgroundSize: `${size * 100}%`,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            opacity: opacity,
+            filter: `hue-rotate(${color})`
+          }}
+        />
+      );
+    } else if (customUrl.startsWith('data:video')) {
+      return (
+        <video
+          className="fixed inset-0 w-full h-full object-cover pointer-events-none z-0"
+          style={{
+            opacity: opacity,
+            transform: `scale(${size})`,
+            filter: `hue-rotate(${color})`
+          }}
+          autoPlay
+          muted
+          loop
+          src={customUrl}
+        />
       );
     }
-    
-    setBubbleElements(prevBubbles => {
-      const filtered = prevBubbles.slice(-8);
-      return [...filtered, ...newBubbles];
-    });
-  };
-  
-  // Effect-specific rendering
-  switch (profile.visualEffect) {
-    case 'bubbles':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          {bubbleElements}
-        </div>
-      );
-      
-    case 'glitch':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              background: `
-                repeating-linear-gradient(
-                  0deg,
-                  transparent 0px,
-                  ${applyOpacity(color, opacity*0.1)} 2px,
-                  transparent 4px
-                )
-              `,
-              animation: `glitchShift ${2/speed}s infinite`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'lightleak':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '200%',
-              height: '120%',
-              top: '-10%',
-              left: '-50%',
-              background: `linear-gradient(45deg, transparent 40%, ${rgba} 50%, transparent 60%)`,
-              animation: `lightLeakPause ${12/speed}s ease-in-out infinite`,
-              filter: 'blur(20px)',
-              pointerEvents: 'none'
-            }} 
-          />
-          <div 
-            style={{
-              position: 'absolute',
-              width: '120%',
-              height: '200%',
-              top: '-50%',
-              left: '-10%',
-              background: `linear-gradient(135deg, transparent 40%, ${applyOpacity(color, opacity*0.6)} 50%, transparent 60%)`,
-              animation: `lightLeakVertical ${15/speed}s ease-in-out infinite`,
-              filter: 'blur(15px)',
-              pointerEvents: 'none',
-              animationDelay: '3s'
-            }} 
-          />
-          <div 
-            style={{
-              position: 'absolute',
-              width: '140%',
-              height: '140%',
-              top: '-20%',
-              left: '-20%',
-              background: `linear-gradient(45deg, transparent 30%, ${applyOpacity(color, opacity*0.4)} 50%, transparent 70%)`,
-              animation: `lightLeakDiagonal ${18/speed}s ease-in-out infinite`,
-              filter: 'blur(25px)',
-              pointerEvents: 'none',
-              animationDelay: '6s'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'vignette':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              background: `radial-gradient(ellipse at center, transparent 40%, ${rgba} 100%)`,
-              animation: `vignetteBreath ${4/speed}s ease-in-out infinite`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'aurora':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              position: 'absolute',
-              width: '120%',
-              height: '60%',
-              left: '-10%',
-              top: '0%',
-              background: `
-                linear-gradient(${auroraPhase}deg, 
-                  transparent 0%, 
-                  ${applyOpacity('#4ade80', opacity*0.3)} 20%, 
-                  transparent 40%,
-                  ${applyOpacity('#3b82f6', opacity*0.4)} 60%, 
-                  transparent 80%,
-                  ${applyOpacity('#8b5cf6', opacity*0.2)} 100%
-                )
-              `,
-              animation: `auroraFlow ${15/speed}s ease-in-out infinite alternate`,
-              transform: `rotate(${auroraPhase * 0.1}deg)`,
-              pointerEvents: 'none'
-            }} 
-          />
-          <div 
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '40%',
-              left: '0%',
-              top: '10%',
-              background: `
-                linear-gradient(${(auroraPhase + 90) % 360}deg, 
-                  transparent 0%, 
-                  ${applyOpacity(color, opacity*0.2)} 30%, 
-                  transparent 60%
-                )
-              `,
-              animation: `auroraBreath ${10/speed}s ease-in-out infinite`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'nightsky':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              ...effectStyles, 
-              background: 'linear-gradient(to bottom, #000428 0%, #004e92 100%)'
-            }}
-          >
-            {generateStars(200)}
-            <div 
-              style={{
-                position: 'absolute',
-                top: '10%',
-                right: '20%',
-                width: '80px',
-                height: '80px',
-                borderRadius: '50%',
-                background: `radial-gradient(circle, rgba(255,255,220,${opacity*0.8}) 0%, rgba(200,200,255,${opacity*0.5}) 70%, transparent 100%)`,
-                boxShadow: `0 0 60px rgba(255,255,220,${opacity*0.4})`,
-                animation: `moonPulse ${6/speed}s ease-in-out infinite`,
-                pointerEvents: 'none'
-              }} 
-            />
-          </div>
-        </div>
-      );
-      
-    case 'fire':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          {generateFire()}
-        </div>
-      );
-      
-    case 'ocean':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          {generateOceanWaves()}
-        </div>
-      );
-      
-    case 'vhs':
-      return (
-        <div style={effectStyles}>
-          <style>{globalKeyframes}</style>
-          <div 
-            style={{
-              ...effectStyles,
-              background: `
-                repeating-linear-gradient(
-                  0deg,
-                  rgba(0,0,0,${opacity*0.1}) 0px,
-                  rgba(0,0,0,${opacity*0.05}) 1px,
-                  transparent 3px
-                )
-              `,
-              animation: `vhsGlitch ${2/speed}s infinite linear`,
-              pointerEvents: 'none'
-            }} 
-          />
-        </div>
-      );
-      
-    case 'custom':
-      if (profile.visualEffectCustomUrl) {
-        return (
-          <div style={effectStyles}>
-            {profile.visualEffectCustomUrl.startsWith('data:image') ? (
-              <img 
-                src={profile.visualEffectCustomUrl} 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  opacity: opacity,
-                  pointerEvents: 'none'
-                }}
-                alt="Custom effect" 
-              />
-            ) : (
-              <video 
-                src={profile.visualEffectCustomUrl} 
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  opacity: opacity,
-                  pointerEvents: 'none'
-                }}
-                autoPlay 
-                muted 
-                loop 
-              />
-            )}
-          </div>
-        );
-      }
-      return null;
-      
-    default:
-      return null;
   }
-  
-  // Helper functions for effects
-  function generateOceanWaves() {
-    const waves = [];
+
+  return (
+    <canvas
+      ref={canvasRef}
+      className="fixed inset-0 pointer-events-none z-0"
+      style={{ 
+        opacity: opacity,
+        mixBlendMode: type === 'lightleak' ? 'screen' : 'normal'
+      }}
+    />
+  );
+};
+
+// Bubble animation
+const animateBubbles = (ctx: CanvasRenderingContext2D, particles: any[], width: number, height: number, color: string, opacity: number, size: number, speed: number) => {
+  if (particles.length < 20) {
+    particles.push({
+      x: Math.random() * width,
+      y: height + 50,
+      radius: Math.random() * 60 * size + 10,
+      speedY: -Math.random() * 2 * speed - 1,
+      speedX: (Math.random() - 0.5) * speed,
+      opacity: Math.random() * 0.7 + 0.1
+    });
+  }
+
+  particles.forEach((particle, index) => {
+    particle.y += particle.speedY;
+    particle.x += particle.speedX;
+
+    if (particle.y < -100) {
+      particles.splice(index, 1);
+      return;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = particle.opacity * opacity;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  });
+};
+
+// Glitch animation
+const animateGlitch = (ctx: CanvasRenderingContext2D, width: number, height: number, color: string, opacity: number, time: number) => {
+  if (Math.random() < 0.1) {
+    ctx.save();
+    ctx.globalAlpha = opacity * 0.3;
+    ctx.fillStyle = color;
     
     for (let i = 0; i < 5; i++) {
-      waves.push(
-        <div 
-          key={i}
-          style={{
-            position: 'absolute',
-            bottom: `${i * 15}px`,
-            left: '-50%',
-            width: '200%',
-            height: `${50 + i * 15}px`,
-            background: `linear-gradient(to top, ${rgba} 0%, ${applyOpacity(color, opacity*0.6)} 50%, transparent 100%)`,
-            borderRadius: '50% 50% 0 0',
-            animation: `oceanWaves ${6 + i * 1.5/speed}s ease-in-out infinite`,
-            animationDelay: `${i * 0.8}s`,
-            opacity: opacity * (0.9 - i * 0.1),
-            pointerEvents: 'none',
-            '::before': {
-              content: '""',
-              position: 'absolute',
-              top: '-5px',
-              left: '10%',
-              right: '10%',
-              height: '10px',
-              background: 'rgba(255,255,255,0.6)',
-              borderRadius: '50%',
-              filter: 'blur(2px)'
-            }
-          }} 
-        />
-      );
+      const y = Math.random() * height;
+      const h = Math.random() * 20 + 2;
+      ctx.fillRect(0, y, width, h);
+    }
+    ctx.restore();
+  }
+};
+
+// Aurora animation
+const animateAurora = (ctx: CanvasRenderingContext2D, width: number, height: number, color: string, opacity: number, time: number, size: number) => {
+  ctx.save();
+  ctx.globalAlpha = opacity * 0.6;
+  
+  const gradient = ctx.createLinearGradient(0, 0, 0, height * 0.6);
+  gradient.addColorStop(0, color + '00');
+  gradient.addColorStop(0.5, color + '80');
+  gradient.addColorStop(1, color + '00');
+  
+  ctx.fillStyle = gradient;
+  
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, height * 0.3);
+    
+    for (let x = 0; x <= width; x += 20) {
+      const y = height * 0.3 + Math.sin((x * 0.01) + time + i) * 100 * size;
+      ctx.lineTo(x, y);
     }
     
-    return waves;
+    ctx.lineTo(width, height);
+    ctx.lineTo(0, height);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.restore();
+};
+
+// Night sky animation
+const animateNightSky = (ctx: CanvasRenderingContext2D, particles: any[], width: number, height: number, color: string, opacity: number, size: number) => {
+  // Initialize stars
+  if (particles.length < 100) {
+    for (let i = particles.length; i < 100; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        radius: Math.random() * 2 * size + 0.5,
+        twinkle: Math.random() * Math.PI * 2,
+        twinkleSpeed: Math.random() * 0.02 + 0.01
+      });
+    }
+  }
+
+  // Draw moon
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.fillStyle = '#FFFACD';
+  ctx.beginPath();
+  ctx.arc(width * 0.85, height * 0.15, 30 * size, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // Draw stars
+  particles.forEach(star => {
+    star.twinkle += star.twinkleSpeed;
+    const alpha = (Math.sin(star.twinkle) + 1) * 0.5;
+    
+    ctx.save();
+    ctx.globalAlpha = opacity * alpha;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+};
+
+// Fire animation
+const animateFire = (ctx: CanvasRenderingContext2D, particles: any[], width: number, height: number, color: string, opacity: number, size: number, speed: number) => {
+  // Add new particles
+  if (particles.length < 50) {
+    for (let i = 0; i < 3; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: height,
+        speedY: -Math.random() * 3 * speed - 1,
+        speedX: (Math.random() - 0.5) * speed,
+        life: 1,
+        decay: Math.random() * 0.02 + 0.01,
+        size: Math.random() * 20 * size + 5
+      });
+    }
+  }
+
+  particles.forEach((particle, index) => {
+    particle.y += particle.speedY;
+    particle.x += particle.speedX;
+    particle.life -= particle.decay;
+
+    if (particle.life <= 0) {
+      particles.splice(index, 1);
+      return;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = opacity * particle.life;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(particle.x, particle.y, particle.size * particle.life, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+};
+
+// Ocean animation
+const animateOcean = (ctx: CanvasRenderingContext2D, width: number, height: number, color: string, opacity: number, time: number, size: number) => {
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3 * size;
+  
+  const waveHeight = 20 * size;
+  const y = height - 50;
+  
+  ctx.beginPath();
+  ctx.moveTo(0, y);
+  
+  for (let x = 0; x <= width; x += 5) {
+    const waveY = y + Math.sin((x * 0.02) + time) * waveHeight;
+    ctx.lineTo(x, waveY);
   }
   
-  function generateFire() {
-    const flames = [];
+  ctx.stroke();
+  ctx.restore();
+};
+
+// Light leak animation
+const animateLightLeak = (ctx: CanvasRenderingContext2D, width: number, height: number, color: string, opacity: number, time: number, size: number) => {
+  const cycleTime = time % 4;
+  if (cycleTime > 2) return; // 2s on, 2s off cycle
+
+  ctx.save();
+  ctx.globalAlpha = opacity * (Math.sin(cycleTime * Math.PI) * 0.5 + 0.5);
+  
+  const gradient = ctx.createLinearGradient(0, 0, width, height);
+  gradient.addColorStop(0, color + '00');
+  gradient.addColorStop(0.3, color + '80');
+  gradient.addColorStop(0.7, color + '40');
+  gradient.addColorStop(1, color + '00');
+  
+  ctx.fillStyle = gradient;
+  
+  // Create diagonal light beams
+  for (let i = 0; i < 3; i++) {
+    const rotation = (i * 45 + time * 10) * Math.PI / 180;
+    const centerX = width * (0.2 + i * 0.3);
+    const centerY = height * 0.5;
     
-    for (let i = 0; i < 12; i++) {
-      flames.push(
-        <div 
-          key={i}
-          style={{
-            position: 'absolute',
-            bottom: '0',
-            left: `${5 + i * 7.5}%`,
-            width: `${15 + Math.random() * 25}px`,
-            height: `${60 + Math.random() * 50}px`,
-            background: `linear-gradient(to top, 
-              ${applyOpacity('#ff4500', opacity)} 0%, 
-              ${applyOpacity('#ffa500', opacity*0.8)} 40%, 
-              ${applyOpacity('#ffff00', opacity*0.4)} 80%, 
-              transparent 100%)`,
-            borderRadius: '50% 50% 30% 30%',
-            animation: `fireFlicker ${0.8 + Math.random() * 0.4/speed}s ease-in-out infinite alternate`,
-            animationDelay: `${Math.random() * 0.5}s`,
-            filter: 'blur(1px)',
-            pointerEvents: 'none'
-          }} 
-        />
-      );
-    }
-    
-    return flames;
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.fillRect(-width * size, -50 * size, width * 2 * size, 100 * size);
+    ctx.restore();
   }
   
-  function generateStars(count: number) {
-    const stars = [];
-    
-    for (let i = 0; i < count; i++) {
-      const starSize = Math.random() * 2 + 1;
-      const left = `${Math.random() * 100}%`;
-      const top = `${Math.random() * 100}%`;
-      const delay = Math.random() * 4;
-      
-      stars.push(
-        <div 
-          key={i}
-          style={{
-            position: 'absolute',
-            width: `${starSize}px`,
-            height: `${starSize}px`,
-            backgroundColor: 'white',
-            borderRadius: '50%',
-            boxShadow: `0 0 ${starSize*2}px rgba(255,255,255,${opacity*0.8})`,
-            top,
-            left,
-            animation: `starTwinkle ${2 + Math.random() * 3}s ease-in-out infinite`,
-            animationDelay: `${delay}s`,
-            pointerEvents: 'none'
-          }} 
-        />
-      );
-    }
-    
-    return stars;
+  ctx.restore();
+};
+
+// Vignette animation
+const animateVignette = (ctx: CanvasRenderingContext2D, width: number, height: number, color: string, opacity: number) => {
+  ctx.save();
+  ctx.globalAlpha = opacity;
+  
+  const gradient = ctx.createRadialGradient(
+    width / 2, height / 2, 0,
+    width / 2, height / 2, Math.max(width, height) * 0.7
+  );
+  gradient.addColorStop(0, color + '00');
+  gradient.addColorStop(1, color + 'FF');
+  
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+  ctx.restore();
+};
+
+// Shooting stars animation
+const animateShootingStars = (ctx: CanvasRenderingContext2D, particles: any[], width: number, height: number, color: string, opacity: number, speed: number, size: number) => {
+  if (Math.random() < 0.005 && particles.length < 5) {
+    particles.push({
+      x: -50,
+      y: Math.random() * height * 0.5,
+      speedX: Math.random() * 8 * speed + 4,
+      speedY: Math.random() * 2 * speed + 1,
+      life: 1,
+      decay: 0.02,
+      tail: []
+    });
   }
+
+  particles.forEach((star, index) => {
+    star.x += star.speedX;
+    star.y += star.speedY;
+    star.life -= star.decay;
+
+    star.tail.push({ x: star.x, y: star.y, life: star.life });
+    if (star.tail.length > 20) star.tail.shift();
+
+    if (star.life <= 0 || star.x > width + 50) {
+      particles.splice(index, 1);
+      return;
+    }
+
+    // Draw tail
+    star.tail.forEach((point: any, i: number) => {
+      const alpha = (point.life * (i / star.tail.length)) * opacity;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, size * 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  });
+};
+
+// Smoke animation
+const animateSmoke = (ctx: CanvasRenderingContext2D, particles: any[], width: number, height: number, color: string, opacity: number, speed: number, size: number) => {
+  if (particles.length < 30) {
+    particles.push({
+      x: width * 0.5 + (Math.random() - 0.5) * 100,
+      y: height,
+      speedY: -Math.random() * 2 * speed - 0.5,
+      speedX: (Math.random() - 0.5) * speed,
+      life: 1,
+      decay: Math.random() * 0.01 + 0.005,
+      size: Math.random() * 30 * size + 10
+    });
+  }
+
+  particles.forEach((particle, index) => {
+    particle.y += particle.speedY;
+    particle.x += particle.speedX;
+    particle.life -= particle.decay;
+    particle.size += 0.5;
+
+    if (particle.life <= 0) {
+      particles.splice(index, 1);
+      return;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = opacity * particle.life * 0.3;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+};
+
+// Fireworks animation
+const animateFireworks = (ctx: CanvasRenderingContext2D, particles: any[], width: number, height: number, color: string, opacity: number, speed: number, size: number) => {
+  if (Math.random() < 0.02 && particles.length < 200) {
+    const centerX = Math.random() * width;
+    const centerY = Math.random() * height * 0.5 + height * 0.1;
+    
+    for (let i = 0; i < 20; i++) {
+      const angle = (Math.PI * 2 * i) / 20;
+      particles.push({
+        x: centerX,
+        y: centerY,
+        speedX: Math.cos(angle) * Math.random() * 5 * speed,
+        speedY: Math.sin(angle) * Math.random() * 5 * speed,
+        life: 1,
+        decay: Math.random() * 0.02 + 0.01,
+        size: Math.random() * 4 * size + 2
+      });
+    }
+  }
+
+  particles.forEach((particle, index) => {
+    particle.x += particle.speedX;
+    particle.y += particle.speedY;
+    particle.speedY += 0.1; // gravity
+    particle.life -= particle.decay;
+
+    if (particle.life <= 0) {
+      particles.splice(index, 1);
+      return;
+    }
+
+    ctx.save();
+    ctx.globalAlpha = opacity * particle.life;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
 };
 
 export default VisualEffect;
