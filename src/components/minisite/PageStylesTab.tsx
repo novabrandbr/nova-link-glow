@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { PageStyle } from '@/pages/Dashboard';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import StylePreview from './StylePreview';
 
 interface PageStylesTabProps {
   pageStyle: PageStyle;
@@ -201,8 +201,7 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
           onClick={() => handleStyleChange(style.id)}
         >
           <h3 className="font-semibold text-sm mb-2">{style.name}</h3>
-          <p className="text-xs text-gray-600 mb-3">{style.description}</p>
-          <StylePreview styleType={style.id} />
+          <p className="text-xs text-gray-600">{style.description}</p>
         </div>
       ))}
     </div>
