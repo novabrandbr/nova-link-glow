@@ -21,10 +21,9 @@ import {
   Youtube, 
   Music, 
   Linkedin, 
+  Github, 
   MessageSquare, 
-  X,
-  Mail,
-  Send
+  X 
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -135,22 +134,10 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const isVideo = file.type.startsWith('video/');
-    const isImage = file.type.startsWith('image/');
-
-    if (!isVideo && !isImage) {
-      toast({
-        title: "Formato não suportado",
-        description: "Por favor, selecione uma imagem ou vídeo.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (file.size > (isVideo ? 10 : 2) * 1024 * 1024) {
+    if (file.size > 2 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
-        description: `O tamanho máximo permitido é ${isVideo ? '10MB' : '2MB'}.`,
+        description: "O tamanho máximo permitido é 2MB.",
         variant: "destructive"
       });
       return;
@@ -161,8 +148,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
       if (event.target?.result) {
         handleChange('avatar', event.target.result.toString());
         toast({
-          title: `${isVideo ? 'Vídeo' : 'Avatar'} atualizado`,
-          description: `Sua foto de perfil foi atualizada com sucesso.`
+          title: "Avatar atualizado",
+          description: "Sua foto de perfil foi atualizada com sucesso."
         });
       }
     };
@@ -252,6 +239,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     videoInputRef.current?.click();
   };
 
+  // Função para renderizar avatar baseado no formato selecionado
   const renderAvatarPreview = () => {
     const baseClasses = "h-24 w-24";
     let shapeClasses = "";
@@ -276,19 +264,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
         shapeClasses = "rounded-full";
     }
 
-    if (profile.avatar && profile.avatar.startsWith('data:video/')) {
-      return (
-        <video 
-          className={`${baseClasses} ${shapeClasses} object-cover`}
-          src={profile.avatar}
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      );
-    }
-
     return (
       <Avatar className={`${baseClasses} ${shapeClasses}`}>
         <AvatarImage src={profile.avatar} />
@@ -297,23 +272,11 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     );
   };
 
-  const SectionTitle = ({ children }: { children: React.ReactNode }) => (
-    <div className="mb-6">
-      <h3 className="text-xl font-semibold mb-2">{children}</h3>
-      <div className="flex justify-center">
-        <div 
-          className="h-0.5 bg-purple-600" 
-          style={{ width: `${children?.toString().length || 0}ch` }}
-        />
-      </div>
-    </div>
-  );
-
   return (
     <div className="space-y-8">
       {/* Perfil */}
       <div className="space-y-6">
-        <SectionTitle>Perfil</SectionTitle>
+        <h3 className="text-xl font-semibold">Perfil</h3>
         
         <div className="space-y-4 p-4 border rounded-lg bg-white">
           <div className="flex items-center justify-between">
@@ -376,19 +339,18 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             onClick={() => fileInputRef.current?.click()}
           >
             <Upload className="mr-2 h-4 w-4" />
-            Carregar foto/vídeo
+            Carregar foto
           </Button>
           <Input
             type="file"
             ref={fileInputRef}
             className="hidden"
-            accept="image/*,video/*"
+            accept="image/*"
             onChange={handleAvatarUpload}
           />
         </div>
         
         <div className="grid grid-cols-1 gap-4">
-          {/* Nome de Exibição */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="name">Nome de exibição</Label>
@@ -410,48 +372,18 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               onChange={(e) => handleChange('name', e.target.value)}
               placeholder="Seu nome"
             />
-          </div>
-
-          {/* Cor do Nome */}
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="nameColor">Cor do nome:</Label>
-            <input 
-              type="color"
-              id="nameColor"
-              value={profile.nameColor || "#000000"}
-              onChange={(e) => handleChange('nameColor', e.target.value)}
-              className="w-8 h-8 rounded p-0 border-0"
-            />
-          </div>
-
-          {/* Descrição */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="bio">Descrição</Label>
-              <span className="text-sm text-gray-500">{profile.bio.length}/60</span>
+            <div className="flex items-center space-x-2 mt-1">
+              <Label htmlFor="nameColor">Cor do nome:</Label>
+              <input 
+                type="color"
+                id="nameColor"
+                value={profile.nameColor || "#000000"}
+                onChange={(e) => handleChange('nameColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
             </div>
-            <Input 
-              id="bio"
-              value={profile.bio}
-              onChange={(e) => handleChange('bio', e.target.value.substring(0, 60))}
-              placeholder="Uma breve descrição sobre você"
-              maxLength={60}
-            />
-          </div>
-
-          {/* Cor da Descrição */}
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="bioColor">Cor da descrição:</Label>
-            <input 
-              type="color"
-              id="bioColor"
-              value={profile.bioColor || "#666666"}
-              onChange={(e) => handleChange('bioColor', e.target.value)}
-              className="w-8 h-8 rounded p-0 border-0"
-            />
           </div>
           
-          {/* Username */}
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <div className="flex items-center space-x-2">
@@ -479,18 +411,40 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 <Label htmlFor="premium" className="text-sm">Remover marca (Premium)</Label>
               </div>
             </div>
+            <div className="flex items-center space-x-2 mt-2">
+              <Label htmlFor="usernameColor">Cor do link:</Label>
+              <input 
+                type="color"
+                id="usernameColor"
+                value={profile.usernameColor || "#666666"}
+                onChange={(e) => handleChange('usernameColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
+            </div>
           </div>
-
-          {/* Cor do Link */}
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="usernameColor">Cor do link:</Label>
-            <input 
-              type="color"
-              id="usernameColor"
-              value={profile.usernameColor || "#666666"}
-              onChange={(e) => handleChange('usernameColor', e.target.value)}
-              className="w-8 h-8 rounded p-0 border-0"
+          
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="bio">Descrição</Label>
+              <span className="text-sm text-gray-500">{profile.bio.length}/60</span>
+            </div>
+            <Input 
+              id="bio"
+              value={profile.bio}
+              onChange={(e) => handleChange('bio', e.target.value.substring(0, 60))}
+              placeholder="Uma breve descrição sobre você"
+              maxLength={60}
             />
+            <div className="flex items-center space-x-2 mt-1">
+              <Label htmlFor="bioColor">Cor da descrição:</Label>
+              <input 
+                type="color"
+                id="bioColor"
+                value={profile.bioColor || "#666666"}
+                onChange={(e) => handleChange('bioColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
+            </div>
           </div>
           
           <div className="space-y-2">
@@ -512,22 +466,21 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </Select>
           </div>
         </div>
-      </div>
-
-      {/* Redes Sociais */}
-      <div className="space-y-6">
-        <SectionTitle>Redes Sociais</SectionTitle>
         
+        {/* Redes sociais com ícones corretos */}
         <div className="space-y-2">
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="socialColor">Cor dos ícones:</Label>
-            <input 
-              type="color"
-              id="socialColor"
-              value={profile.socialIconsColor || "#6A0DAD"}
-              onChange={(e) => handleChange('socialIconsColor', e.target.value)}
-              className="w-8 h-8 rounded p-0 border-0"
-            />
+          <div className="flex items-center justify-between">
+            <Label>Redes sociais</Label>
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="socialColor">Cor dos ícones:</Label>
+              <input 
+                type="color"
+                id="socialColor"
+                value={profile.socialIconsColor || "#6A0DAD"}
+                onChange={(e) => handleChange('socialIconsColor', e.target.value)}
+                className="w-8 h-8 rounded p-0"
+              />
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -582,6 +535,14 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
+              <Github className="h-5 w-5" />
+              <Input 
+                value={profile.socialIcons.github || ''}
+                onChange={(e) => handleSocialChange('github', e.target.value)}
+                placeholder="@seugithub"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
               <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
                 <div className="h-2 w-2 bg-black rounded-full"></div>
               </div>
@@ -601,39 +562,13 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 placeholder="+5511999999999"
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <div className="h-5 w-5 rounded bg-black flex items-center justify-center text-white text-xs font-bold">
-                @
-              </div>
-              <Input 
-                value={profile.socialIcons.threads || ''}
-                onChange={(e) => handleSocialChange('threads', e.target.value)}
-                placeholder="@seuthread"
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Send className="h-5 w-5 text-blue-500" />
-              <Input 
-                value={profile.socialIcons.telegram || ''}
-                onChange={(e) => handleSocialChange('telegram', e.target.value)}
-                placeholder="@seutelegram"
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Mail className="h-5 w-5 text-gray-600" />
-              <Input 
-                value={profile.socialIcons.email || ''}
-                onChange={(e) => handleSocialChange('email', e.target.value)}
-                placeholder="seu@email.com"
-              />
-            </div>
           </div>
         </div>
       </div>
       
       {/* Background */}
       <div className="space-y-6">
-        <SectionTitle>Background</SectionTitle>
+        <h3 className="text-xl font-semibold">Background</h3>
         
         <div className="space-y-4">
           <div className="space-y-2">
@@ -680,7 +615,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               <Label>Degradê Personalizado</Label>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="gradientColor1">Cor A</Label>
+                  <Label htmlFor="gradientColor1">Primeira cor</Label>
                   <div className="flex items-center space-x-2">
                     <Input 
                       type="color"
@@ -697,7 +632,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gradientColor2">Cor B</Label>
+                  <Label htmlFor="gradientColor2">Segunda cor</Label>
                   <div className="flex items-center space-x-2">
                     <Input 
                       type="color"
@@ -786,7 +721,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                         autoPlay
                         muted={profile.backgroundVideoMuted}
                         loop
-                        playsInline
                         controls={false}
                       />
                     )}
@@ -904,12 +838,13 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
       
       {/* Efeitos Visuais */}
       <div className="space-y-6">
-        <SectionTitle>Efeitos Visuais</SectionTitle>
+        <h3 className="text-xl font-semibold">Efeitos Visuais</h3>
         
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="visualEffect">Efeitos disponíveis</Label>
             
+            {/* Grid com 3 linhas de efeitos visuais */}
             <div className="grid grid-cols-3 gap-3 min-h-[300px]">
               {visualEffects.map(effect => (
                 <div 
