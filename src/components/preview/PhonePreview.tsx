@@ -12,11 +12,11 @@ import {
   X
 } from 'lucide-react';
 import VisualBackgroundEffect from '@/components/effects/VisualBackgroundEffect';
-import { UserProfile, Link } from '@/pages/Dashboard';
+import { UserProfile, LinkType } from '@/pages/Dashboard';
 
 interface PhonePreviewProps {
   profile: UserProfile;
-  links: Link[];
+  links: LinkType[];
 }
 
 const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links }) => {
@@ -368,11 +368,6 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links }) => {
                     <h3 className="font-medium text-white drop-shadow-sm">
                       {link.title}
                     </h3>
-                    {link.description && (
-                      <p className="text-xs text-white/70 drop-shadow-sm">
-                        {link.description}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>

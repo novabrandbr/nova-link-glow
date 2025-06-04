@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import LinksPanel from "@/components/panels/LinksPanel";
@@ -82,6 +81,9 @@ export type UserProfile = {
     spotify?: string;
     twitch?: string;
     discord?: string;
+    threads?: string;
+    telegram?: string;
+    email?: string;
   };
   socialIconsColor?: string;
   isPremium: boolean;
@@ -311,8 +313,12 @@ const Dashboard = () => {
         return (
           <div className="flex flex-col h-full">
             <MinisiteTabs 
-              activeTab={activeMinisiteTab} 
-              setActiveTab={setActiveMinisiteTab} 
+              profile={profile}
+              setProfile={setProfile}
+              links={links}
+              setLinks={setLinks}
+              pageStyle={pageStyle}
+              setPageStyle={setPageStyle}
             />
             <div className="p-6 flex-1 overflow-auto" ref={panelRef}>
               {renderMinisiteTab()}
@@ -348,8 +354,6 @@ const Dashboard = () => {
               <PhonePreview 
                 profile={profile} 
                 links={links} 
-                audioSettings={audioSettings}
-                pageStyle={pageStyle}
               />
             </div>
           </div>

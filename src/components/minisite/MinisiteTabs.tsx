@@ -6,13 +6,13 @@ import LinksTab from './LinksTab';
 import PageStylesTab from './PageStylesTab';
 import AudioTab from './AudioTab';
 import AITab from './AITab';
-import { UserProfile, PageStyle, Link } from '@/pages/Dashboard';
+import { UserProfile, PageStyle, LinkType } from '@/pages/Dashboard';
 
 interface MinisiteTabsProps {
   profile: UserProfile;
   setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
-  links: Link[];
-  setLinks: React.Dispatch<React.SetStateAction<Link[]>>;
+  links: LinkType[];
+  setLinks: React.Dispatch<React.SetStateAction<LinkType[]>>;
   pageStyle: PageStyle;
   setPageStyle: React.Dispatch<React.SetStateAction<PageStyle>>;
 }
