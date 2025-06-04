@@ -63,7 +63,7 @@ const AITab: React.FC<AITabProps> = ({ pageStyle, setPageStyle }) => {
     let newStyle: Partial<PageStyle> = {};
     
     // Style type detection based on keywords
-    if (promptLower.includes('novabrandflix') || promptLower.includes('filme') || promptLower.includes('série')) {
+    if (promptLower.includes('netflix') || promptLower.includes('filme') || promptLower.includes('série')) {
       newStyle.type = 'novabrandflix';
     } else if (promptLower.includes('revista') || promptLower.includes('magazine')) {
       newStyle.type = 'magazine';
@@ -206,7 +206,7 @@ const AITab: React.FC<AITabProps> = ({ pageStyle, setPageStyle }) => {
       <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
         <h3 className="font-semibold mb-2">Sugestões de prompts:</h3>
         <ul className="space-y-2 text-sm text-gray-600">
-          <li>• "Crie um estilo NovaBrandFlix com cards horizontais e overlay gradiente escuro"</li>
+          <li>• "Crie um estilo Netflix com cards horizontais e overlay gradiente escuro"</li>
           <li>• "Quero um tema brasileiro tropical com cores vibrantes"</li>
           <li>• "Estilo Y2K com elementos brilhantes e cores dos anos 2000"</li>
           <li>• "Layout Windows 98 retrô com aparência de sistema operacional antigo"</li>
