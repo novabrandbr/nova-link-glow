@@ -78,10 +78,12 @@ export type UserProfile = {
     pinterest?: string;
     linkedin?: string;
     whatsapp?: string;
-    github?: string;
     spotify?: string;
     twitch?: string;
     discord?: string;
+    threads?: string;
+    telegram?: string;
+    email?: string;
   };
   socialIconsColor?: string;
   isPremium: boolean;
