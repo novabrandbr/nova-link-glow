@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import VisualEffect from '@/components/effects/VisualEffect';
+import { VisualEffect } from '@/components/effects/VisualEffect';
 import { 
   Instagram, 
   Facebook, 
@@ -157,6 +156,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile }) => {
             muted={profile.backgroundVideoMuted}
             loop
             playsInline
+            style={{ volume: profile.backgroundVideoVolume || 0 }}
           />
         );
       }
@@ -334,7 +334,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile }) => {
       {/* Visual Effects */}
       {profile.visualEffect !== 'none' && (
         <VisualEffect
-          type={profile.visualEffect}
+          effect={profile.visualEffect}
           color={profile.visualEffectColor}
           opacity={profile.visualEffectOpacity}
           speed={profile.visualEffectSpeed}
