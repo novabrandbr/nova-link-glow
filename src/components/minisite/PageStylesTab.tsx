@@ -188,7 +188,7 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
     }
   ];
 
-  const renderStyleGrid = (styles: Array<{ id: PageStyle['type']; name: string; description: string }>) => (
+  const renderStyleGrid = (styles: typeof popularStyles) => (
     <div className="grid grid-cols-2 gap-4">
       {styles.map((style) => (
         <div
