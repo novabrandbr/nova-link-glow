@@ -23,7 +23,9 @@ import {
   Linkedin, 
   Github, 
   MessageSquare, 
-  X 
+  X,
+  Mail,
+  Send
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
@@ -357,21 +359,34 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           )}
         </div>
         
-        {/* Upload de avatar - sempre visível */}
-        <div className="flex items-center space-x-4">
-          {renderAvatarPreview()}
-          <Button 
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Carregar foto/vídeo
-          </Button>
+        {/* Upload de avatar com layout especificado */}
+        <div className="space-y-4">
+          <div className="flex items-center space-x-4 mb-4">
+            {renderAvatarPreview()}
+          </div>
+          
+          {/* Campo de upload com layout exato conforme especificado */}
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
+            <div className="flex flex-col items-center space-y-3">
+              <Upload className="h-8 w-8 text-gray-400" />
+              <p className="text-sm text-gray-600">
+                Arraste uma imagem/vídeo ou clique para fazer upload
+              </p>
+              <Button 
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-2"
+              >
+                {profile.avatar ? 'Substituir arquivo' : 'Selecionar arquivo'}
+              </Button>
+            </div>
+          </div>
+          
           <Input
             type="file"
             ref={fileInputRef}
             className="hidden"
-            accept="image/*,video/*"
+            accept="image/jpg,image/jpeg,image/png,image/webp,video/mp4,video/webm,video/mov"
             onChange={handleAvatarUpload}
           />
         </div>
@@ -609,6 +624,22 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 value={profile.socialIcons.whatsapp || ''}
                 onChange={(e) => handleSocialChange('whatsapp', e.target.value)}
                 placeholder="+5511999999999"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Send className="h-5 w-5 text-blue-500" />
+              <Input 
+                value={profile.socialIcons.telegram || ''}
+                onChange={(e) => handleSocialChange('telegram', e.target.value)}
+                placeholder="@seutelegram"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Mail className="h-5 w-5 text-gray-600" />
+              <Input 
+                value={profile.socialIcons.email || ''}
+                onChange={(e) => handleSocialChange('email', e.target.value)}
+                placeholder="seu@email.com"
               />
             </div>
           </div>
