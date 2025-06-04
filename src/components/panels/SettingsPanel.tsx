@@ -4,12 +4,26 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { useLanguage } from '@/hooks/useLanguage';
+import { Eye, EyeOff } from 'lucide-react';
 
 const SettingsPanel = () => {
   const { toast } = useToast();
+  const { currentLanguage, changeLanguage, languages, t } = useLanguage();
   const [activeTab, setActiveTab] = useState("account");
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+  const [passwordData, setPasswordData] = useState({
+    current: '',
+    new: '',
+    confirm: ''
+  });
   
   const handleSave = () => {
     toast({
@@ -18,9 +32,17 @@ const SettingsPanel = () => {
     });
   };
 
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const togglePasswordVisibility = (field: string) => {
+    setShowPassword(prev => ({ ...prev, [field]: !prev[field as keyof typeof prev] }));
+  };
+
   return (
     <div className="p-6 max-w-4xl">
-      <h1 className="text-2xl font-bold mb-6">Configurações Avançadas</h1>
+      <h1 className="text-2xl font-bold mb-6">Configurações</h1>
       
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
@@ -42,19 +64,71 @@ const SettingsPanel = () => {
             <Input id="email" type="email" defaultValue="john@example.com" />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="current-password">Senha atual</Label>
-            <Input id="current-password" type="password" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="new-password">Nova senha</Label>
-            <Input id="new-password" type="password" />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="confirm-password">Confirmar nova senha</Label>
-            <Input id="confirm-password" type="password" />
+          {/* Seção de Segurança movida para cá */}
+          <div className="pt-6 border-t">
+            <h3 className="text-lg font-semibold mb-4">Segurança</h3>
+            
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="current-password">Senha atual</Label>
+                <div className="relative">
+                  <Input
+                    id="current-password"
+                    type={showPassword.current ? "text" : "password"}
+                    value={passwordData.current}
+                    onChange={(e) => handlePasswordChange('current', e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => togglePasswordVisibility('current')}
+                  >
+                    {showPassword.current ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="new-password">Nova senha</Label>
+                <div className="relative">
+                  <Input
+                    id="new-password"
+                    type={showPassword.new ? "text" : "password"}
+                    value={passwordData.new}
+                    onChange={(e) => handlePasswordChange('new', e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => togglePasswordVisibility('new')}
+                  >
+                    {showPassword.new ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="confirm-password">Confirmar nova senha</Label>
+                <div className="relative">
+                  <Input
+                    id="confirm-password"
+                    type={showPassword.confirm ? "text" : "password"}
+                    value={passwordData.confirm}
+                    onChange={(e) => handlePasswordChange('confirm', e.target.value)}
+                    className="pr-10"
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500"
+                    onClick={() => togglePasswordVisibility('confirm')}
+                  >
+                    {showPassword.confirm ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
           
           <Button onClick={handleSave}>Salvar alterações</Button>
@@ -101,12 +175,25 @@ const SettingsPanel = () => {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="language">Idioma</Label>
-              <select id="language" className="w-full p-2 border rounded-md">
-                <option>Português (Brasil)</option>
-                <option>English</option>
-                <option>Español</option>
-              </select>
+              <Label htmlFor="language">Idioma da plataforma</Label>
+              <Select value={currentLanguage} onValueChange={changeLanguage}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map((lang) => (
+                    <SelectItem key={lang.code} value={lang.code}>
+                      <div className="flex items-center space-x-2">
+                        <span>{lang.flag}</span>
+                        <span>{lang.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-sm text-gray-500">
+                Alterar o idioma mudará toda a interface da plataforma
+              </p>
             </div>
           </div>
           
