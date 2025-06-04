@@ -61,57 +61,27 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
       id: 'recipe' as const, 
       name: 'Receita de Bolo', 
       description: 'Visual tipo receita com ingredientes como links' 
-    },
-    { 
-      id: 'reality' as const, 
-      name: 'Reality Show', 
-      description: 'Cards grandes com destaque visual e estilo LED "AO VIVO"' 
-    },
-    { 
-      id: 'vhs' as const, 
-      name: 'VHS/K7', 
-      description: 'Efeito VHS com glitch e visual retrô' 
-    },
-    { 
-      id: 'y2k' as const, 
-      name: 'Y2K', 
-      description: 'Chrome metálico com cores anos 2000 e brilhos nostálgicos' 
-    },
-    { 
-      id: 'connected' as const, 
-      name: 'Linha Conectada', 
-      description: 'Cards ligados por linha animada em layout contínuo' 
-    },
-    { 
-      id: 'timeline' as const, 
-      name: 'Linha do Tempo', 
-      description: 'Eventos em timeline vertical com datas e ícones' 
-    },
-    { 
-      id: 'orbit' as const, 
-      name: 'Órbita Espacial', 
-      description: 'Links como planetas girando com fundo estelar' 
     }
   ];
 
   const politicalStyles = [
     { 
-      id: 'political' as const, 
+      id: 'traditional' as const, 
       name: 'Lula Verso', 
       description: 'Fundo vermelho vibrante com estrela branca do PT' 
     },
     { 
-      id: 'brazilian' as const, 
+      id: 'novabrandflix' as const, 
       name: 'Mytho Style', 
       description: 'Fundo verde e amarelo com elementos patrióticos' 
     },
     { 
-      id: 'american' as const, 
+      id: 'magazine' as const, 
       name: 'Trump Tower', 
       description: 'Fundo dourado e azul com águia americana' 
     },
     { 
-      id: 'marketing' as const, 
+      id: 'polaroid' as const, 
       name: 'Putin Power', 
       description: 'Fundo escuro com símbolos da Rússia' 
     }
@@ -119,70 +89,65 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
 
   const countryStyles = [
     { 
-      id: 'brazilian' as const, 
+      id: 'traditional' as const, 
       name: 'Brasil Tropical', 
       description: 'Fundo com coqueiros, céu azul e cores vivas' 
     },
     { 
-      id: 'american' as const, 
+      id: 'novabrandflix' as const, 
       name: 'Estados Unidos Estrelado', 
       description: 'Fundo com bandeira dos EUA e estrelas animadas' 
     },
     { 
-      id: 'political' as const, 
+      id: 'magazine' as const, 
       name: 'Rússia Soviética', 
       description: 'Fundo vermelho escuro com estética vintage' 
     },
     { 
-      id: 'magazine' as const, 
+      id: 'polaroid' as const, 
       name: 'França Chique', 
       description: 'Fundo com torre Eiffel e tipografia serifada' 
     },
     { 
-      id: 'traditional' as const, 
+      id: 'arcade' as const, 
       name: 'Portugal Azulejos', 
       description: 'Padrão tradicional de azulejos portugueses' 
     },
     { 
-      id: 'y2k' as const, 
+      id: 'recipe' as const, 
       name: 'Espanha Flamenca', 
       description: 'Cores quentes com ícones de dança flamenca' 
-    },
-    { 
-      id: 'arcade' as const, 
-      name: 'China Tradicional', 
-      description: 'Fundo vermelho com dourado e lanternas' 
     }
   ];
 
   const creativeStyles = [
     { 
-      id: 'stepbystep' as const, 
+      id: 'traditional' as const, 
       name: 'Caderno de Colégio', 
       description: 'Fundo com linhas azuis e rabiscos escolares' 
     },
     { 
-      id: 'reality' as const, 
+      id: 'novabrandflix' as const, 
       name: 'Meme BR', 
       description: 'Molduras de memes com tipografia impact bold' 
     },
     { 
-      id: 'vhs' as const, 
+      id: 'magazine' as const, 
       name: 'Windows 98 Retro', 
       description: 'Layout com janelas cinza e ícones pixelados' 
     },
     { 
-      id: 'recipe' as const, 
+      id: 'polaroid' as const, 
       name: 'Papel de Pão', 
       description: 'Fundo bege texturizado de saco de padaria' 
     },
     { 
-      id: 'orbit' as const, 
+      id: 'arcade' as const, 
       name: 'Link Verso', 
       description: 'Fundo cósmico com partículas e efeitos flutuantes' 
     },
     { 
-      id: 'stepbystep' as const, 
+      id: 'recipe' as const, 
       name: 'Passo a Passo', 
       description: 'Fundo com linhas pontilhadas e cards numerados' 
     }
