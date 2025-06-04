@@ -19,8 +19,10 @@ import {
   Instagram, 
   Facebook, 
   Youtube, 
+  Music, 
   Linkedin, 
   Github, 
+  MessageSquare, 
   X 
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
@@ -239,7 +241,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
 
   // Função para renderizar avatar baseado no formato selecionado
   const renderAvatarPreview = () => {
-    const baseClasses = profile.avatarShape === 'banner' ? "h-16 w-full" : "h-24 w-24";
+    const baseClasses = "h-24 w-24";
     let shapeClasses = "";
     
     switch (profile.avatarShape) {
@@ -256,7 +258,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
         shapeClasses = "clip-path-hexagon";
         break;
       case 'banner':
-        shapeClasses = "rounded-lg";
+        shapeClasses = "w-full h-16 rounded-none";
         break;
       default:
         shapeClasses = "rounded-full";
@@ -465,7 +467,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           </div>
         </div>
         
-        {/* Redes sociais com ícones oficiais */}
+        {/* Redes sociais com ícones corretos */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label>Redes sociais</Label>
@@ -613,7 +615,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               <Label>Degradê Personalizado</Label>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="gradientColor1">Color A</Label>
+                  <Label htmlFor="gradientColor1">Primeira cor</Label>
                   <div className="flex items-center space-x-2">
                     <Input 
                       type="color"
@@ -630,7 +632,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gradientColor2">Color B</Label>
+                  <Label htmlFor="gradientColor2">Segunda cor</Label>
                   <div className="flex items-center space-x-2">
                     <Input 
                       type="color"
@@ -699,23 +701,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 accept="image/*"
                 onChange={handleBackgroundImageUpload}
               />
-              <div className="space-y-2">
-                <Label htmlFor="extendedColor">Cor da área estendida:</Label>
-                <div className="flex items-center space-x-2">
-                  <Input 
-                    type="color"
-                    id="extendedColor"
-                    value={profile.backgroundExtendedColor || "#FFFFFF"}
-                    onChange={(e) => handleChange('backgroundExtendedColor', e.target.value)}
-                    className="w-16 h-10"
-                  />
-                  <Input 
-                    value={profile.backgroundExtendedColor || "#FFFFFF"}
-                    onChange={(e) => handleChange('backgroundExtendedColor', e.target.value)}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
             </div>
           )}
           
