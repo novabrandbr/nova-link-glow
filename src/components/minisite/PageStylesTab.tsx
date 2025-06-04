@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { PageStyle } from '@/pages/Dashboard';
 import { Label } from '@/components/ui/label';
@@ -53,9 +52,9 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
               onValueChange={(value) => handleStyleChange(value as PageStyle['type'])}
               className="grid grid-cols-2 gap-4"
             >
-              <div className={`border-2 rounded-lg p-4 ${pageStyle.type === 'netflix' ? 'border-purple-500' : 'border-gray-200'}`}>
-                <RadioGroupItem value="netflix" id="netflix" className="sr-only" />
-                <Label htmlFor="netflix" className="cursor-pointer">
+              <div className={`border-2 rounded-lg p-4 ${pageStyle.type === 'novabrandflix' ? 'border-purple-500' : 'border-gray-200'}`}>
+                <RadioGroupItem value="novabrandflix" id="novabrandflix" className="sr-only" />
+                <Label htmlFor="novabrandflix" className="cursor-pointer">
                   <div className="aspect-video bg-gray-100 rounded mb-2 flex items-center justify-center">
                     <div className="w-full p-2">
                       <div className="grid grid-cols-2 gap-2 w-full">
@@ -619,7 +618,7 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
       </Tabs>
       
       {/* Netflix Card Settings */}
-      {pageStyle.type === 'netflix' && (
+      {pageStyle.type === 'novabrandflix' && (
         <Card className="mt-6">
           <CardContent className="pt-6">
             <h4 className="font-medium text-lg mb-4">Configurações do Card Netflix</h4>

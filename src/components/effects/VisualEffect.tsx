@@ -520,18 +520,7 @@ const VisualEffect: React.FC<VisualEffectProps> = ({ profile }) => {
             animation: `oceanWaves ${6 + i * 1.5/speed}s ease-in-out infinite`,
             animationDelay: `${i * 0.8}s`,
             opacity: opacity * (0.9 - i * 0.1),
-            pointerEvents: 'none',
-            '::before': {
-              content: '""',
-              position: 'absolute',
-              top: '-5px',
-              left: '10%',
-              right: '10%',
-              height: '10px',
-              background: 'rgba(255,255,255,0.6)',
-              borderRadius: '50%',
-              filter: 'blur(2px)'
-            }
+            pointerEvents: 'none'
           }} 
         />
       );
