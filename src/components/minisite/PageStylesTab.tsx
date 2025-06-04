@@ -1,12 +1,10 @@
-
-import React from 'react';
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageStyle } from "@/pages/Dashboard";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
+import React, { useState } from 'react';
+import { PageStyle } from '@/pages/Dashboard';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import StylePreview from './StylePreview';
 
 interface PageStylesTabProps {
   pageStyle: PageStyle;
@@ -14,144 +12,262 @@ interface PageStylesTabProps {
 }
 
 const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }) => {
-  const styles = [
+  const [activeTab, setActiveTab] = useState('popular');
+
+  const handleStyleChange = (newType: PageStyle['type']) => {
+    setPageStyle(prev => ({
+      ...prev,
+      type: newType
+    }));
+  };
+
+  const handleCardSettingChange = (setting: keyof NonNullable<PageStyle['cardSettings']>, value: any) => {
+    setPageStyle(prev => ({
+      ...prev,
+      cardSettings: {
+        ...prev.cardSettings,
+        [setting]: value
+      }
+    }));
+  };
+
+  const popularStyles = [
     { 
-      id: 'traditional', 
+      id: 'traditional' as const, 
       name: 'Tradicional', 
-      description: 'Design clássico e limpo com botões simples' 
+      description: 'Layout clássico com botões simples e limpos' 
     },
     { 
-      id: 'novabrandflix', 
-      name: 'Nova Brand Flix', 
-      description: 'Layout em grade com cartas verticais. Lembra aquele streaming famoso que termina com Flix.' 
+      id: 'novabrandflix' as const, 
+      name: 'NovaBrandFlix', 
+      description: 'Layout em grade com cartas verticais. Parecido com aquele streaming famoso que termina com Flix.' 
     },
     { 
-      id: 'magazine', 
-      name: 'Revista', 
-      description: 'Estilo editorial com layout de revista' 
+      id: 'magazine' as const, 
+      name: 'Magazine', 
+      description: 'Estilo revista com layout em grade e imagens destacadas' 
     },
     { 
-      id: 'polaroid', 
+      id: 'polaroid' as const, 
       name: 'Polaroid', 
-      description: 'Fotos instantâneas com moldura vintage' 
+      description: 'Fotos instantâneas com moldura branca característica' 
     },
     { 
-      id: 'arcade', 
+      id: 'arcade' as const, 
       name: 'Arcade Retro', 
-      description: 'Fundo escuro, neon, fontes pixeladas, botões estilo fliperama' 
+      description: 'Fundo escuro com neon e tipografia pixelada dos anos 80' 
     },
     { 
-      id: 'recipe', 
+      id: 'recipe' as const, 
       name: 'Receita de Bolo', 
-      description: 'Visual tipo receita, ingredientes como links, fundo papel/lousa' 
+      description: 'Visual tipo receita com ingredientes como links' 
     },
     { 
-      id: 'reality', 
+      id: 'reality' as const, 
       name: 'Reality Show', 
-      description: 'Cards grandes, destaque visual, estilo LED, emojis, "AO VIVO"' 
+      description: 'Cards grandes com destaque visual e estilo LED "AO VIVO"' 
     },
     { 
-      id: 'vhs', 
-      name: 'K7/VHS', 
-      description: 'Efeito VHS, glitch, visual retrô, tipografia grossa' 
+      id: 'vhs' as const, 
+      name: 'VHS/K7', 
+      description: 'Efeito VHS com glitch e visual retrô' 
     },
     { 
-      id: 'y2k', 
+      id: 'y2k' as const, 
       name: 'Y2K', 
-      description: 'Chrome, metálico, cores anos 2000, brilhos e ícones nostálgicos' 
+      description: 'Chrome metálico com cores anos 2000 e brilhos nostálgicos' 
     },
     { 
-      id: 'connected', 
+      id: 'connected' as const, 
       name: 'Linha Conectada', 
-      description: 'Cards ligados por linha animada, layout contínuo' 
+      description: 'Cards ligados por linha animada em layout contínuo' 
     },
     { 
-      id: 'timeline', 
+      id: 'timeline' as const, 
       name: 'Linha do Tempo', 
       description: 'Eventos em timeline vertical com datas e ícones' 
     },
     { 
-      id: 'orbit', 
+      id: 'orbit' as const, 
       name: 'Órbita Espacial', 
-      description: 'Links como planetas girando, fundo estelar, efeitos de órbita' 
+      description: 'Links como planetas girando com fundo estelar' 
     }
   ];
 
-  const handleStyleChange = (styleId: string) => {
-    setPageStyle(prev => ({
-      ...prev,
-      type: styleId as PageStyle['type']
-    }));
-  };
+  const politicalStyles = [
+    { 
+      id: 'political' as const, 
+      name: 'Lula Verso', 
+      description: 'Fundo vermelho vibrante com estrela branca do PT' 
+    },
+    { 
+      id: 'brazilian' as const, 
+      name: 'Mytho Style', 
+      description: 'Fundo verde e amarelo com elementos patrióticos' 
+    },
+    { 
+      id: 'american' as const, 
+      name: 'Trump Tower', 
+      description: 'Fundo dourado e azul com águia americana' 
+    },
+    { 
+      id: 'marketing' as const, 
+      name: 'Putin Power', 
+      description: 'Fundo escuro com símbolos da Rússia' 
+    }
+  ];
+
+  const countryStyles = [
+    { 
+      id: 'brazilian' as const, 
+      name: 'Brasil Tropical', 
+      description: 'Fundo com coqueiros, céu azul e cores vivas' 
+    },
+    { 
+      id: 'american' as const, 
+      name: 'Estados Unidos Estrelado', 
+      description: 'Fundo com bandeira dos EUA e estrelas animadas' 
+    },
+    { 
+      id: 'political' as const, 
+      name: 'Rússia Soviética', 
+      description: 'Fundo vermelho escuro com estética vintage' 
+    },
+    { 
+      id: 'magazine' as const, 
+      name: 'França Chique', 
+      description: 'Fundo com torre Eiffel e tipografia serifada' 
+    },
+    { 
+      id: 'traditional' as const, 
+      name: 'Portugal Azulejos', 
+      description: 'Padrão tradicional de azulejos portugueses' 
+    },
+    { 
+      id: 'y2k' as const, 
+      name: 'Espanha Flamenca', 
+      description: 'Cores quentes com ícones de dança flamenca' 
+    },
+    { 
+      id: 'arcade' as const, 
+      name: 'China Tradicional', 
+      description: 'Fundo vermelho com dourado e lanternas' 
+    }
+  ];
+
+  const creativeStyles = [
+    { 
+      id: 'stepbystep' as const, 
+      name: 'Caderno de Colégio', 
+      description: 'Fundo com linhas azuis e rabiscos escolares' 
+    },
+    { 
+      id: 'reality' as const, 
+      name: 'Meme BR', 
+      description: 'Molduras de memes com tipografia impact bold' 
+    },
+    { 
+      id: 'vhs' as const, 
+      name: 'Windows 98 Retro', 
+      description: 'Layout com janelas cinza e ícones pixelados' 
+    },
+    { 
+      id: 'recipe' as const, 
+      name: 'Papel de Pão', 
+      description: 'Fundo bege texturizado de saco de padaria' 
+    },
+    { 
+      id: 'orbit' as const, 
+      name: 'Link Verso', 
+      description: 'Fundo cósmico com partículas e efeitos flutuantes' 
+    },
+    { 
+      id: 'stepbystep' as const, 
+      name: 'Passo a Passo', 
+      description: 'Fundo com linhas pontilhadas e cards numerados' 
+    }
+  ];
+
+  const renderStyleGrid = (styles: Array<{ id: PageStyle['type']; name: string; description: string }>) => (
+    <div className="grid grid-cols-2 gap-4">
+      {styles.map((style) => (
+        <div
+          key={style.id}
+          className={`p-4 border rounded-lg cursor-pointer transition-all duration-200 ${
+            pageStyle.type === style.id
+              ? 'border-purple-500 bg-purple-50 shadow-md'
+              : 'border-gray-200 hover:border-purple-300 hover:shadow-sm'
+          }`}
+          onClick={() => handleStyleChange(style.id)}
+        >
+          <h3 className="font-semibold text-sm mb-2">{style.name}</h3>
+          <p className="text-xs text-gray-600 mb-3">{style.description}</p>
+          <StylePreview styleType={style.id} />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Estilos Populares</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {styles.map((style) => (
-              <div
-                key={style.id}
-                className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                  pageStyle.type === style.id
-                    ? 'border-[#6A0DAD] bg-purple-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
-                onClick={() => handleStyleChange(style.id)}
-              >
-                <h3 className="font-semibold text-lg">{style.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{style.description}</p>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+      <h2 className="text-2xl font-bold">Estilos de Página</h2>
+      
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="popular">Populares</TabsTrigger>
+          <TabsTrigger value="political">Políticos</TabsTrigger>
+          <TabsTrigger value="countries">Países</TabsTrigger>
+          <TabsTrigger value="creative">Criativos</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="popular" className="space-y-4">
+          {renderStyleGrid(popularStyles)}
+        </TabsContent>
+        
+        <TabsContent value="political" className="space-y-4">
+          {renderStyleGrid(politicalStyles)}
+        </TabsContent>
+        
+        <TabsContent value="countries" className="space-y-4">
+          {renderStyleGrid(countryStyles)}
+        </TabsContent>
+        
+        <TabsContent value="creative" className="space-y-4">
+          {renderStyleGrid(creativeStyles)}
+        </TabsContent>
+      </Tabs>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Configurações do Estilo</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label htmlFor="buttonColor">Cor dos botões</Label>
-            <div className="flex gap-2">
-              <Input
-                id="buttonColor"
-                type="color"
-                value={pageStyle.buttonColor || '#6A0DAD'}
-                onChange={(e) => setPageStyle(prev => ({ 
-                  ...prev, 
-                  buttonColor: e.target.value 
-                }))}
-                className="w-12 h-10 p-1 border-2"
-              />
-              <Input
-                value={pageStyle.buttonColor || '#6A0DAD'}
-                onChange={(e) => setPageStyle(prev => ({ 
-                  ...prev, 
-                  buttonColor: e.target.value 
-                }))}
-                placeholder="#6A0DAD"
-                className="flex-1"
+      {/* Configurações específicas do estilo */}
+      <div className="space-y-4 pt-6 border-t">
+        <h3 className="text-lg font-semibold">Configurações do Card</h3>
+        
+        <div className="grid grid-cols-2 gap-4">
+          {pageStyle.type !== 'traditional' && (
+            <div className="flex items-center justify-between">
+              <Label htmlFor="showLabels">Mostrar rótulos</Label>
+              <Switch
+                id="showLabels"
+                checked={pageStyle.cardSettings?.showLabels || false}
+                onCheckedChange={(checked) => handleCardSettingChange('showLabels', checked)}
               />
             </div>
+          )}
+          
+          <div className="flex items-center justify-between">
+            <Label htmlFor="showOverlay">Mostrar overlay</Label>
+            <Switch
+              id="showOverlay"
+              checked={pageStyle.cardSettings?.showOverlay || false}
+              onCheckedChange={(checked) => handleCardSettingChange('showOverlay', checked)}
+            />
           </div>
-
-          <div>
-            <Label>Proporção dos cards</Label>
-            <Select 
-              value={pageStyle.cardSettings?.aspectRatio || 'landscape'} 
+          
+          <div className="space-y-2">
+            <Label htmlFor="aspectRatio">Proporção</Label>
+            <Select
+              value={pageStyle.cardSettings?.aspectRatio || 'landscape'}
               onValueChange={(value: 'portrait' | 'square' | 'landscape') => 
-                setPageStyle(prev => ({ 
-                  ...prev, 
-                  cardSettings: { 
-                    ...prev.cardSettings, 
-                    aspectRatio: value 
-                  } 
-                }))
+                handleCardSettingChange('aspectRatio', value)
               }
             >
               <SelectTrigger>
@@ -164,19 +280,13 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
               </SelectContent>
             </Select>
           </div>
-
-          <div>
-            <Label>Alinhamento do texto</Label>
-            <Select 
-              value={pageStyle.cardSettings?.textAlign || 'center'} 
+          
+          <div className="space-y-2">
+            <Label htmlFor="textAlign">Alinhamento do texto</Label>
+            <Select
+              value={pageStyle.cardSettings?.textAlign || 'center'}
               onValueChange={(value: 'left' | 'center' | 'right') => 
-                setPageStyle(prev => ({ 
-                  ...prev, 
-                  cardSettings: { 
-                    ...prev.cardSettings, 
-                    textAlign: value 
-                  } 
-                }))
+                handleCardSettingChange('textAlign', value)
               }
             >
               <SelectTrigger>
@@ -189,98 +299,47 @@ const PageStylesTab: React.FC<PageStylesTabProps> = ({ pageStyle, setPageStyle }
               </SelectContent>
             </Select>
           </div>
+        </div>
 
-          {pageStyle.type !== 'traditional' && (
-            <div className="flex items-center justify-between">
-              <Label htmlFor="showLabels">Mostrar rótulos</Label>
-              <Switch
-                id="showLabels"
-                checked={pageStyle.cardSettings?.showLabels || false}
-                onCheckedChange={(checked) => setPageStyle(prev => ({ 
-                  ...prev, 
-                  cardSettings: { 
-                    ...prev.cardSettings, 
-                    showLabels: checked 
-                  } 
-                }))}
-              />
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <Label htmlFor="showOverlay">Mostrar overlay</Label>
-            <Switch
-              id="showOverlay"
-              checked={pageStyle.cardSettings?.showOverlay || false}
-              onCheckedChange={(checked) => setPageStyle(prev => ({ 
-                ...prev, 
-                cardSettings: { 
-                  ...prev.cardSettings, 
-                  showOverlay: checked 
-                } 
-              }))}
-            />
-          </div>
-
-          {pageStyle.cardSettings?.showOverlay && (
-            <>
-              <div>
+        {pageStyle.cardSettings?.showOverlay && (
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="font-medium">Configurações do Overlay</h4>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
                 <Label htmlFor="gradientColor">Cor do gradiente</Label>
-                <div className="flex gap-2">
-                  <Input
-                    id="gradientColor"
+                <div className="flex items-center space-x-2">
+                  <input
                     type="color"
+                    id="gradientColor"
                     value={pageStyle.cardSettings?.gradientColor || '#000000'}
-                    onChange={(e) => setPageStyle(prev => ({ 
-                      ...prev, 
-                      cardSettings: { 
-                        ...prev.cardSettings, 
-                        gradientColor: e.target.value 
-                      } 
-                    }))}
-                    className="w-12 h-10 p-1 border-2"
+                    onChange={(e) => handleCardSettingChange('gradientColor', e.target.value)}
+                    className="w-12 h-8 rounded border"
                   />
-                  <Input
-                    value={pageStyle.cardSettings?.gradientColor || '#000000'}
-                    onChange={(e) => setPageStyle(prev => ({ 
-                      ...prev, 
-                      cardSettings: { 
-                        ...prev.cardSettings, 
-                        gradientColor: e.target.value 
-                      } 
-                    }))}
-                    placeholder="#000000"
-                    className="flex-1"
-                  />
+                  <span className="text-sm text-gray-600">
+                    {pageStyle.cardSettings?.gradientColor || '#000000'}
+                  </span>
                 </div>
               </div>
-
-              <div>
-                <Label htmlFor="gradientOpacity">Opacidade do gradiente</Label>
-                <Input
-                  id="gradientOpacity"
+              
+              <div className="space-y-2">
+                <Label htmlFor="gradientOpacity">
+                  Opacidade: {Math.round((pageStyle.cardSettings?.gradientOpacity || 0.5) * 100)}%
+                </Label>
+                <input
                   type="range"
+                  id="gradientOpacity"
                   min="0"
                   max="1"
                   step="0.1"
                   value={pageStyle.cardSettings?.gradientOpacity || 0.5}
-                  onChange={(e) => setPageStyle(prev => ({ 
-                    ...prev, 
-                    cardSettings: { 
-                      ...prev.cardSettings, 
-                      gradientOpacity: parseFloat(e.target.value) 
-                    } 
-                  }))}
+                  onChange={(e) => handleCardSettingChange('gradientOpacity', parseFloat(e.target.value))}
                   className="w-full"
                 />
-                <span className="text-sm text-gray-600">
-                  {Math.round((pageStyle.cardSettings?.gradientOpacity || 0.5) * 100)}%
-                </span>
               </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
