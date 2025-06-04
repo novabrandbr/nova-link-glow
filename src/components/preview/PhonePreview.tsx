@@ -84,7 +84,7 @@ const PhonePreview = ({ profile, links, audioSettings, pageStyle }: PhonePreview
   // Function to render links based on the selected page style
   const renderLinks = () => {
     switch (pageStyle.type) {
-      case "novabrandflix":
+      case "netflix":
         return (
           <div className="w-full mt-6 grid grid-cols-2 gap-3">
             {activeLinks.map((link) => {
