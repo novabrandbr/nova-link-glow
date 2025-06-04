@@ -1,388 +1,397 @@
-
 import React from 'react';
+import { UserProfile } from '@/pages/Dashboard';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
+import { VisualEffect } from '@/components/effects/VisualEffect';
 import { 
   Instagram, 
   Facebook, 
   Youtube, 
   Linkedin, 
-  MessageCircle,
-  Mail,
-  X
+  X,
+  Mail
 } from 'lucide-react';
-import VisualBackgroundEffect from '@/components/effects/VisualBackgroundEffect';
-import { UserProfile, LinkType } from '@/pages/Dashboard';
 
-interface PhonePreviewProps {
+type PhonePreviewProps = {
   profile: UserProfile;
-  links: LinkType[];
-}
+};
 
-const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links }) => {
-  const getBackgroundStyle = () => {
-    const styles: React.CSSProperties = {};
-    
-    switch (profile.backgroundType) {
-      case 'solid':
-        styles.backgroundColor = profile.backgroundColor;
-        break;
-      case 'gradient':
-        const color1 = profile.backgroundGradientColor1 || '#667eea';
-        const color2 = profile.backgroundGradientColor2 || '#764ba2';
-        const opacity = profile.backgroundGradientOpacity || 1;
-        styles.background = `linear-gradient(135deg, ${color1}, ${color2})`;
-        styles.opacity = opacity;
-        break;
-      case 'image':
-        if (profile.backgroundImage) {
-          styles.backgroundImage = `url(${profile.backgroundImage})`;
-          styles.backgroundSize = 'cover';
-          styles.backgroundPosition = 'center';
-          styles.backgroundRepeat = 'no-repeat';
-        }
-        if (profile.backgroundExtendedColor) {
-          styles.backgroundColor = profile.backgroundExtendedColor;
-        }
-        break;
-      case 'video':
-        // Video will be handled by a separate video element
-        break;
-    }
-    
-    return styles;
-  };
-
-  const getFontFamily = (font: string) => {
-    const fontMap: Record<string, string> = {
-      'montserrat': '"Montserrat", sans-serif',
-      'bebas-neue': '"Bebas Neue", cursive',
-      'helvetica-neue': '"Helvetica Neue", Arial, sans-serif',
-      'poppins': '"Poppins", sans-serif',
-      'burbank': '"Burbank Big Condensed", sans-serif',
-      'pixelated': '"Press Start 2P", cursive',
-      'handwritten': '"Kalam", cursive',
-      'roboto': '"Roboto", sans-serif',
-      'open-sans': '"Open Sans", sans-serif',
-      'lato': '"Lato", sans-serif',
-      'playfair': '"Playfair Display", serif',
-      'merriweather': '"Merriweather", serif',
-      'courier-new': '"Courier New", monospace',
-      'georgia': '"Georgia", serif',
-      'verdana': '"Verdana", sans-serif',
-      'impact': '"Impact", sans-serif',
-      'times-new-roman': '"Times New Roman", serif',
-      'arial': '"Arial", sans-serif',
-      'comic-sans': '"Comic Sans MS", cursive',
-      'tahoma': '"Tahoma", sans-serif',
-      'trebuchet': '"Trebuchet MS", sans-serif',
-      'nunito': '"Nunito", sans-serif',
-      'raleway': '"Raleway", sans-serif',
-      'oswald': '"Oswald", sans-serif',
-      'pacifico': '"Pacifico", cursive',
-      'dancing-script': '"Dancing Script", cursive',
-      'quicksand': '"Quicksand", sans-serif'
+const PhonePreview: React.FC<PhonePreviewProps> = ({ profile }) => {
+  // Function to get social icon component by platform
+  const getSocialIcon = (platform: string, handle: string) => {
+    const iconProps = { 
+      size: 20, 
+      color: profile.socialIconsColor || "#6A0DAD",
+      className: "transition-colors hover:scale-110"
     };
     
-    return fontMap[font] || '"Inter", sans-serif';
+    switch (platform) {
+      case 'instagram':
+        return <Instagram {...iconProps} />;
+      case 'facebook':
+        return <Facebook {...iconProps} />;
+      case 'twitter':
+        return <X {...iconProps} />;
+      case 'youtube':
+        return <Youtube {...iconProps} />;
+      case 'tiktok':
+        return (
+          <div 
+            className="w-5 h-5 rounded bg-black flex items-center justify-center text-white text-xs font-bold transition-transform hover:scale-110"
+            style={{ color: profile.socialIconsColor || "#6A0DAD" }}
+          >
+            TT
+          </div>
+        );
+      case 'linkedin':
+        return <Linkedin {...iconProps} />;
+      case 'spotify':
+        return (
+          <div 
+            className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center transition-transform hover:scale-110"
+            style={{ backgroundColor: profile.socialIconsColor || "#1DB954" }}
+          >
+            <div className="h-2 w-2 bg-black rounded-full"></div>
+          </div>
+        );
+      case 'whatsapp':
+        return (
+          <div 
+            className="w-5 h-5 rounded bg-green-500 flex items-center justify-center text-white text-xs font-bold transition-transform hover:scale-110"
+            style={{ backgroundColor: profile.socialIconsColor || "#25D366" }}
+          >
+            W
+          </div>
+        );
+      case 'telegram':
+        return (
+          <div 
+            className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold transition-transform hover:scale-110"
+            style={{ backgroundColor: profile.socialIconsColor || "#0088CC" }}
+          >
+            T
+          </div>
+        );
+      case 'threads':
+        return (
+          <div 
+            className="w-5 h-5 rounded bg-black flex items-center justify-center text-white text-xs font-bold transition-transform hover:scale-110"
+            style={{ color: profile.socialIconsColor || "#000000" }}
+          >
+            @
+          </div>
+        );
+      case 'email':
+        return <Mail {...iconProps} />;
+      default:
+        return null;
+    }
+  };
+
+  const getPageStyle = () => {
+    // Change from 'netflix' to 'novabrandflix' to match valid style types
+    if (profile.pageStyle === 'novabrandflix') {
+      return 'bg-gradient-to-br from-red-900 via-black to-red-800 text-white';
+    }
+    
+    switch (profile.pageStyle) {
+      case 'traditional':
+        return 'bg-gradient-to-b from-gray-50 to-gray-100';
+      case 'magazine':
+        return 'bg-gradient-to-r from-blue-500 to-purple-600 text-white';
+      case 'polaroid':
+        return 'bg-gradient-to-b from-yellow-100 to-orange-200';
+      case 'arcade':
+        return 'bg-gradient-to-br from-pink-500 via-purple-500 to-blue-500 text-white';
+      case 'recipe':
+        return 'bg-gradient-to-b from-orange-100 to-yellow-200';
+      case 'reality':
+        return 'bg-gradient-to-r from-yellow-400 to-orange-500';
+      case 'y2k':
+        return 'bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 text-white';
+      case 'marketing':
+        return 'bg-gradient-to-r from-blue-600 to-indigo-700 text-white';
+      case 'political':
+        return 'bg-gradient-to-b from-red-700 to-blue-700 text-white';
+      case 'brazilian':
+        return 'bg-gradient-to-r from-green-500 via-yellow-400 to-blue-500';
+      case 'american':
+        return 'bg-gradient-to-r from-red-600 via-white to-blue-600';
+      case 'stepbystep':
+        return 'bg-gradient-to-b from-gray-200 to-gray-400';
+      case 'vhs':
+        return 'bg-gradient-to-br from-purple-900 via-pink-800 to-purple-900 text-white';
+      case 'menu':
+        return 'bg-gradient-to-b from-amber-100 to-orange-200';
+      case 'orbit':
+        return 'bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-900 text-white';
+      default:
+        return 'bg-white';
+    }
+  };
+
+  const renderBackground = () => {
+    if (profile.backgroundType === 'video' && profile.backgroundVideo) {
+      if (profile.backgroundVideo.includes('youtube.com') || profile.backgroundVideo.includes('youtu.be')) {
+        const getYouTubeEmbedUrl = (url: string) => {
+          const videoId = url.includes('watch?v=') 
+            ? url.split('watch?v=')[1]?.split('&')[0]
+            : url.split('youtu.be/')[1]?.split('?')[0];
+          return videoId ? `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}&controls=0` : '';
+        };
+        
+        return (
+          <iframe
+            src={getYouTubeEmbedUrl(profile.backgroundVideo)}
+            className="absolute inset-0 w-full h-full object-cover"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          />
+        );
+      } else {
+        return (
+          <video
+            src={profile.backgroundVideo}
+            className="absolute inset-0 w-full h-full object-cover"
+            autoPlay
+            muted={profile.backgroundVideoMuted}
+            loop
+            playsInline
+            style={{ volume: profile.backgroundVideoVolume || 0 }}
+          />
+        );
+      }
+    }
+    
+    if (profile.backgroundType === 'image' && profile.backgroundImage) {
+      return (
+        <img
+          src={profile.backgroundImage}
+          alt="Background"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      );
+    }
+    
+    if (profile.backgroundType === 'gradient') {
+      const gradientStyle = {
+        background: `linear-gradient(135deg, ${profile.backgroundGradientColor1 || '#667eea'}, ${profile.backgroundGradientColor2 || '#764ba2'})`,
+        opacity: profile.backgroundGradientOpacity || 1
+      };
+      
+      return <div className="absolute inset-0" style={gradientStyle} />;
+    }
+    
+    if (profile.backgroundType === 'solid') {
+      return (
+        <div 
+          className="absolute inset-0"
+          style={{ backgroundColor: profile.backgroundColor }}
+        />
+      );
+    }
+    
+    return null;
   };
 
   const renderAvatar = () => {
-    const baseClasses = profile.avatarShape === 'banner' ? "h-20 w-full max-w-xs mx-auto" : "h-24 w-24 mx-auto";
-    let shapeClasses = "";
-    
-    switch (profile.avatarShape) {
-      case 'square':
-        shapeClasses = "rounded-none";
-        break;
-      case 'rounded':
-        shapeClasses = "rounded-lg";
-        break;
-      case 'triangle':
-        shapeClasses = "rounded-none";
-        break;
-      case 'hexagon':
-        shapeClasses = "rounded-none";
-        break;
-      case 'banner':
-        shapeClasses = "rounded-lg";
-        break;
-      default:
-        shapeClasses = "rounded-full";
-    }
+    const getAvatarClasses = () => {
+      const baseClasses = profile.avatarShape === 'banner' ? "h-16 w-full" : "h-24 w-24 mx-auto";
+      
+      switch (profile.avatarShape) {
+        case 'square':
+          return `${baseClasses} rounded-none`;
+        case 'rounded':
+          return `${baseClasses} rounded-lg`;
+        case 'triangle':
+          return `${baseClasses} clip-path-triangle`;
+        case 'hexagon':
+          return `${baseClasses} clip-path-hexagon`;
+        case 'banner':
+          return `${baseClasses} rounded-lg`;
+        default:
+          return `${baseClasses} rounded-full`;
+      }
+    };
 
     return (
-      <Avatar className={`${baseClasses} ${shapeClasses} border-2 border-white/20`}>
-        {profile.avatar?.startsWith('data:video') ? (
-          <video 
-            src={profile.avatar} 
-            className="w-full h-full object-cover"
-            autoPlay 
-            muted 
-            loop 
-            playsInline
-          />
-        ) : (
-          <AvatarImage src={profile.avatar} />
-        )}
-        <AvatarFallback className="text-lg font-semibold">
-          {profile.name.substring(0, 2).toUpperCase()}
-        </AvatarFallback>
+      <Avatar className={getAvatarClasses()}>
+        <AvatarImage src={profile.avatar} />
+        <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
     );
   };
 
   const renderSocialIcons = () => {
-    const socialLinks = [
-      { key: 'instagram', icon: Instagram, value: profile.socialIcons.instagram, color: 'text-pink-600' },
-      { key: 'facebook', icon: Facebook, value: profile.socialIcons.facebook, color: 'text-blue-600' },
-      { key: 'twitter', icon: X, value: profile.socialIcons.twitter, color: 'text-black' },
-      { key: 'youtube', icon: Youtube, value: profile.socialIcons.youtube, color: 'text-red-600' },
-      { key: 'tiktok', icon: null, value: profile.socialIcons.tiktok, color: 'text-black' },
-      { key: 'linkedin', icon: Linkedin, value: profile.socialIcons.linkedin, color: 'text-blue-700' },
-      { key: 'spotify', icon: null, value: profile.socialIcons.spotify, color: 'text-green-500' },
-      { key: 'whatsapp', icon: null, value: profile.socialIcons.whatsapp, color: 'text-green-500' },
-      { key: 'threads', icon: null, value: profile.socialIcons.threads, color: 'text-black' },
-      { key: 'telegram', icon: MessageCircle, value: profile.socialIcons.telegram, color: 'text-blue-500' },
-      { key: 'email', icon: Mail, value: profile.socialIcons.email, color: 'text-gray-600' }
-    ];
-
-    const activeSocials = socialLinks.filter(social => social.value);
-
-    if (activeSocials.length === 0) return null;
-
+    const socialPlatforms = ['instagram', 'facebook', 'twitter', 'youtube', 'tiktok', 'linkedin', 'spotify', 'whatsapp', 'telegram', 'threads', 'email'];
+    
     return (
       <div className="flex justify-center space-x-4 mt-4">
-        {activeSocials.map(social => {
-          const IconComponent = social.icon;
+        {socialPlatforms.map(platform => {
+          const handle = profile.socialIcons[platform as keyof typeof profile.socialIcons];
+          if (!handle) return null;
           
-          const handleClick = () => {
-            if (social.key === 'email') {
-              window.open(`mailto:${social.value}`, '_blank');
-            } else if (social.key === 'whatsapp') {
-              window.open(`https://wa.me/${social.value.replace(/\D/g, '')}`, '_blank');
-            } else if (social.key === 'telegram') {
-              window.open(`https://t.me/${social.value}`, '_blank');
-            } else {
-              // Handle other social platforms
-              let url = '';
-              switch (social.key) {
-                case 'instagram':
-                  url = `https://instagram.com/${social.value}`;
-                  break;
-                case 'facebook':
-                  url = `https://facebook.com/${social.value}`;
-                  break;
-                case 'twitter':
-                  url = `https://x.com/${social.value}`;
-                  break;
-                case 'youtube':
-                  url = `https://youtube.com/${social.value}`;
-                  break;
-                case 'tiktok':
-                  url = `https://tiktok.com/@${social.value}`;
-                  break;
-                case 'linkedin':
-                  url = `https://linkedin.com/in/${social.value}`;
-                  break;
-                case 'spotify':
-                  url = `https://open.spotify.com/user/${social.value}`;
-                  break;
-                case 'threads':
-                  url = `https://threads.net/@${social.value}`;
-                  break;
-              }
-              if (url) window.open(url, '_blank');
-            }
-          };
-
           return (
-            <button
-              key={social.key}
-              onClick={handleClick}
-              className="p-2 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 transition-all duration-200"
-              style={{ color: profile.socialIconsColor || '#6A0DAD' }}
+            <a
+              key={platform}
+              href={getSocialMediaUrl(platform, handle)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="transition-transform hover:scale-110"
             >
-              {IconComponent ? (
-                <IconComponent className="h-5 w-5" />
-              ) : social.key === 'tiktok' ? (
-                <div className="h-5 w-5 rounded bg-black flex items-center justify-center text-white text-xs font-bold">
-                  TT
-                </div>
-              ) : social.key === 'spotify' ? (
-                <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
-                  <div className="h-2 w-2 bg-black rounded-full"></div>
-                </div>
-              ) : social.key === 'whatsapp' ? (
-                <div className="h-5 w-5 rounded bg-green-500 flex items-center justify-center text-white text-xs font-bold">
-                  W
-                </div>
-              ) : social.key === 'threads' ? (
-                <div className="h-5 w-5 rounded bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 flex items-center justify-center text-white text-xs font-bold">
-                  @
-                </div>
-              ) : null}
-            </button>
+              {getSocialIcon(platform, handle)}
+            </a>
           );
         })}
       </div>
     );
   };
 
-  const profileTextAlign = profile.profileInfoPosition || 'center';
-  const textAlignClass = {
-    left: 'text-left',
-    center: 'text-center',
-    right: 'text-right'
-  }[profileTextAlign];
+  const getSocialMediaUrl = (platform: string, handle: string) => {
+    switch (platform) {
+      case 'instagram':
+        return `https://instagram.com/${handle.replace('@', '')}`;
+      case 'facebook':
+        return `https://facebook.com/${handle.replace('@', '')}`;
+      case 'twitter':
+        return `https://x.com/${handle.replace('@', '')}`;
+      case 'youtube':
+        return `https://youtube.com/${handle.replace('@', '')}`;
+      case 'tiktok':
+        return `https://tiktok.com/@${handle.replace('@', '')}`;
+      case 'linkedin':
+        return `https://linkedin.com/in/${handle.replace('@', '')}`;
+      case 'spotify':
+        return `https://open.spotify.com/user/${handle.replace('@', '')}`;
+      case 'whatsapp':
+        return `https://wa.me/${handle}`;
+      case 'telegram':
+        return `https://t.me/${handle.replace('@', '')}`;
+      case 'threads':
+        return `https://threads.net/@${handle.replace('@', '')}`;
+      case 'email':
+        return `mailto:${handle}`;
+      default:
+        return '#';
+    }
+  };
 
-  const itemsAlignClass = {
-    left: 'items-start',
-    center: 'items-center',
-    right: 'items-end'
-  }[profileTextAlign];
+  const getTextAlignment = () => {
+    switch (profile.profileInfoPosition) {
+      case 'left':
+        return 'text-left';
+      case 'right':
+        return 'text-right';
+      default:
+        return 'text-center';
+    }
+  };
+
+  const getFontFamily = () => {
+    switch (profile.font) {
+      case 'montserrat':
+        return 'font-sans';
+      case 'bebas-neue':
+        return 'font-mono';
+      case 'helvetica-neue':
+        return 'font-sans';
+      case 'poppins':
+        return 'font-sans';
+      case 'burbank':
+        return 'font-bold';
+      case 'pixelated':
+        return 'font-mono';
+      case 'handwritten':
+        return 'font-serif';
+      default:
+        return 'font-sans';
+    }
+  };
 
   return (
-    <div className="relative w-full max-w-sm mx-auto bg-gray-100 rounded-3xl overflow-hidden shadow-2xl">
-      {/* Status bar */}
-      <div className="bg-black text-white text-xs py-2 px-4 flex justify-between items-center">
-        <span>9:41</span>
-        <div className="flex space-x-1">
-          <div className="w-4 h-2 bg-white rounded-sm"></div>
-          <div className="w-1 h-2 bg-white rounded-sm"></div>
-          <div className="w-6 h-2 bg-white rounded-sm"></div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="relative min-h-[600px] overflow-hidden">
-        {/* Background Video */}
-        {profile.backgroundType === 'video' && profile.backgroundVideo && (
-          <>
-            {profile.backgroundVideo.includes('youtube.com') || profile.backgroundVideo.includes('youtu.be') ? (
-              <div className="absolute inset-0 bg-gray-900 flex items-center justify-center">
-                <span className="text-white text-sm">YouTube Video Background</span>
-              </div>
-            ) : (
-              <video
-                className="absolute inset-0 w-full h-full object-cover"
-                autoPlay
-                muted={profile.backgroundVideoMuted}
-                loop
-                playsInline
-                src={profile.backgroundVideo}
-                style={{ 
-                  opacity: profile.backgroundVideoVolume || 0.5 
-                }}
-              />
-            )}
-          </>
-        )}
-
-        {/* Background Style */}
+    <div className="relative w-full h-full overflow-hidden">
+      {/* Background */}
+      {renderBackground()}
+      
+      {/* Extended background color */}
+      {profile.backgroundType === 'image' && profile.backgroundExtendedColor && (
+        <div 
+          className="absolute inset-0 -z-10"
+          style={{ backgroundColor: profile.backgroundExtendedColor }}
+        />
+      )}
+      
+      {/* Overlay */}
+      {profile.overlay && (
         <div 
           className="absolute inset-0"
-          style={getBackgroundStyle()}
+          style={{ 
+            backgroundColor: profile.overlayColor,
+            opacity: profile.overlayOpacity 
+          }}
         />
-
-        {/* Visual Effects */}
-        <VisualBackgroundEffect
-          type={profile.visualEffect}
+      )}
+      
+      {/* Visual Effects */}
+      {profile.visualEffect !== 'none' && (
+        <VisualEffect
+          effect={profile.visualEffect}
           color={profile.visualEffectColor}
           opacity={profile.visualEffectOpacity}
           speed={profile.visualEffectSpeed}
           size={profile.visualEffectSize}
           customUrl={profile.visualEffectCustomUrl}
         />
-
-        {/* Overlay */}
-        {profile.overlay && (
-          <div 
-            className="absolute inset-0"
-            style={{
-              backgroundColor: profile.overlayColor,
-              opacity: profile.overlayOpacity
-            }}
-          />
-        )}
-
-        {/* Content */}
-        <div className="relative z-10 p-6 min-h-[600px] flex flex-col">
-          {profile.showProfileInfo && (
-            <div className={`mb-8 flex flex-col ${itemsAlignClass}`}>
-              <div className="mb-4">
-                {renderAvatar()}
-              </div>
-              
-              <div className={`space-y-2 ${textAlignClass}`} style={{ fontFamily: getFontFamily(profile.font) }}>
-                <div className="flex items-center justify-center space-x-2">
-                  <h1 
-                    className="text-2xl font-bold text-white drop-shadow-lg"
-                    style={{ color: profile.nameColor || '#000000' }}
-                  >
-                    {profile.name}
-                  </h1>
-                  {profile.isVerified && (
-                    <Badge className="bg-blue-500 text-white">
-                      ✓
-                    </Badge>
-                  )}
-                </div>
-                
-                {profile.bio && (
-                  <p 
-                    className="text-sm opacity-90 drop-shadow-sm"
-                    style={{ color: profile.bioColor || '#666666' }}
-                  >
-                    {profile.bio}
-                  </p>
-                )}
-                
-                <p 
-                  className="text-xs opacity-75 drop-shadow-sm"
-                  style={{ color: profile.usernameColor || '#666666' }}
-                >
-                  novabrand.site/{profile.username}
-                </p>
-              </div>
-
-              {renderSocialIcons()}
-            </div>
-          )}
-
-          {/* Links */}
-          <div className="space-y-3 flex-1">
-            {links.map((link) => (
-              <div
-                key={link.id}
-                className="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-all duration-200 cursor-pointer border border-white/20"
-                onClick={() => window.open(link.url, '_blank')}
+      )}
+      
+      {/* Content */}
+      <div className={`relative z-10 p-6 h-full flex flex-col justify-center ${getPageStyle()} ${getFontFamily()}`}>
+        {profile.showProfileInfo && (
+          <div className={`space-y-4 ${getTextAlignment()}`}>
+            {/* Avatar */}
+            {renderAvatar()}
+            
+            {/* Name */}
+            <div className="space-y-1">
+              <h1 
+                className="text-2xl font-bold flex items-center justify-center gap-2"
+                style={{ color: profile.nameColor }}
               >
-                <div className="flex items-center space-x-3">
-                  {link.icon && (
-                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-                      <span className="text-sm">{link.icon}</span>
-                    </div>
-                  )}
-                  <div className="flex-1">
-                    <h3 className="font-medium text-white drop-shadow-sm">
-                      {link.title}
-                    </h3>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Footer */}
-          {!profile.isPremium && (
-            <div className="mt-6 text-center">
-              <p className="text-xs text-white/50 drop-shadow-sm">
-                Powered by NovaBrand
+                {profile.name}
+                {profile.isVerified && (
+                  <span className="text-blue-500">✓</span>
+                )}
+              </h1>
+              
+              {/* Bio */}
+              {profile.bio && (
+                <p 
+                  className="text-sm"
+                  style={{ color: profile.bioColor }}
+                >
+                  {profile.bio}
+                </p>
+              )}
+              
+              {/* Username */}
+              <p 
+                className="text-sm"
+                style={{ color: profile.usernameColor }}
+              >
+                novabrand.site/{profile.username}
               </p>
             </div>
-          )}
-        </div>
+            
+            {/* Social Icons */}
+            {renderSocialIcons()}
+          </div>
+        )}
+        
+        {/* Premium Badge */}
+        {!profile.isPremium && (
+          <div className="absolute bottom-2 right-2 text-xs text-gray-400">
+            Powered by NovaBrand
+          </div>
+        )}
       </div>
     </div>
   );

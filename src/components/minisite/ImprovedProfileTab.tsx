@@ -21,17 +21,16 @@ import {
   Youtube, 
   Linkedin, 
   X,
-  Mail,
-  MessageCircle
+  Mail
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 
-type EnhancedProfileTabProps = {
+type ImprovedProfileTabProps = {
   profile: UserProfile;
   setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
 };
 
-const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setProfile }) => {
+const ImprovedProfileTab: React.FC<ImprovedProfileTabProps> = ({ profile, setProfile }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const backgroundImageRef = useRef<HTMLInputElement>(null);
@@ -50,6 +49,24 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
       }
     }));
   };
+
+  // Google Fonts integration
+  const fontOptions = [
+    { value: 'montserrat', label: 'Montserrat', googleFont: 'Montserrat:wght@400;700' },
+    { value: 'bebas-neue', label: 'Bebas Neue', googleFont: 'Bebas+Neue:wght@400' },
+    { value: 'helvetica-neue', label: 'Helvetica Neue', googleFont: 'Inter:wght@400;700' },
+    { value: 'poppins', label: 'Poppins', googleFont: 'Poppins:wght@400;700' },
+    { value: 'burbank', label: 'Burbank', googleFont: 'Rubik:wght@400;700' },
+    { value: 'pixelated', label: 'Pixelated (Arcade)', googleFont: 'Orbitron:wght@400;700' },
+    { value: 'handwritten', label: 'Handwritten', googleFont: 'Caveat:wght@400;700' },
+    { value: 'roboto', label: 'Roboto', googleFont: 'Roboto:wght@400;700' },
+    { value: 'open-sans', label: 'Open Sans', googleFont: 'Open+Sans:wght@400;700' },
+    { value: 'lato', label: 'Lato', googleFont: 'Lato:wght@400;700' },
+    { value: 'playfair', label: 'Playfair Display', googleFont: 'Playfair+Display:wght@400;700' },
+    { value: 'merriweather', label: 'Merriweather', googleFont: 'Merriweather:wght@400;700' },
+    { value: 'dancing-script', label: 'Dancing Script', googleFont: 'Dancing+Script:wght@400;700' },
+    { value: 'quicksand', label: 'Quicksand', googleFont: 'Quicksand:wght@400;700' }
+  ];
 
   const backgroundOptions = [
     { value: 'solid', label: 'Cor sólida' },
@@ -71,9 +88,9 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
     { value: 'rainlightning', label: 'Chuva com Relâmpagos', icon: '⚡' },
     { value: 'galaxy', label: 'Galáxia / Espaço Sideral', icon: '🌌' },
     { value: 'prism', label: 'Prisma Holográfico', icon: '🔮' },
-    { value: 'binary', label: 'Códigos Binários (Matrix)', icon: '1010' },
     { value: 'vhs', label: 'VHS com Linhas de Ruído', icon: '📼' },
     { value: 'fairydust', label: 'Pó de Fada / Brilho Flutuante', icon: '⭐' },
+    { value: 'emojirain', label: 'Chuva de Emojis', icon: '😊' },
     { value: 'smoke', label: 'Fumaça', icon: '💨' },
     { value: 'fireworks', label: 'Fogos de Artifício', icon: '🎆' },
     { value: 'custom', label: 'Upload Personalizado', icon: '📤' }
@@ -94,44 +111,35 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
     { value: 'right', label: 'Direita' }
   ];
 
-  const fontOptions = [
-    { value: 'montserrat', label: 'Montserrat' },
-    { value: 'bebas-neue', label: 'Bebas Neue' },
-    { value: 'helvetica-neue', label: 'Helvetica Neue' },
-    { value: 'poppins', label: 'Poppins' },
-    { value: 'burbank', label: 'Burbank' },
-    { value: 'pixelated', label: 'Pixelated (Arcade)' },
-    { value: 'handwritten', label: 'Handwritten' },
-    { value: 'roboto', label: 'Roboto' },
-    { value: 'open-sans', label: 'Open Sans' },
-    { value: 'lato', label: 'Lato' },
-    { value: 'playfair', label: 'Playfair Display' },
-    { value: 'merriweather', label: 'Merriweather' },
-    { value: 'courier-new', label: 'Courier New' },
-    { value: 'georgia', label: 'Georgia' },
-    { value: 'verdana', label: 'Verdana' },
-    { value: 'impact', label: 'Impact' },
-    { value: 'times-new-roman', label: 'Times New Roman' },
-    { value: 'arial', label: 'Arial' },
-    { value: 'comic-sans', label: 'Comic Sans MS' },
-    { value: 'tahoma', label: 'Tahoma' },
-    { value: 'trebuchet', label: 'Trebuchet MS' },
-    { value: 'nunito', label: 'Nunito' },
-    { value: 'raleway', label: 'Raleway' },
-    { value: 'oswald', label: 'Oswald' },
-    { value: 'pacifico', label: 'Pacifico' },
-    { value: 'dancing-script', label: 'Dancing Script' },
-    { value: 'quicksand', label: 'Quicksand' }
-  ];
+  // Load Google Font dynamically
+  const loadGoogleFont = (fontData: any) => {
+    if (!fontData.googleFont) return;
+    
+    const existingLink = document.querySelector(`link[href*="${fontData.googleFont}"]`);
+    if (!existingLink) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `https://fonts.googleapis.com/css2?family=${fontData.googleFont}&display=swap`;
+      document.head.appendChild(link);
+    }
+  };
+
+  const handleFontChange = (fontValue: string) => {
+    const selectedFont = fontOptions.find(font => font.value === fontValue);
+    if (selectedFont) {
+      loadGoogleFont(selectedFont);
+      handleChange('font', fontValue);
+    }
+  };
 
   const handleAvatarUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 10 * 1024 * 1024) {
+    if (file.size > 5 * 1024 * 1024) {
       toast({
         title: "Arquivo muito grande",
-        description: "O tamanho máximo permitido é 10MB.",
+        description: "O tamanho máximo permitido é 5MB.",
         variant: "destructive"
       });
       return;
@@ -253,242 +261,283 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
         shapeClasses = "rounded-full";
     }
 
+    if (profile.avatarShape === 'banner' && profile.avatar?.startsWith('data:video')) {
+      return (
+        <video 
+          src={profile.avatar}
+          className={`${baseClasses} ${shapeClasses} object-cover`}
+          autoPlay
+          muted
+          loop
+          playsInline
+        />
+      );
+    }
+
     return (
       <Avatar className={`${baseClasses} ${shapeClasses}`}>
-        {profile.avatar?.startsWith('data:video') ? (
-          <video 
-            src={profile.avatar} 
-            className="w-full h-full object-cover"
-            autoPlay 
-            muted 
-            loop 
-            playsInline
-          />
-        ) : (
-          <AvatarImage src={profile.avatar} />
-        )}
+        <AvatarImage src={profile.avatar} />
         <AvatarFallback>{profile.name.substring(0, 2).toUpperCase()}</AvatarFallback>
       </Avatar>
     );
   };
 
+  const SectionTitle = ({ children }: { children: React.ReactNode }) => (
+    <div className="mb-6">
+      <h3 className="text-xl font-semibold mb-2">{children}</h3>
+      <div className="w-auto h-0.5 bg-purple-600" style={{ width: 'fit-content' }}></div>
+    </div>
+  );
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 max-w-4xl">
       {/* Perfil Section */}
-      <div className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-xl font-semibold">Perfil</h3>
-          <div className="w-16 h-0.5 bg-purple-600 mx-auto mt-2"></div>
-        </div>
+      <div className="border-2 border-purple-200 rounded-lg p-6 bg-purple-50/30">
+        <SectionTitle>Perfil</SectionTitle>
         
-        <div className="space-y-4 p-4 border rounded-lg bg-white">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="showProfileInfo">Mostrar informações do perfil</Label>
-            <Switch 
-              id="showProfileInfo"
-              checked={profile.showProfileInfo}
-              onCheckedChange={(checked) => handleChange('showProfileInfo', checked)}
-            />
-          </div>
-          
-          {profile.showProfileInfo && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="profilePosition">Posição das informações</Label>
-                <Select 
-                  value={profile.profileInfoPosition}
-                  onValueChange={(value: 'left' | 'center' | 'right') => handleChange('profileInfoPosition', value)}
-                >
-                  <SelectTrigger id="profilePosition">
-                    <SelectValue placeholder="Posição das informações" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {profilePositions.map(position => (
-                      <SelectItem key={position.value} value={position.value}>
-                        {position.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            
-              <div className="space-y-2">
-                <Label htmlFor="avatarShape">Formato da foto de perfil</Label>
-                <Select 
-                  value={profile.avatarShape}
-                  onValueChange={(value: 'circle' | 'square' | 'rounded' | 'triangle' | 'hexagon' | 'banner') => handleChange('avatarShape', value)}
-                >
-                  <SelectTrigger id="avatarShape">
-                    <SelectValue placeholder="Escolha o formato" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {avatarShapes.map(shape => (
-                      <SelectItem key={shape.value} value={shape.value}>
-                        {shape.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
-        </div>
-        
-        {/* Upload de avatar - sempre visível */}
-        <div className="flex items-center space-x-4">
-          {renderAvatarPreview()}
-          <Button 
-            variant="outline"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            Carregar imagem/vídeo
-          </Button>
-          <Input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*,video/*"
-            onChange={handleAvatarUpload}
-          />
-        </div>
-        
-        {/* Campos organizados na nova ordem */}
-        <div className="grid grid-cols-1 gap-4">
-          {/* 1. Nome de exibição */}
-          <div className="space-y-2">
+        <div className="space-y-6">
+          <div className="space-y-4 p-4 border rounded-lg bg-white">
             <div className="flex items-center justify-between">
-              <Label htmlFor="name">Nome de exibição</Label>
-              <div className="flex items-center">
-                <Switch 
-                  id="verified"
-                  checked={profile.isVerified}
-                  onCheckedChange={(checked) => handleChange('isVerified', checked)}
-                  className="mr-2"
-                />
-                <Label htmlFor="verified" className="flex items-center cursor-pointer">
-                  <Check className="h-4 w-4 text-blue-500 mr-1" /> Verificado
-                </Label>
-              </div>
-            </div>
-            <Input 
-              id="name"
-              value={profile.name}
-              onChange={(e) => handleChange('name', e.target.value)}
-              placeholder="Seu nome"
-            />
-          </div>
-
-          {/* 2. Cor do nome */}
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="nameColor">Cor do nome:</Label>
-            <input 
-              type="color"
-              id="nameColor"
-              value={profile.nameColor || "#000000"}
-              onChange={(e) => handleChange('nameColor', e.target.value)}
-              className="w-8 h-8 rounded p-0"
-            />
-          </div>
-          
-          {/* 3. Descrição */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="bio">Descrição</Label>
-              <span className="text-sm text-gray-500">{profile.bio.length}/60</span>
-            </div>
-            <Input 
-              id="bio"
-              value={profile.bio}
-              onChange={(e) => handleChange('bio', e.target.value.substring(0, 60))}
-              placeholder="Uma breve descrição sobre você"
-              maxLength={60}
-            />
-          </div>
-
-          {/* 4. Cor da descrição */}
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="bioColor">Cor da descrição:</Label>
-            <input 
-              type="color"
-              id="bioColor"
-              value={profile.bioColor || "#666666"}
-              onChange={(e) => handleChange('bioColor', e.target.value)}
-              className="w-8 h-8 rounded p-0"
-            />
-          </div>
-          
-          {/* 5. Username */}
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <div className="flex items-center space-x-2">
-              <span className="text-gray-500">novabrand.site/</span>
-              <Input 
-                id="username"
-                value={profile.username}
-                onChange={(e) => handleChange('username', e.target.value.substring(0, 25))}
-                placeholder="seu-username"
-                className="flex-1"
-                maxLength={25}
+              <Label htmlFor="showProfileInfo">Mostrar informações do perfil</Label>
+              <Switch 
+                id="showProfileInfo"
+                checked={profile.showProfileInfo}
+                onCheckedChange={(checked) => handleChange('showProfileInfo', checked)}
               />
             </div>
-            <div className="mt-1 flex items-center justify-between">
-              <span className="text-sm text-gray-400">
-                A URL do seu perfil será: novabrand.site/{profile.username} ({profile.username.length}/25)
-              </span>
-              <div className="flex items-center">
-                <Switch 
-                  id="premium"
-                  checked={profile.isPremium}
-                  onCheckedChange={(checked) => handleChange('isPremium', checked)}
-                  className="mr-2"
-                />
-                <Label htmlFor="premium" className="text-sm">Remover marca (Premium)</Label>
-              </div>
-            </div>
+            
+            {profile.showProfileInfo && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="profilePosition">Posição das informações</Label>
+                  <Select 
+                    value={profile.profileInfoPosition}
+                    onValueChange={(value: 'left' | 'center' | 'right') => handleChange('profileInfoPosition', value)}
+                  >
+                    <SelectTrigger id="profilePosition">
+                      <SelectValue placeholder="Posição das informações" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {profilePositions.map(position => (
+                        <SelectItem key={position.value} value={position.value}>
+                          {position.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              
+                <div className="space-y-2">
+                  <Label htmlFor="avatarShape">Formato da foto de perfil</Label>
+                  <Select 
+                    value={profile.avatarShape}
+                    onValueChange={(value: 'circle' | 'square' | 'rounded' | 'triangle' | 'hexagon' | 'banner') => handleChange('avatarShape', value)}
+                  >
+                    <SelectTrigger id="avatarShape">
+                      <SelectValue placeholder="Escolha o formato" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {avatarShapes.map(shape => (
+                        <SelectItem key={shape.value} value={shape.value}>
+                          {shape.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
           </div>
-
-          {/* 6. Cor do link */}
-          <div className="flex items-center space-x-2">
-            <Label htmlFor="usernameColor">Cor do link:</Label>
-            <input 
-              type="color"
-              id="usernameColor"
-              value={profile.usernameColor || "#666666"}
-              onChange={(e) => handleChange('usernameColor', e.target.value)}
-              className="w-8 h-8 rounded p-0"
+          
+          {/* Upload de avatar - sempre visível */}
+          <div className="flex items-center space-x-4">
+            {renderAvatarPreview()}
+            <div className="flex flex-col gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="mr-2 h-4 w-4" />
+                Carregar imagem
+              </Button>
+              {profile.avatarShape === 'banner' && (
+                <Button 
+                  variant="outline"
+                  onClick={() => videoInputRef.current?.click()}
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  Carregar vídeo
+                </Button>
+              )}
+            </div>
+            <Input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*,video/*"
+              onChange={handleAvatarUpload}
+            />
+            <Input
+              type="file"
+              ref={videoInputRef}
+              className="hidden"
+              accept="video/*"
+              onChange={handleAvatarUpload}
             />
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="font">Fonte</Label>
-            <Select 
-              value={profile.font}
-              onValueChange={(value) => handleChange('font', value)}
-            >
-              <SelectTrigger id="font">
-                <SelectValue placeholder="Selecione uma fonte" />
-              </SelectTrigger>
-              <SelectContent>
-                {fontOptions.map(font => (
-                  <SelectItem key={font.value} value={font.value}>
-                    {font.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-1 gap-6">
+            {/* Nome de exibição */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="name">Nome de exibição</Label>
+                <div className="flex items-center">
+                  <Switch 
+                    id="verified"
+                    checked={profile.isVerified}
+                    onCheckedChange={(checked) => handleChange('isVerified', checked)}
+                    className="mr-2"
+                  />
+                  <Label htmlFor="verified" className="flex items-center cursor-pointer">
+                    <Check className="h-4 w-4 text-blue-500 mr-1" /> Verificado
+                  </Label>
+                </div>
+              </div>
+              <Input 
+                id="name"
+                value={profile.name}
+                onChange={(e) => handleChange('name', e.target.value)}
+                placeholder="Seu nome"
+              />
+            </div>
+
+            {/* Cor do nome */}
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="nameColor">Cor do nome:</Label>
+              <input 
+                type="color"
+                id="nameColor"
+                value={profile.nameColor || "#000000"}
+                onChange={(e) => handleChange('nameColor', e.target.value)}
+                className="w-12 h-8 rounded border cursor-pointer"
+              />
+              <Input 
+                value={profile.nameColor || "#000000"}
+                onChange={(e) => handleChange('nameColor', e.target.value)}
+                className="flex-1"
+                placeholder="#000000"
+              />
+            </div>
+            
+            {/* Descrição */}
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="bio">Descrição</Label>
+                <span className="text-sm text-gray-500">{profile.bio.length}/60</span>
+              </div>
+              <Input 
+                id="bio"
+                value={profile.bio}
+                onChange={(e) => handleChange('bio', e.target.value.substring(0, 60))}
+                placeholder="Uma breve descrição sobre você"
+                maxLength={60}
+              />
+            </div>
+
+            {/* Cor da descrição */}
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="bioColor">Cor da descrição:</Label>
+              <input 
+                type="color"
+                id="bioColor"
+                value={profile.bioColor || "#666666"}
+                onChange={(e) => handleChange('bioColor', e.target.value)}
+                className="w-12 h-8 rounded border cursor-pointer"
+              />
+              <Input 
+                value={profile.bioColor || "#666666"}
+                onChange={(e) => handleChange('bioColor', e.target.value)}
+                className="flex-1"
+                placeholder="#666666"
+              />
+            </div>
+            
+            {/* Username */}
+            <div className="space-y-2">
+              <Label htmlFor="username">Username</Label>
+              <div className="flex items-center space-x-2">
+                <span className="text-gray-500">novabrand.site/</span>
+                <Input 
+                  id="username"
+                  value={profile.username}
+                  onChange={(e) => handleChange('username', e.target.value.substring(0, 25))}
+                  placeholder="seu-username"
+                  className="flex-1"
+                  maxLength={25}
+                />
+              </div>
+              <div className="mt-1 flex items-center justify-between">
+                <span className="text-sm text-gray-400">
+                  A URL do seu perfil será: novabrand.site/{profile.username} ({profile.username.length}/25)
+                </span>
+                <div className="flex items-center">
+                  <Switch 
+                    id="premium"
+                    checked={profile.isPremium}
+                    onCheckedChange={(checked) => handleChange('isPremium', checked)}
+                    className="mr-2"
+                  />
+                  <Label htmlFor="premium" className="text-sm">Remover marca (Premium)</Label>
+                </div>
+              </div>
+            </div>
+
+            {/* Cor do link */}
+            <div className="flex items-center space-x-2">
+              <Label htmlFor="usernameColor">Cor do link:</Label>
+              <input 
+                type="color"
+                id="usernameColor"
+                value={profile.usernameColor || "#666666"}
+                onChange={(e) => handleChange('usernameColor', e.target.value)}
+                className="w-12 h-8 rounded border cursor-pointer"
+              />
+              <Input 
+                value={profile.usernameColor || "#666666"}
+                onChange={(e) => handleChange('usernameColor', e.target.value)}
+                className="flex-1"
+                placeholder="#666666"
+              />
+            </div>
+            
+            {/* Fonte */}
+            <div className="space-y-2">
+              <Label htmlFor="font">Fonte</Label>
+              <Select 
+                value={profile.font}
+                onValueChange={handleFontChange}
+              >
+                <SelectTrigger id="font">
+                  <SelectValue placeholder="Selecione uma fonte" />
+                </SelectTrigger>
+                <SelectContent>
+                  {fontOptions.map(font => (
+                    <SelectItem key={font.value} value={font.value}>
+                      {font.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Redes Sociais Section */}
-      <div className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-xl font-semibold">Redes Sociais</h3>
-          <div className="w-24 h-0.5 bg-purple-600 mx-auto mt-2"></div>
-        </div>
+      <div className="border-2 border-purple-200 rounded-lg p-6 bg-purple-50/30">
+        <SectionTitle>Redes Sociais</SectionTitle>
         
-        <div className="space-y-2">
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <Label>Ícones das redes sociais</Label>
             <div className="flex items-center space-x-2">
@@ -498,7 +547,7 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
                 id="socialColor"
                 value={profile.socialIconsColor || "#6A0DAD"}
                 onChange={(e) => handleChange('socialIconsColor', e.target.value)}
-                className="w-8 h-8 rounded p-0"
+                className="w-8 h-8 rounded border cursor-pointer"
               />
             </div>
           </div>
@@ -575,7 +624,17 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
               />
             </div>
             <div className="flex items-center space-x-2">
-              <div className="h-5 w-5 rounded bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 flex items-center justify-center text-white text-xs font-bold">
+              <div className="h-5 w-5 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold">
+                T
+              </div>
+              <Input 
+                value={profile.socialIcons.telegram || ''}
+                onChange={(e) => handleSocialChange('telegram', e.target.value)}
+                placeholder="@seutelegram"
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <div className="h-5 w-5 rounded bg-black flex items-center justify-center text-white text-xs font-bold">
                 @
               </div>
               <Input 
@@ -585,19 +644,11 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
               />
             </div>
             <div className="flex items-center space-x-2">
-              <MessageCircle className="h-5 w-5 text-blue-500" />
-              <Input 
-                value={profile.socialIcons.telegram || ''}
-                onChange={(e) => handleSocialChange('telegram', e.target.value)}
-                placeholder="@seutelegram"
-              />
-            </div>
-            <div className="flex items-center space-x-2">
               <Mail className="h-5 w-5 text-gray-600" />
               <Input 
                 value={profile.socialIcons.email || ''}
                 onChange={(e) => handleSocialChange('email', e.target.value)}
-                placeholder="seu@email.com"
+                placeholder="seuemail@exemplo.com"
                 type="email"
               />
             </div>
@@ -606,11 +657,8 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
       </div>
       
       {/* Background Section */}
-      <div className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-xl font-semibold">Background</h3>
-          <div className="w-20 h-0.5 bg-purple-600 mx-auto mt-2"></div>
-        </div>
+      <div className="border-2 border-purple-200 rounded-lg p-6 bg-purple-50/30">
+        <SectionTitle>Background</SectionTitle>
         
         <div className="space-y-4">
           <div className="space-y-2">
@@ -743,23 +791,6 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
                 accept="image/*"
                 onChange={handleBackgroundImageUpload}
               />
-              <div className="space-y-2">
-                <Label htmlFor="extendedColor">Cor da área estendida:</Label>
-                <div className="flex items-center space-x-2">
-                  <Input 
-                    type="color"
-                    id="extendedColor"
-                    value={profile.backgroundExtendedColor || "#FFFFFF"}
-                    onChange={(e) => handleChange('backgroundExtendedColor', e.target.value)}
-                    className="w-16 h-10"
-                  />
-                  <Input 
-                    value={profile.backgroundExtendedColor || "#FFFFFF"}
-                    onChange={(e) => handleChange('backgroundExtendedColor', e.target.value)}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
             </div>
           )}
           
@@ -897,18 +928,14 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
       </div>
       
       {/* Efeitos Visuais Section */}
-      <div className="space-y-6">
-        <div className="text-center">
-          <h3 className="text-xl font-semibold">Efeitos Visuais</h3>
-          <div className="w-24 h-0.5 bg-purple-600 mx-auto mt-2"></div>
-        </div>
+      <div className="border-2 border-purple-200 rounded-lg p-6 bg-purple-50/30">
+        <SectionTitle>Efeitos Visuais</SectionTitle>
         
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="visualEffect">Efeitos disponíveis</Label>
             
-            {/* Grid com 3 linhas de efeitos visuais */}
-            <div className="grid grid-cols-3 gap-3 min-h-[300px]">
+            <div className="grid grid-cols-3 gap-3">
               {visualEffects.map(effect => (
                 <div 
                   key={effect.value}
@@ -939,7 +966,7 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
                             {profile.visualEffectCustomUrl.startsWith('data:image') ? (
                               <img src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" alt="Efeito personalizado" />
                             ) : (
-                              <video src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" autoPlay muted loop playsInline />
+                              <video src={profile.visualEffectCustomUrl} className="max-h-full max-w-full" autoPlay muted loop />
                             )}
                           </div>
                           <Button 
@@ -974,7 +1001,6 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
                   </div>
                 )}
                 
-                {/* Controles do efeito */}
                 <div className="space-y-2">
                   <Label htmlFor="visualEffectColor">Cor do efeito</Label>
                   <div className="flex items-center space-x-2">
@@ -1043,4 +1069,4 @@ const EnhancedProfileTab: React.FC<EnhancedProfileTabProps> = ({ profile, setPro
   );
 };
 
-export default EnhancedProfileTab;
+export default ImprovedProfileTab;
