@@ -6,7 +6,7 @@ import LinksTab from './LinksTab';
 import PageStylesTab from './PageStylesTab';
 import AudioTab from './AudioTab';
 import AITab from './AITab';
-import { UserProfile, PageStyle, LinkType } from '@/pages/Dashboard';
+import { UserProfile, PageStyle, LinkType, AudioSettings } from '@/pages/Dashboard';
 
 interface MinisiteTabsProps {
   profile: UserProfile;
@@ -15,6 +15,8 @@ interface MinisiteTabsProps {
   setLinks: React.Dispatch<React.SetStateAction<LinkType[]>>;
   pageStyle: PageStyle;
   setPageStyle: React.Dispatch<React.SetStateAction<PageStyle>>;
+  audioSettings: AudioSettings;
+  setAudioSettings: React.Dispatch<React.SetStateAction<AudioSettings>>;
 }
 
 const MinisiteTabs: React.FC<MinisiteTabsProps> = ({
@@ -23,7 +25,9 @@ const MinisiteTabs: React.FC<MinisiteTabsProps> = ({
   links,
   setLinks,
   pageStyle,
-  setPageStyle
+  setPageStyle,
+  audioSettings,
+  setAudioSettings
 }) => {
   return (
     <Tabs defaultValue="profile" className="w-full">
@@ -48,11 +52,11 @@ const MinisiteTabs: React.FC<MinisiteTabsProps> = ({
       </TabsContent>
       
       <TabsContent value="audio" className="space-y-6">
-        <AudioTab />
+        <AudioTab audioSettings={audioSettings} setAudioSettings={setAudioSettings} />
       </TabsContent>
       
       <TabsContent value="ai" className="space-y-6">
-        <AITab />
+        <AITab pageStyle={pageStyle} setPageStyle={setPageStyle} />
       </TabsContent>
     </Tabs>
   );

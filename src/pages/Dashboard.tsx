@@ -319,6 +319,8 @@ const Dashboard = () => {
               setLinks={setLinks}
               pageStyle={pageStyle}
               setPageStyle={setPageStyle}
+              audioSettings={audioSettings}
+              setAudioSettings={setAudioSettings}
             />
             <div className="p-6 flex-1 overflow-auto" ref={panelRef}>
               {renderMinisiteTab()}
