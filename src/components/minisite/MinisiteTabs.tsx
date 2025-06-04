@@ -1,52 +1,39 @@
-import React, { useState } from 'react';
-import { UserProfile } from '@/pages/Dashboard';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import ImprovedProfileTab from './ImprovedProfileTab';
-import LinksTab from './LinksTab';
-import PageStylesTab from './PageStylesTab';
-import AudioTab from './AudioTab';
-import AITab from './AITab';
 
-type MinisiteTabsProps = {
-  profile: UserProfile;
-  setProfile: React.Dispatch<React.SetStateAction<UserProfile>>;
-};
+import React from "react";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { UserCircle, Link2, Palette, Music, Sparkles } from "lucide-react";
 
-const MinisiteTabs: React.FC<MinisiteTabsProps> = ({ profile, setProfile }) => {
-  const [activeTab, setActiveTab] = useState("profile");
+interface MinisiteTabsProps {
+  activeTab: string;
+  setActiveTab: React.Dispatch<React.SetStateAction<string>>;
+}
 
+const MinisiteTabs: React.FC<MinisiteTabsProps> = ({ activeTab, setActiveTab }) => {
   return (
-    <div className="w-full">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="profile">Perfil</TabsTrigger>
-          <TabsTrigger value="links">Links</TabsTrigger>
-          <TabsTrigger value="styles">Estilos</TabsTrigger>
-          <TabsTrigger value="audio">Áudio</TabsTrigger>
-          <TabsTrigger value="ai">IA</TabsTrigger>
+    <div className="border-b border-gray-200">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full justify-start rounded-none border-b border-gray-200 px-4 py-2 overflow-x-auto">
+          <TabsTrigger value="profile" className="data-[state=active]:border-b-2 data-[state=active]:border-[#6A0DAD]">
+            <UserCircle className="mr-2 h-4 w-4" />
+            Perfil
+          </TabsTrigger>
+          <TabsTrigger value="links" className="data-[state=active]:border-b-2 data-[state=active]:border-[#6A0DAD]">
+            <Link2 className="mr-2 h-4 w-4" />
+            Links
+          </TabsTrigger>
+          <TabsTrigger value="styles" className="data-[state=active]:border-b-2 data-[state=active]:border-[#6A0DAD]">
+            <Palette className="mr-2 h-4 w-4" />
+            Estilos
+          </TabsTrigger>
+          <TabsTrigger value="audio" className="data-[state=active]:border-b-2 data-[state=active]:border-[#6A0DAD]">
+            <Music className="mr-2 h-4 w-4" />
+            Áudio
+          </TabsTrigger>
+          <TabsTrigger value="ai" className="data-[state=active]:border-b-2 data-[state=active]:border-[#6A0DAD]">
+            <Sparkles className="mr-2 h-4 w-4" />
+            IA
+          </TabsTrigger>
         </TabsList>
-        
-        <div className="mt-6">
-          <TabsContent value="profile">
-            <ImprovedProfileTab profile={profile} setProfile={setProfile} />
-          </TabsContent>
-          
-          <TabsContent value="links">
-            <LinksTab profile={profile} setProfile={setProfile} />
-          </TabsContent>
-          
-          <TabsContent value="styles">
-            <PageStylesTab profile={profile} setProfile={setProfile} />
-          </TabsContent>
-          
-          <TabsContent value="audio">
-            <AudioTab profile={profile} setProfile={setProfile} />
-          </TabsContent>
-          
-          <TabsContent value="ai">
-            <AITab profile={profile} setProfile={setProfile} />
-          </TabsContent>
-        </div>
       </Tabs>
     </div>
   );
