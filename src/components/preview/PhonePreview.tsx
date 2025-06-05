@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { UserProfile, LinkType, AudioSettings, PageStyle } from '@/pages/Dashboard';
 import { 
@@ -111,30 +112,41 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links, audioSettin
         shapeClasses = "rounded-full";
     }
 
+    const adjustment = profile.avatarAdjustment || { x: 0, y: 0, scale: 1 };
+    const transformStyle = {
+      transform: `translate(${adjustment.x}px, ${adjustment.y}px) scale(${adjustment.scale})`,
+      transformOrigin: 'center center'
+    };
+
     const isVideo = profile.avatar?.startsWith('data:video/') || 
                    (profile.avatar && (profile.avatar.includes('.mp4') || profile.avatar.includes('.webm') || profile.avatar.includes('.mov')));
 
     if (isVideo && profile.avatar) {
       return (
-        <video 
-          className={`${sizeClasses} ${shapeClasses} ${baseClasses}`}
-          src={profile.avatar}
-          autoPlay
-          muted
-          loop
-          playsInline
-          style={{ objectFit: 'cover' }}
-        />
+        <div className={`${sizeClasses} ${shapeClasses} overflow-hidden relative`}>
+          <video 
+            className={`w-full h-full ${baseClasses}`}
+            src={profile.avatar}
+            autoPlay
+            muted
+            loop
+            playsInline
+            style={{ ...transformStyle, objectFit: 'cover' }}
+          />
+        </div>
       );
     }
 
     if (profile.avatar) {
       return (
-        <img 
-          src={profile.avatar} 
-          alt="Profile" 
-          className={`${sizeClasses} ${shapeClasses} ${baseClasses}`}
-        />
+        <div className={`${sizeClasses} ${shapeClasses} overflow-hidden relative`}>
+          <img 
+            src={profile.avatar} 
+            alt="Profile" 
+            className={`w-full h-full ${baseClasses}`}
+            style={transformStyle}
+          />
+        </div>
       );
     }
 
@@ -319,14 +331,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links, audioSettin
         {/* Visual effects layer */}
         {profile.visualEffect !== 'none' && (
           <div className="absolute inset-0 w-full h-full pointer-events-none">
-            <VisualEffect 
-              effect={profile.visualEffect}
-              color={profile.visualEffectColor}
-              opacity={profile.visualEffectOpacity}
-              speed={profile.visualEffectSpeed}
-              size={profile.visualEffectSize}
-              customUrl={profile.visualEffectCustomUrl}
-            />
+            <VisualEffect profile={profile} />
           </div>
         )}
 
