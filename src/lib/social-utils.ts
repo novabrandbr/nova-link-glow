@@ -4,7 +4,7 @@ import {
   Facebook, 
   Twitter, 
   Mail, 
-  Telegram, 
+  Send, 
   Linkedin, 
   Youtube, 
   Music, 
@@ -69,7 +69,7 @@ export const getSocialIcon = (platform: string) => {
     case 'mail':
       return Mail;
     case 'telegram':
-      return Telegram;
+      return Send; // Using Send icon as Telegram alternative
     case 'linkedin':
       return Linkedin;
     case 'youtube':

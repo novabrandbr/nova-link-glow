@@ -166,8 +166,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
 
   const handleMediaAdjustmentChange = (adjustment: { x: number; y: number; scale: number }) => {
     setMediaAdjustment(adjustment);
-    // Salvar ajustes no perfil
-    handleChange('avatarAdjustment', adjustment);
+    // Store adjustment in local state instead of trying to save to profile
+    // The adjustment will be applied via the mediaAdjustment state
   };
 
   const handleBackgroundImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
