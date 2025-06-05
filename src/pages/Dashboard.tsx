@@ -42,6 +42,11 @@ export type UserProfile = {
   bio: string;
   avatar?: string;
   avatarShape: 'circle' | 'square' | 'rounded' | 'triangle' | 'hexagon' | 'banner';
+  avatarAdjustment?: {
+    x: number;
+    y: number;
+    scale: number;
+  };
   isVerified: boolean;
   showProfileInfo: boolean;
   profileInfoPosition: 'left' | 'center' | 'right';
