@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+
+import React, { useRef } from 'react';
 import { UserProfile } from '@/pages/Dashboard';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -27,7 +28,6 @@ import {
   Send
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import MediaAdjuster from './MediaAdjuster';
 
 type ProfileTabProps = {
   profile: UserProfile;
@@ -39,8 +39,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
   const videoInputRef = useRef<HTMLInputElement>(null);
   const backgroundImageRef = useRef<HTMLInputElement>(null);
   const effectUploadRef = useRef<HTMLInputElement>(null);
-  const [showMediaAdjuster, setShowMediaAdjuster] = useState(false);
-  const [mediaAdjustment, setMediaAdjustment] = useState({ x: 0, y: 0, scale: 1 });
 
   const handleChange = (field: keyof UserProfile, value: any) => {
     setProfile(prev => ({ ...prev, [field]: value }));
@@ -139,7 +137,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     if (!file) return;
 
     const isVideo = file.type.startsWith('video/');
-    const maxSize = isVideo ? 10 * 1024 * 1024 : 2 * 1024 * 1024;
+    const maxSize = isVideo ? 10 * 1024 * 1024 : 2 * 1024 * 1024; // 10MB for video, 2MB for images
 
     if (file.size > maxSize) {
       toast({
@@ -154,7 +152,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     reader.onload = (event) => {
       if (event.target?.result) {
         handleChange('avatar', event.target.result.toString());
-        setShowMediaAdjuster(true);
         toast({
           title: `${isVideo ? 'Vídeo' : 'Avatar'} atualizado`,
           description: `Sua foto de perfil foi atualizada com sucesso.`
@@ -162,12 +159,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
       }
     };
     reader.readAsDataURL(file);
-  };
-
-  const handleMediaAdjustmentChange = (adjustment: { x: number; y: number; scale: number }) => {
-    setMediaAdjustment(adjustment);
-    // Store adjustment in local state instead of trying to save to profile
-    // The adjustment will be applied via the mediaAdjustment state
   };
 
   const handleBackgroundImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -253,6 +244,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     videoInputRef.current?.click();
   };
 
+  // Função para renderizar avatar baseado no formato selecionado
   const renderAvatarPreview = () => {
     const baseClasses = "h-24 w-24";
     let shapeClasses = "";
@@ -277,10 +269,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
         shapeClasses = "rounded-full";
     }
 
-    const isVideo = profile.avatar?.startsWith('data:video/') || 
-                   profile.avatar?.endsWith('.mp4') || 
-                   profile.avatar?.endsWith('.webm') || 
-                   profile.avatar?.endsWith('.mov');
+    const isVideo = profile.avatar?.startsWith('data:video/') || profile.avatar?.endsWith('.mp4') || profile.avatar?.endsWith('.webm') || profile.avatar?.endsWith('.mov');
 
     if (isVideo && profile.avatar) {
       return (
@@ -303,6 +292,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
     );
   };
 
+  // Component for section titles with decorative lines
   const SectionTitle = ({ children }: { children: React.ReactNode }) => (
     <div className="flex flex-col items-start">
       <h3 className="text-xl font-semibold">{children}</h3>
@@ -369,57 +359,26 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           )}
         </div>
         
-        {/* Upload de avatar */}
+        {/* Upload de avatar com layout especificado */}
         <div className="space-y-4">
           <div className="flex items-center space-x-4 mb-4">
             {renderAvatarPreview()}
           </div>
           
-          {/* Sistema de ajuste de mídia */}
-          {profile.avatar && showMediaAdjuster && (
-            <div className="space-y-4 p-4 border rounded-lg bg-gray-50">
-              <Label>Ajustar posição e zoom da mídia</Label>
-              <MediaAdjuster
-                mediaUrl={profile.avatar}
-                isVideo={profile.avatar.startsWith('data:video/') || profile.avatar.includes('.mp4')}
-                onAdjustmentChange={handleMediaAdjustmentChange}
-                avatarShape={profile.avatarShape}
-              />
-              <Button
-                variant="outline"
-                onClick={() => setShowMediaAdjuster(false)}
-                className="w-full"
-              >
-                Finalizar ajuste
-              </Button>
-            </div>
-          )}
-          
-          {/* Campo de upload */}
+          {/* Campo de upload com layout exato conforme especificado */}
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-gray-50">
             <div className="flex flex-col items-center space-y-3">
               <Upload className="h-8 w-8 text-gray-400" />
               <p className="text-sm text-gray-600">
                 Arraste uma imagem/vídeo ou clique para fazer upload
               </p>
-              <div className="flex gap-2 flex-wrap justify-center">
-                <Button 
-                  variant="outline"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="mt-2"
-                >
-                  {profile.avatar ? 'Substituir arquivo' : 'Selecionar arquivo'}
-                </Button>
-                {profile.avatar && (
-                  <Button 
-                    variant="outline"
-                    onClick={() => setShowMediaAdjuster(true)}
-                    className="mt-2"
-                  >
-                    Ajustar posição
-                  </Button>
-                )}
-              </div>
+              <Button 
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="mt-2"
+              >
+                {profile.avatar ? 'Substituir arquivo' : 'Selecionar arquivo'}
+              </Button>
             </div>
           </div>
           
@@ -433,6 +392,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
         </div>
         
         <div className="grid grid-cols-1 gap-4">
+          {/* Nome de Exibição */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="name">Nome de exibição</Label>
@@ -456,6 +416,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             />
           </div>
 
+          {/* Cor do Nome */}
           <div className="space-y-2">
             <Label htmlFor="nameColor">Cor do nome</Label>
             <div className="flex items-center space-x-2">
@@ -474,6 +435,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </div>
           </div>
 
+          {/* Descrição */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <Label htmlFor="bio">Descrição</Label>
@@ -488,6 +450,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             />
           </div>
 
+          {/* Cor da Descrição */}
           <div className="space-y-2">
             <Label htmlFor="bioColor">Cor da descrição</Label>
             <div className="flex items-center space-x-2">
@@ -506,6 +469,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </div>
           </div>
           
+          {/* Username */}
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
             <div className="flex items-center space-x-2">
@@ -535,6 +499,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
             </div>
           </div>
 
+          {/* Cor do Link */}
           <div className="space-y-2">
             <Label htmlFor="usernameColor">Cor do link</Label>
             <div className="flex items-center space-x-2">
@@ -573,7 +538,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           </div>
         </div>
         
-        {/* Redes sociais */}
+        {/* Redes sociais com ícones corretos */}
         <div className="space-y-6">
           <SectionTitle>Redes Sociais</SectionTitle>
           
@@ -642,7 +607,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <Music className="h-5 w-5 text-green-500" />
+              <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
+                <div className="h-2 w-2 bg-black rounded-full"></div>
+              </div>
               <Input 
                 value={profile.socialIcons.spotify || ''}
                 onChange={(e) => handleSocialChange('spotify', e.target.value)}
@@ -650,7 +617,9 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <MessageSquare className="h-5 w-5 text-green-500" />
+              <div className="h-5 w-5 rounded bg-green-500 flex items-center justify-center text-white text-xs font-bold">
+                W
+              </div>
               <Input 
                 value={profile.socialIcons.whatsapp || ''}
                 onChange={(e) => handleSocialChange('whatsapp', e.target.value)}
@@ -955,6 +924,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           <div className="space-y-2">
             <Label htmlFor="visualEffect">Efeitos disponíveis</Label>
             
+            {/* Grid com 3 linhas de efeitos visuais */}
             <div className="grid grid-cols-3 gap-3 min-h-[300px]">
               {visualEffects.map(effect => (
                 <div 
