@@ -320,7 +320,7 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links, audioSettin
         {profile.visualEffect !== 'none' && (
           <div className="absolute inset-0 w-full h-full pointer-events-none">
             <VisualEffect 
-              type={profile.visualEffect}
+              effect={profile.visualEffect}
               color={profile.visualEffectColor}
               opacity={profile.visualEffectOpacity}
               speed={profile.visualEffectSpeed}
