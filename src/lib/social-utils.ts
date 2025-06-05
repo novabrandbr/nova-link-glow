@@ -1,17 +1,4 @@
 
-import { 
-  Instagram, 
-  Facebook, 
-  Twitter, 
-  Youtube, 
-  Linkedin, 
-  Github, 
-  Music, 
-  MessageCircle,
-  Mail,
-  Send
-} from 'lucide-react';
-
 /**
  * Formats a WhatsApp number for proper API usage
  * Removes common characters and ensures international format
@@ -78,41 +65,7 @@ export const getSocialUrl = (platform: string, value: string): string => {
       return `https://open.spotify.com/user/${value.replace('@', '')}`;
     case 'whatsapp':
       return createWhatsAppUrl(value);
-    case 'telegram':
-      return `https://t.me/${value.replace('@', '')}`;
-    case 'email':
-      return `mailto:${value}`;
     default:
       return `https://${platform}.com/${value.replace('@', '')}`;
-  }
-};
-
-/**
- * Returns the appropriate Lucide React icon component for each social platform
- */
-export const getSocialIcon = (platform: string) => {
-  switch (platform) {
-    case 'instagram':
-      return Instagram;
-    case 'facebook':
-      return Facebook;
-    case 'twitter':
-      return Twitter;
-    case 'youtube':
-      return Youtube;
-    case 'linkedin':
-      return Linkedin;
-    case 'github':
-      return Github;
-    case 'spotify':
-      return Music;
-    case 'whatsapp':
-      return MessageCircle;
-    case 'telegram':
-      return Send;
-    case 'email':
-      return Mail;
-    default:
-      return null;
   }
 };
