@@ -112,41 +112,30 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links, audioSettin
         shapeClasses = "rounded-full";
     }
 
-    const adjustment = profile.avatarAdjustment || { x: 0, y: 0, scale: 1 };
-    const transformStyle = {
-      transform: `translate(${adjustment.x}px, ${adjustment.y}px) scale(${adjustment.scale})`,
-      transformOrigin: 'center center'
-    };
-
     const isVideo = profile.avatar?.startsWith('data:video/') || 
                    (profile.avatar && (profile.avatar.includes('.mp4') || profile.avatar.includes('.webm') || profile.avatar.includes('.mov')));
 
     if (isVideo && profile.avatar) {
       return (
-        <div className={`${sizeClasses} ${shapeClasses} overflow-hidden relative`}>
-          <video 
-            className={`w-full h-full ${baseClasses}`}
-            src={profile.avatar}
-            autoPlay
-            muted
-            loop
-            playsInline
-            style={{ ...transformStyle, objectFit: 'cover' }}
-          />
-        </div>
+        <video 
+          className={`${sizeClasses} ${shapeClasses} ${baseClasses}`}
+          src={profile.avatar}
+          autoPlay
+          muted
+          loop
+          playsInline
+          style={{ objectFit: 'cover' }}
+        />
       );
     }
 
     if (profile.avatar) {
       return (
-        <div className={`${sizeClasses} ${shapeClasses} overflow-hidden relative`}>
-          <img 
-            src={profile.avatar} 
-            alt="Profile" 
-            className={`w-full h-full ${baseClasses}`}
-            style={transformStyle}
-          />
-        </div>
+        <img 
+          src={profile.avatar} 
+          alt="Profile" 
+          className={`${sizeClasses} ${shapeClasses} ${baseClasses}`}
+        />
       );
     }
 
@@ -285,150 +274,142 @@ const PhonePreview: React.FC<PhonePreviewProps> = ({ profile, links, audioSettin
   };
 
   return (
-    <div className="w-full max-w-[375px] h-[812px] bg-black rounded-[3rem] p-2 shadow-2xl mx-auto">
-      <div className="w-full h-full bg-white rounded-[2.5rem] overflow-hidden relative">
-        {/* Background layer */}
-        <div 
-          className="absolute inset-0 w-full h-full"
-          style={getBackgroundStyle()}
-        >
-          {profile.backgroundType === 'video' && profile.backgroundVideo && (
-            profile.backgroundVideo.includes('youtube.com') || profile.backgroundVideo.includes('youtu.be') ? (
-              <iframe
-                src={profile.backgroundVideo.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
-                className="w-full h-full object-cover"
-                allow="autoplay; encrypted-media"
-                allowFullScreen
-              />
-            ) : (
-              <video
-                src={profile.backgroundVideo}
-                className="w-full h-full object-cover"
-                autoPlay
-                muted={profile.backgroundVideoMuted}
-                loop
-                playsInline
-                style={{ 
-                  objectFit: 'cover',
-                  opacity: profile.backgroundVideoVolume || 0.5
-                }}
-              />
-            )
-          )}
-        </div>
-
-        {/* Overlay layer */}
-        {profile.overlay && (
+    <div className="w-full max-w-[300px] mx-auto">
+      {/* iPhone 16 Pro Max mockup - responsivo */}
+      <div className="relative w-full aspect-[9/19.5] bg-black rounded-[2.5rem] p-1 shadow-2xl">
+        {/* Notch */}
+        <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-32 h-6 bg-black rounded-b-2xl z-20"></div>
+        
+        {/* Screen */}
+        <div className="w-full h-full bg-white rounded-[2rem] overflow-hidden relative">
+          {/* Background layer */}
           <div 
             className="absolute inset-0 w-full h-full"
-            style={{
-              backgroundColor: profile.overlayColor,
-              opacity: profile.overlayOpacity
-            }}
-          />
-        )}
-
-        {/* Visual effects layer */}
-        {profile.visualEffect !== 'none' && (
-          <div className="absolute inset-0 w-full h-full pointer-events-none">
-            <VisualEffect profile={profile} />
-          </div>
-        )}
-
-        {/* Content layer */}
-        <div className="relative z-10 w-full h-full overflow-y-auto">
-          <div className="p-6">
-            {profile.showProfileInfo && (
-              <div className={`text-${profile.profileInfoPosition} mb-6`}>
-                <div className="flex justify-center mb-4">
-                  {renderAvatar()}
-                </div>
-                
-                <h1 
-                  className="text-xl font-bold mb-2"
+            style={getBackgroundStyle()}
+          >
+            {profile.backgroundType === 'video' && profile.backgroundVideo && (
+              profile.backgroundVideo.includes('youtube.com') || profile.backgroundVideo.includes('youtu.be') ? (
+                <iframe
+                  src={profile.backgroundVideo.replace('watch?v=', 'embed/').replace('youtu.be/', 'youtube.com/embed/')}
+                  className="w-full h-full object-cover"
+                  allow="autoplay; encrypted-media"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={profile.backgroundVideo}
+                  className="w-full h-full object-cover"
+                  autoPlay
+                  muted={profile.backgroundVideoMuted}
+                  loop
+                  playsInline
                   style={{ 
-                    color: profile.nameColor,
-                    fontFamily: profile.font 
+                    objectFit: 'cover',
+                    opacity: profile.backgroundVideoVolume || 0.5
                   }}
-                >
-                  {profile.name}
-                  {profile.isVerified && (
-                    <span className="ml-2 text-blue-500">✓</span>
-                  )}
-                </h1>
-                
-                {profile.bio && (
-                  <p 
-                    className="text-sm mb-2"
+                />
+              )
+            )}
+          </div>
+
+          {/* Overlay layer */}
+          {profile.overlay && (
+            <div 
+              className="absolute inset-0 w-full h-full"
+              style={{
+                backgroundColor: profile.overlayColor,
+                opacity: profile.overlayOpacity
+              }}
+            />
+          )}
+
+          {/* Visual effects layer */}
+          {profile.visualEffect !== 'none' && (
+            <div className="absolute inset-0 w-full h-full pointer-events-none">
+              <VisualEffect profile={profile} />
+            </div>
+          )}
+
+          {/* Content layer */}
+          <div className="relative z-10 w-full h-full overflow-y-auto">
+            <div className="p-4">
+              {profile.showProfileInfo && (
+                <div className={`text-${profile.profileInfoPosition} mb-4`}>
+                  <div className="flex justify-center mb-3">
+                    {renderAvatar()}
+                  </div>
+                  
+                  <h1 
+                    className="text-lg font-bold mb-2"
                     style={{ 
-                      color: profile.bioColor,
+                      color: profile.nameColor,
                       fontFamily: profile.font 
                     }}
                   >
-                    {profile.bio}
+                    {profile.name}
+                    {profile.isVerified && (
+                      <span className="ml-2 text-blue-500">✓</span>
+                    )}
+                  </h1>
+                  
+                  {profile.bio && (
+                    <p 
+                      className="text-sm mb-2"
+                      style={{ 
+                        color: profile.bioColor,
+                        fontFamily: profile.font 
+                      }}
+                    >
+                      {profile.bio}
+                    </p>
+                  )}
+                  
+                  <p 
+                    className="text-xs mb-3"
+                    style={{ 
+                      color: profile.usernameColor,
+                      fontFamily: profile.font 
+                    }}
+                  >
+                    novabrand.site/{profile.username}
                   </p>
-                )}
-                
-                <p 
-                  className="text-xs mb-4"
-                  style={{ 
-                    color: profile.usernameColor,
-                    fontFamily: profile.font 
-                  }}
-                >
-                  novabrand.site/{profile.username}
-                </p>
 
-                {renderSocialIcons()}
-              </div>
-            )}
-
-            {/* Links */}
-            <div className="space-y-3">
-              {links.filter(link => link.active).map((link) => (
-                <div
-                  key={link.id}
-                  className="w-full p-4 rounded-lg border border-gray-200 text-center cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ 
-                    backgroundColor: link.color,
-                    color: link.titleColor || '#FFFFFF',
-                    fontFamily: profile.font
-                  }}
-                >
-                  {link.title}
+                  {renderSocialIcons()}
                 </div>
-              ))}
+              )}
+
+              {/* Links */}
+              <div className="space-y-2">
+                {links.filter(link => link.active).map((link) => (
+                  <div
+                    key={link.id}
+                    className="w-full p-3 rounded-lg border border-gray-200 text-center cursor-pointer hover:opacity-80 transition-opacity"
+                    style={{ 
+                      backgroundColor: link.color,
+                      color: link.titleColor || '#FFFFFF',
+                      fontFamily: profile.font
+                    }}
+                  >
+                    {link.title}
+                  </div>
+                ))}
+              </div>
+
+              {/* Audio player */}
+              {audioSettings.showPlayer && audioSettings.url && (
+                <div className="mt-4">
+                  <audio
+                    controls
+                    autoPlay={audioSettings.autoplay}
+                    loop={audioSettings.loop}
+                    className="w-full"
+                    style={{ opacity: audioSettings.volume }}
+                  >
+                    <source src={audioSettings.url} type="audio/mpeg" />
+                  </audio>
+                </div>
+              )}
             </div>
-
-            {/* Audio player */}
-            {audioSettings.showPlayer && audioSettings.url && (
-              <div className="mt-6">
-                <audio
-                  controls
-                  autoPlay={audioSettings.autoplay}
-                  loop={audioSettings.loop}
-                  className="w-full"
-                  style={{ opacity: audioSettings.volume }}
-                >
-                  <source src={audioSettings.url} type="audio/mpeg" />
-                </audio>
-              </div>
-            )}
-
-            {/* Footer */}
-            {!profile.isPremium && (
-              <div className="mt-8 text-center">
-                <p 
-                  className="text-xs"
-                  style={{ 
-                    color: profile.footerColor || '#666666',
-                    fontFamily: profile.font 
-                  }}
-                >
-                  Made with ❤️ by NovaBrand
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>
