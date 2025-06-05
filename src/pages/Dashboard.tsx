@@ -82,6 +82,8 @@ export type UserProfile = {
     spotify?: string;
     twitch?: string;
     discord?: string;
+    telegram?: string;
+    email?: string;
   };
   socialIconsColor?: string;
   isPremium: boolean;
