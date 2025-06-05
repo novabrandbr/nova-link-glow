@@ -166,7 +166,8 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
 
   const handleMediaAdjustmentChange = (adjustment: { x: number; y: number; scale: number }) => {
     setMediaAdjustment(adjustment);
-    // Aqui você pode salvar o ajuste no perfil se necessário
+    // Salvar ajustes no perfil
+    handleChange('avatarAdjustment', adjustment);
   };
 
   const handleBackgroundImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -276,7 +277,10 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
         shapeClasses = "rounded-full";
     }
 
-    const isVideo = profile.avatar?.startsWith('data:video/') || profile.avatar?.endsWith('.mp4') || profile.avatar?.endsWith('.webm') || profile.avatar?.endsWith('.mov');
+    const isVideo = profile.avatar?.startsWith('data:video/') || 
+                   profile.avatar?.endsWith('.mp4') || 
+                   profile.avatar?.endsWith('.webm') || 
+                   profile.avatar?.endsWith('.mov');
 
     if (isVideo && profile.avatar) {
       return (
@@ -374,7 +378,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
           {/* Sistema de ajuste de mídia */}
           {profile.avatar && showMediaAdjuster && (
             <div className="space-y-4 p-4 border rounded-lg bg-gray-50">
-              <Label>Ajustar posição e zoom</Label>
+              <Label>Ajustar posição e zoom da mídia</Label>
               <MediaAdjuster
                 mediaUrl={profile.avatar}
                 isVideo={profile.avatar.startsWith('data:video/') || profile.avatar.includes('.mp4')}
@@ -398,22 +402,24 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               <p className="text-sm text-gray-600">
                 Arraste uma imagem/vídeo ou clique para fazer upload
               </p>
-              <Button 
-                variant="outline"
-                onClick={() => fileInputRef.current?.click()}
-                className="mt-2"
-              >
-                {profile.avatar ? 'Substituir arquivo' : 'Selecionar arquivo'}
-              </Button>
-              {profile.avatar && (
+              <div className="flex gap-2 flex-wrap justify-center">
                 <Button 
                   variant="outline"
-                  onClick={() => setShowMediaAdjuster(true)}
+                  onClick={() => fileInputRef.current?.click()}
                   className="mt-2"
                 >
-                  Ajustar posição
+                  {profile.avatar ? 'Substituir arquivo' : 'Selecionar arquivo'}
                 </Button>
-              )}
+                {profile.avatar && (
+                  <Button 
+                    variant="outline"
+                    onClick={() => setShowMediaAdjuster(true)}
+                    className="mt-2"
+                  >
+                    Ajustar posição
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
           
@@ -636,9 +642,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <div className="h-5 w-5 rounded-full bg-green-500 flex items-center justify-center">
-                <div className="h-2 w-2 bg-black rounded-full"></div>
-              </div>
+              <Music className="h-5 w-5 text-green-500" />
               <Input 
                 value={profile.socialIcons.spotify || ''}
                 onChange={(e) => handleSocialChange('spotify', e.target.value)}
@@ -646,9 +650,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               />
             </div>
             <div className="flex items-center space-x-2">
-              <div className="h-5 w-5 rounded bg-green-500 flex items-center justify-center text-white text-xs font-bold">
-                W
-              </div>
+              <MessageSquare className="h-5 w-5 text-green-500" />
               <Input 
                 value={profile.socialIcons.whatsapp || ''}
                 onChange={(e) => handleSocialChange('whatsapp', e.target.value)}

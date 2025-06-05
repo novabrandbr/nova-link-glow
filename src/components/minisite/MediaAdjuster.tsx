@@ -28,6 +28,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
   }, [position, scale, onAdjustmentChange]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
     setIsDragging(true);
     setDragStart({
       x: e.clientX - position.x,
@@ -42,7 +43,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
     const newY = e.clientY - dragStart.y;
     
     // Limitar movimento dentro dos bounds
-    const maxMove = 50;
+    const maxMove = 100;
     const limitedX = Math.max(-maxMove, Math.min(maxMove, newX));
     const limitedY = Math.max(-maxMove, Math.min(maxMove, newY));
     
@@ -54,6 +55,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
     const touch = e.touches[0];
     setIsDragging(true);
     setDragStart({
@@ -69,7 +71,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
     const newX = touch.clientX - dragStart.x;
     const newY = touch.clientY - dragStart.y;
     
-    const maxMove = 50;
+    const maxMove = 100;
     const limitedX = Math.max(-maxMove, Math.min(maxMove, newX));
     const limitedY = Math.max(-maxMove, Math.min(maxMove, newY));
     
@@ -121,6 +123,36 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
     }
   };
 
+  // Adicionar listeners globais para mouse
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      const newX = e.clientX - dragStart.x;
+      const newY = e.clientY - dragStart.y;
+      
+      const maxMove = 100;
+      const limitedX = Math.max(-maxMove, Math.min(maxMove, newX));
+      const limitedY = Math.max(-maxMove, Math.min(maxMove, newY));
+      
+      setPosition({ x: limitedX, y: limitedY });
+    };
+
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false);
+    };
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+    };
+  }, [isDragging, dragStart]);
+
   return (
     <div className="space-y-4">
       {/* Preview Container */}
@@ -128,11 +160,8 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
         <div className="flex justify-center">
           <div 
             ref={containerRef}
-            className={`${getContainerSize()} ${getShapeClasses()} overflow-hidden border-2 border-dashed border-gray-300 relative cursor-move select-none`}
+            className={`${getContainerSize()} ${getShapeClasses()} overflow-hidden border-2 border-dashed border-gray-300 relative cursor-move select-none bg-white`}
             onMouseDown={handleMouseDown}
-            onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
@@ -140,7 +169,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
             {isVideo ? (
               <video
                 src={mediaUrl}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
                 style={{
                   transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                   transformOrigin: 'center'
@@ -155,7 +184,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
               <img
                 src={mediaUrl}
                 alt="Ajuste de posição"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover pointer-events-none"
                 style={{
                   transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
                   transformOrigin: 'center'
@@ -166,7 +195,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
           </div>
         </div>
         <p className="text-xs text-gray-500 text-center mt-2">
-          Arraste para ajustar a posição
+          Arraste para ajustar a posição • Use o slider para zoom
         </p>
       </div>
 
@@ -215,7 +244,7 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
           className="w-full"
         >
           <RotateCcw className="h-4 w-4 mr-2" />
-          Redefinir
+          Redefinir posição e zoom
         </Button>
       </div>
     </div>
