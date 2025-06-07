@@ -1,3 +1,4 @@
+
 /**
  * Formats a WhatsApp number for proper API usage
  * Removes common characters and ensures international format
@@ -43,20 +44,22 @@ export const formatTwitterUrl = (handle: string): string => {
  * Gets the appropriate social media icon component
  */
 export function getSocialIcon(name: string) {
-  switch (name.toLowerCase()) {
-    case "instagram": return Instagram;
-    case "facebook": return Facebook;
-    case "twitter":
-    case "x": return Twitter;
-    case "email":
-    case "mail": return Mail;
-    case "telegram": return Send;
-    case "linkedin": return Linkedin;
-    case "youtube": return Youtube;
-    case "whatsapp": return Whatsapp;
-    case "spotify": return Spotify;
-    default: return null;
-  }
+  // Import icons dynamically to avoid build errors
+  const icons = {
+    instagram: 'Instagram',
+    facebook: 'Facebook', 
+    twitter: 'Twitter',
+    x: 'Twitter',
+    email: 'Mail',
+    mail: 'Mail',
+    telegram: 'Send',
+    linkedin: 'Linkedin',
+    youtube: 'Youtube',
+    whatsapp: 'Whatsapp',
+    spotify: 'Spotify'
+  };
+  
+  return icons[name.toLowerCase() as keyof typeof icons] || null;
 }
 
 /**

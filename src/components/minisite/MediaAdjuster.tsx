@@ -1,7 +1,8 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, Minus, RotateCcw } from 'lucide-react';
+import { Slider } from '@/components/ui/slider';
+import { RotateCcw } from 'lucide-react';
 
 interface MediaAdjusterProps {
   mediaUrl: string;
@@ -28,8 +29,8 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
     setDragStart({ x: e.clientX - adjustment.x, y: e.clientY - adjustment.y });
   };
 
-  const handleZoom = (delta: number) => {
-    const newScale = Math.max(0.5, Math.min(3, adjustment.scale + delta));
+  const handleZoomChange = (value: number[]) => {
+    const newScale = value[0];
     const newAdjustment = { ...adjustment, scale: newScale };
     
     setAdjustment(newAdjustment);
@@ -128,28 +129,18 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
           )}
         </div>
 
-        <div className="flex items-center justify-center gap-4 mt-4">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleZoom(-0.1)}
-            disabled={adjustment.scale <= 0.5}
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          
-          <span className="text-sm font-medium min-w-[60px] text-center">
-            {Math.round(adjustment.scale * 100)}%
-          </span>
-          
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleZoom(0.1)}
-            disabled={adjustment.scale >= 3}
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
+        <div className="mt-4 space-y-2">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Zoom: {Math.round(adjustment.scale * 100)}%</span>
+          </div>
+          <Slider
+            value={[adjustment.scale]}
+            onValueChange={handleZoomChange}
+            min={0.5}
+            max={3}
+            step={0.1}
+            className="w-full"
+          />
         </div>
       </div>
     </div>

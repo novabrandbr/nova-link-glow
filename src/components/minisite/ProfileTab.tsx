@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
 import { 
   Select, 
   SelectContent, 
@@ -718,7 +719,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
               <Label>Degradê Personalizado</Label>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="gradientColor1">Primeira cor</Label>
+                  <Label htmlFor="gradientColor1">Cor A</Label>
                   <div className="flex items-center space-x-2">
                     <Input 
                       type="color"
@@ -735,7 +736,7 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="gradientColor2">Segunda cor</Label>
+                  <Label htmlFor="gradientColor2">Cor B</Label>
                   <div className="flex items-center space-x-2">
                     <Input 
                       type="color"
@@ -753,16 +754,14 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="gradientOpacity">Opacidade do degradê: {Math.round((profile.backgroundGradientOpacity || 1) * 100)}%</Label>
-                <Input 
-                  type="range"
-                  id="gradientOpacity"
-                  min="0"
-                  max="1"
-                  step="0.01"
-                  value={profile.backgroundGradientOpacity || 1}
-                  onChange={(e) => handleChange('backgroundGradientOpacity', parseFloat(e.target.value))}
-                  className="block w-full"
+                <Label htmlFor="gradientOpacity">Opacidade: {Math.round((profile.backgroundGradientOpacity || 1) * 100)}%</Label>
+                <Slider
+                  value={[profile.backgroundGradientOpacity || 1]}
+                  onValueChange={(value) => handleChange('backgroundGradientOpacity', value[0])}
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  className="w-full"
                 />
               </div>
             </div>
@@ -874,16 +873,14 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                       <Label htmlFor="videoMuted">Silenciar</Label>
                     </div>
                   </div>
-                  <Input 
-                    type="range"
-                    id="videoVolume"
-                    min="0"
-                    max="1"
-                    step="0.01"
+                  <Slider
+                    value={[profile.backgroundVideoVolume || 0.5]}
+                    onValueChange={(value) => handleChange('backgroundVideoVolume', value[0])}
                     disabled={profile.backgroundVideoMuted}
-                    value={profile.backgroundVideoVolume || 0.5}
-                    onChange={(e) => handleChange('backgroundVideoVolume', parseFloat(e.target.value))}
-                    className="block w-full"
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    className="w-full"
                   />
                 </div>
               )}
@@ -922,15 +919,13 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="overlayOpacity">Opacidade: {Math.round(profile.overlayOpacity * 100)}%</Label>
-                  <Input 
-                    type="range"
-                    id="overlayOpacity"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={profile.overlayOpacity}
-                    onChange={(e) => handleChange('overlayOpacity', parseFloat(e.target.value))}
-                    className="block w-full"
+                  <Slider
+                    value={[profile.overlayOpacity]}
+                    onValueChange={(value) => handleChange('overlayOpacity', value[0])}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    className="w-full"
                   />
                 </div>
               </div>
@@ -1032,43 +1027,37 @@ const ProfileTab: React.FC<ProfileTabProps> = ({ profile, setProfile }) => {
                 
                 <div className="space-y-2">
                   <Label htmlFor="visualEffectOpacity">Opacidade: {Math.round(profile.visualEffectOpacity * 100)}%</Label>
-                  <Input 
-                    type="range"
-                    id="visualEffectOpacity"
-                    min="0"
-                    max="1"
-                    step="0.01"
-                    value={profile.visualEffectOpacity}
-                    onChange={(e) => handleChange('visualEffectOpacity', parseFloat(e.target.value))}
-                    className="block w-full"
+                  <Slider
+                    value={[profile.visualEffectOpacity]}
+                    onValueChange={(value) => handleChange('visualEffectOpacity', value[0])}
+                    min={0}
+                    max={1}
+                    step={0.01}
+                    className="w-full"
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="visualEffectSpeed">Velocidade: {profile.visualEffectSpeed}x</Label>
-                  <Input 
-                    type="range"
-                    id="visualEffectSpeed"
-                    min="0.1"
-                    max="3"
-                    step="0.1"
-                    value={profile.visualEffectSpeed}
-                    onChange={(e) => handleChange('visualEffectSpeed', parseFloat(e.target.value))}
-                    className="block w-full"
+                  <Slider
+                    value={[profile.visualEffectSpeed]}
+                    onValueChange={(value) => handleChange('visualEffectSpeed', value[0])}
+                    min={0.1}
+                    max={3}
+                    step={0.1}
+                    className="w-full"
                   />
                 </div>
                 
                 <div className="space-y-2">
                   <Label htmlFor="visualEffectSize">Tamanho: {profile.visualEffectSize}x</Label>
-                  <Input 
-                    type="range"
-                    id="visualEffectSize"
-                    min="0.5"
-                    max="2"
-                    step="0.1"
-                    value={profile.visualEffectSize}
-                    onChange={(e) => handleChange('visualEffectSize', parseFloat(e.target.value))}
-                    className="block w-full"
+                  <Slider
+                    value={[profile.visualEffectSize]}
+                    onValueChange={(value) => handleChange('visualEffectSize', value[0])}
+                    min={0.5}
+                    max={2}
+                    step={0.1}
+                    className="w-full"
                   />
                 </div>
               </div>
