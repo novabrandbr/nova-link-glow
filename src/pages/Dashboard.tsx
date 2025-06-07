@@ -41,6 +41,7 @@ export type UserProfile = {
   username: string;
   bio: string;
   avatar?: string;
+  avatarType?: 'image' | 'video';
   avatarShape: 'circle' | 'square' | 'rounded' | 'triangle' | 'hexagon' | 'banner';
   avatarAdjustment?: {
     x: number;
@@ -56,6 +57,9 @@ export type UserProfile = {
   backgroundGradientColor1?: string;
   backgroundGradientColor2?: string;
   backgroundGradientOpacity?: number;
+  gradientColorA?: string;
+  gradientColorB?: string;
+  gradientOpacity?: number;
   backgroundImage?: string;
   backgroundVideo?: string;
   backgroundVideoMuted?: boolean;
@@ -70,6 +74,7 @@ export type UserProfile = {
   visualEffectSpeed: number;
   visualEffectSize: number;
   visualEffectCustomUrl?: string;
+  visualEffectCustomImage?: string;
   buttonColor: string;
   font: string;
   nameColor: string;
