@@ -25,16 +25,8 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault();
     setIsDragging(true);
     setDragStart({ x: e.clientX - adjustment.x, y: e.clientY - adjustment.y });
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    e.preventDefault();
-    const touch = e.touches[0];
-    setIsDragging(true);
-    setDragStart({ x: touch.clientX - adjustment.x, y: touch.clientY - adjustment.y });
   };
 
   const handleZoomChange = (value: number[]) => {
@@ -74,39 +66,18 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
       onAdjustmentChange(newAdjustment);
     };
 
-    const handleGlobalTouchMove = (e: TouchEvent) => {
-      if (!isDragging) return;
-      e.preventDefault();
-      
-      const touch = e.touches[0];
-      const newX = touch.clientX - dragStart.x;
-      const newY = touch.clientY - dragStart.y;
-      const newAdjustment = { ...adjustment, x: newX, y: newY };
-      
-      setAdjustment(newAdjustment);
-      onAdjustmentChange(newAdjustment);
-    };
-
     const handleGlobalMouseUp = () => {
-      setIsDragging(false);
-    };
-
-    const handleGlobalTouchEnd = () => {
       setIsDragging(false);
     };
 
     if (isDragging) {
       document.addEventListener('mousemove', handleGlobalMouseMove);
       document.addEventListener('mouseup', handleGlobalMouseUp);
-      document.addEventListener('touchmove', handleGlobalTouchMove, { passive: false });
-      document.addEventListener('touchend', handleGlobalTouchEnd);
     }
 
     return () => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
-      document.removeEventListener('touchmove', handleGlobalTouchMove);
-      document.removeEventListener('touchend', handleGlobalTouchEnd);
     };
   }, [isDragging, dragStart, adjustment, onAdjustmentChange]);
 
@@ -130,7 +101,6 @@ const MediaAdjuster: React.FC<MediaAdjusterProps> = ({
           ref={containerRef}
           className={`relative w-32 h-32 mx-auto border-2 border-dashed border-gray-300 overflow-hidden cursor-move ${getShapeClasses()}`}
           onMouseDown={handleMouseDown}
-          onTouchStart={handleTouchStart}
         >
           {isVideo ? (
             <video
